@@ -1,0 +1,161 @@
+import { Routes } from '@angular/router';
+
+import { MainLayout } from './layout/main-layout/main-layout';
+import { Home } from './pages/home/home';
+
+// Servicios (Cursos)
+import { ServicioList } from './pages/servicio/servicio-list/servicio-list';
+import { ServicioDetail } from './pages/servicio/servicio-detail/servicio-detail';
+import { ServicioAdminList } from './pages/servicio/servicio-admin-list/servicio-admin-list';
+import { ServicioCreatePage } from './pages/servicio/servicio-create-page/servicio-create-page';
+import { ServicioEditPage } from './pages/servicio/servicio-edit-page/servicio-edit-page';
+
+// Administración
+import { UsuarioCreatePage } from './pages/usuarios/usuario-create-page/usuario-create-page';
+import { UsuarioEditPage } from './pages/usuarios/usuario-edit-page/usuario-edit-page';
+import { UsuariosList } from './pages/usuarios/usuarios-list/usuarios-list';
+import { ProfesionalesList } from './pages/profesionales/profesionales-list/profesionales-list';
+import { ProfesionalDetail } from './pages/profesionales/profesional-detail/profesional-detail';
+import { ProfesionalCreatePage } from './pages/profesionales/profesional-create-page/profesional-create-page';
+import { ProfesionalEditPage } from './pages/profesionales/profesional-edit-page/profesional-edit-page';
+
+import { CategoriasList } from './pages/categorias/categorias-list/categorias-list';
+import { EspecialidadesList } from './pages/especialidades/especialidades-list/especialidades-list';
+
+import { CitasList } from './pages/citas/citas-list/citas-list';
+import { CitaDetail } from './pages/citas/cita-detail/cita-detail';
+
+import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
+import { CitaCreatePage } from './pages/citas/cita-create-page/cita-create-page';
+
+
+
+export const routes: Routes = [
+    {
+        path: '',
+        component: MainLayout,
+        children: [
+            {
+                path: '',
+                component: Home,
+                title: 'Inicio',
+            },
+
+            // =====================
+            // CURSOS (SERVICIOS)
+            // =====================
+
+            {
+                path: 'cursos',
+                component: ServicioList,
+                title: 'Catálogo de cursos',
+            },
+            {
+                path: 'cursos/:id',
+                component: ServicioDetail,
+                title: 'Detalle del curso',
+            },
+
+            // =====================
+            // PROFESIONALES
+            // =====================
+
+            {
+                path: 'profesionales/:id',
+                component: ProfesionalDetail,
+                title: 'Detalle del profesional',
+            },
+
+            // =====================
+            // ADMINISTRACIÓN
+            // =====================
+
+            {
+                path: 'admin/servicios',
+                component: ServicioAdminList,
+                title: 'Mantenimiento de cursos',
+            },
+            {
+                path: 'admin/servicios/crear',
+                component: ServicioCreatePage,
+                title: 'Registrar curso',
+            },
+            {
+                path: 'admin/servicios/editar/:id',
+                component: ServicioEditPage,
+                title: 'Actualizar curso',
+            },
+
+            {
+                path: 'admin/usuarios',
+                component: UsuariosList,
+                title: 'Gestión de usuarios',
+            },
+            {
+                path: 'admin/usuarios/crear',
+                component: UsuarioCreatePage,
+                title: 'Registrar usuario',
+            },
+            {
+                path: 'admin/usuarios/editar/:id',
+                component: UsuarioEditPage,
+                title: 'Actualizar usuario',
+            },
+
+            {
+                path: 'admin/profesionales',
+                component: ProfesionalesList,
+                title: 'Gestión de profesionales',
+            },
+            {
+                path: 'admin/profesionales/crear',
+                component: ProfesionalCreatePage,
+                title: 'Registrar profesional',
+            },
+            {
+                path: 'admin/profesionales/editar/:id',
+                component: ProfesionalEditPage,
+                title: 'Actualizar profesional',
+            },
+
+            {
+                path: 'admin/categorias',
+                component: CategoriasList,
+                title: 'Gestión de categorías',
+            },
+
+            {
+                path: 'admin/especialidades',
+                component: EspecialidadesList,
+                title: 'Gestión de especialidades',
+            },
+
+            {
+                path: 'admin/citas',
+                component: CitasList,
+                title: 'Gestión de citas',
+            },
+            {
+                path: 'admin/citas/crear',
+                component: CitaCreatePage,
+                title: 'Registrar cita',
+            },
+            {
+                path: 'admin/citas/:id',
+                component: CitaDetail,
+                title: 'Detalle de la cita',
+            },
+
+            {
+                path: 'admin/resenas',
+                component: ResenasList,
+                title: 'Gestión de reseñas',
+            },
+        ],
+    },
+
+    {
+        path: '**',
+        redirectTo: '',
+    },
+];

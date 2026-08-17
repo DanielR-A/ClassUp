@@ -1,0 +1,403 @@
+<mat-card class="service-form-card">
+    <mat-card-content>
+        <form class="service-form" (submit)="$event.preventDefault(); submit()">
+            <!-- =====================================================
+           INFORMACIÓN GENERAL
+      ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Información del servicio</h3>
+                        <p>
+                            Ingrese el nombre y la descripción del servicio
+                            profesional.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Nombre del servicio</mat-label>
+
+                        <input matInput type="text" placeholder="Ejemplo: Tutoría de Matemáticas"
+                            [formField]="servicioForm.nombre" />
+
+                        @if (
+                        servicioForm.nombre().touched() &&
+                        servicioForm.nombre().invalid()
+                        ) {
+                        <mat-error>
+                            {{ servicioForm.nombre().errors()[0].message }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Descripción</mat-label>
+
+                        <textarea matInput rows="5" placeholder="Describa detalladamente el servicio ofrecido"
+                            [formField]="servicioForm.descripcion"></textarea>
+
+                        <mat-hint align="end">
+                            {{ servicioModel().descripcion.length }}/500
+                        </mat-hint>
+
+                        @if (
+                        servicioForm.descripcion().touched() &&
+                        servicioForm.descripcion().invalid()
+                        ) {
+                        <mat-error>
+                            {{ servicioForm.descripcion().errors()[0].message }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </section>
+
+            <!-- =====================================================
+           PRECIO, DURACIÓN Y MODALIDAD
+      ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Detalles del servicio</h3>
+                        <p>
+                            Defina el precio, la duración y la modalidad en la que
+                            se ofrecerá.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid three-columns">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Precio</mat-label>
+
+                        <span matTextPrx>₡&nbsp;</span>
+
+                        <input matInput type="number" step="0.01" placeholder="15000"
+                            [formField]="servicioForm.precio" />
+
+                        @if (
+                        servicioForm.precio().touched() &&
+                        servicioForm.precio().invalid()
+                        ) {
+                        <mat-error>
+                            {{ servicioForm.precio().errors()[0].message }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Duración</mat-label>
+
+                        <input matInput type="number" step="1" placeholder="60"
+                            [formField]="servicioForm.duracionMinutos" />
+
+                        <span matTextSuffix>&nbsp;minutos</span>
+
+                        @if (
+                        servicioForm.duracionMinutos().touched() &&
+                        servicioForm.duracionMinutos().invalid()
+                        ) {
+                        <mat-error>
+                            {{
+                            servicioForm
+                            .duracionMinutos()
+                            .errors()[0]
+                            .message
+                            }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Modalidad</mat-label>
+
+                        <mat-select [formField]="servicioForm.modalidad">
+                            @for (modalidad of modalidades; track modalidad) {
+                            <mat-option [value]="modalidad">
+                                @switch (modalidad) {
+                                @case ('VIRTUAL') {
+                                Virtual
+                                }
+
+                                @case ('PRESENCIAL') {
+                                Presencial
+                                }
+
+                                @case ('MIXTA') {
+                                Mixta
+                                }
+                                }
+                            </mat-option>
+                            }
+                        </mat-select>
+
+                        @if (
+                        servicioForm.modalidad().touched() &&
+                        servicioForm.modalidad().invalid()
+                        ) {
+                        <mat-error>
+                            {{ servicioForm.modalidad().errors()[0].message }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </section>
+
+            <!-- =====================================================
+           PROFESIONAL Y CATEGORÍA
+      ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Clasificación y profesional</h3>
+                        <p>
+                            Seleccione el profesional responsable y la categoría
+                            del servicio.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-columns">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Profesional</mat-label>
+
+                        <mat-select [formField]="servicioForm.profesionalId">
+                            <mat-option [value]="null">
+                                Seleccione un profesional
+                            </mat-option>
+
+                            @for (
+                            profesional of profesionales();
+                            track profesional.id
+                            ) {
+                            <mat-option [value]="profesional.id">
+                                @if (profesional.usuario) {
+                                {{ profesional.usuario.nombre }}
+                                {{ profesional.usuario.apellidos }}
+                                —
+                                }
+
+                                {{ profesional.tituloProfesional }}
+                            </mat-option>
+                            }
+                        </mat-select>
+
+                        @if (
+                        servicioForm.profesionalId().touched() &&
+                        servicioForm.profesionalId().invalid()
+                        ) {
+                        <mat-error>
+                            {{
+                            servicioForm
+                            .profesionalId()
+                            .errors()[0]
+                            .message
+                            }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Categoría</mat-label>
+
+                        <mat-select [formField]="servicioForm.categoriaId">
+                            <mat-option [value]="null">
+                                Seleccione una categoría
+                            </mat-option>
+
+                            @for (categoria of categorias(); track categoria.id) {
+                            <mat-option [value]="categoria.id">
+                                {{ categoria.nombre }}
+                            </mat-option>
+                            }
+                        </mat-select>
+
+                        @if (
+                        servicioForm.categoriaId().touched() &&
+                        servicioForm.categoriaId().invalid()
+                        ) {
+                        <mat-error>
+                            {{
+                            servicioForm
+                            .categoriaId()
+                            .errors()[0]
+                            .message
+                            }}
+                        </mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </section>
+
+            <!-- =====================================================
+           ESPECIALIDADES
+      ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Especialidades</h3>
+                        <p>
+                            Seleccione una o varias especialidades relacionadas con
+                            este servicio.
+                        </p>
+                    </div>
+                </div>
+
+                @if (especialidades().length > 0) {
+                <div class="specialties-grid">
+                    @for (
+                    especialidad of especialidades();
+                    track especialidad.id
+                    ) {
+                    <div class="specialty-card" [class.specialty-card-active]="
+                    isEspecialidadSelected(especialidad.id)
+                    ">
+                        <mat-checkbox [checked]="
+                    isEspecialidadSelected(especialidad.id)
+                    " (change)="
+                    toggleEspecialidad(
+                    especialidad.id,
+                    $event.checked
+                    )
+                    ">
+                            {{ especialidad.nombre }}
+                        </mat-checkbox>
+
+                        @if (especialidad.descripcion) {
+                        <p class="specialty-description">
+                            {{ especialidad.descripcion }}
+                        </p>
+                        }
+                    </div>
+                    }
+                </div>
+                } @else {
+                <div class="empty-specialties">
+                    <mat-icon>school</mat-icon>
+
+                    <span>
+                        No hay especialidades disponibles.
+                    </span>
+                </div>
+                }
+
+                @if (
+                servicioForm.especialidadIds().touched() &&
+                servicioForm.especialidadIds().invalid()
+                ) {
+                <p class="section-error">
+                    {{
+                    servicioForm
+                    .especialidadIds()
+                    .errors()[0]
+                    .message
+                    }}
+                </p>
+                }
+            </section>
+
+            <!-- =====================================================
+           RESUMEN
+      ====================================================== -->
+            <section class="form-section summary-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Resumen</h3>
+                        <p>
+                            Verifique la información antes de guardar el servicio.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="service-summary">
+                    <div class="summary-item">
+                        <mat-icon>payments</mat-icon>
+
+                        <div>
+                            <span>Precio</span>
+                            <strong>
+                                ₡{{ servicioModel().precio }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>schedule</mat-icon>
+
+                        <div>
+                            <span>Duración</span>
+                            <strong>
+                                {{ servicioModel().duracionMinutos }} minutos
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>videocam</mat-icon>
+
+                        <div>
+                            <span>Modalidad</span>
+
+                            <strong>
+                                @switch (servicioModel().modalidad) {
+                                @case ('VIRTUAL') {
+                                Virtual
+                                }
+
+                                @case ('PRESENCIAL') {
+                                Presencial
+                                }
+
+                                @case ('MIXTA') {
+                                Mixta
+                                }
+                                }
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>school</mat-icon>
+
+                        <div>
+                            <span>Especialidades</span>
+                            <strong>
+                                {{ servicioModel().especialidadIds.length }}
+                                seleccionada(s)
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+           BOTONES
+      ====================================================== -->
+            <div class="form-actions">
+                <button mat-stroked-button color="accent" class="cancel-button" type="button"
+                    [disabled]="isSubmitting()" (click)="cancelar.emit()">
+                    <mat-icon>close</mat-icon>
+                    Cancelar
+                </button>
+
+                <button mat-flat-button type="submit" [color]="isEdit() ? 'accent' : 'primary'"
+                    [class.edit-button]="isEdit()" [class.create-button]="!isEdit()" [disabled]="isSubmitting()">
+                    @if (isSubmitting()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    <span>Guardando...</span>
+                    } @else {
+                    <mat-icon>
+                        {{ isEdit() ? 'edit' : 'add_circle' }}
+                    </mat-icon>
+
+                    <span>
+                        {{ isEdit() ? 'Actualizar servicio' : 'Registrar servicio' }}
+                    </span>
+                    }
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

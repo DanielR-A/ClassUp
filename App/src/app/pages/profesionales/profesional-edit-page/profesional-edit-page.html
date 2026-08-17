@@ -1,0 +1,30 @@
+<section class="page-container">
+    <header class="page-header">
+        <h1>Actualizar profesional</h1>
+
+        <p>
+            Modifique la información registrada del perfil profesional.
+        </p>
+    </header>
+
+    @if (loading()) {
+        <p>Cargando información del profesional...</p>
+    } @else {
+        @if (error()) {
+            <p class="error-message">
+                {{ error() }}
+            </p>
+        }
+
+        @if (profesional()) {
+            <app-profesional-form
+                [profesional]="profesional()"
+                [usuarios]="usuarios()"
+                [especialidades]="especialidades()"
+                [saving]="saving()"
+                (guardar)="guardar($event)"
+                (cancelar)="cancelar()"
+            />
+        }
+    }
+</section>

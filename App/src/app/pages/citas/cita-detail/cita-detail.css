@@ -1,0 +1,319 @@
+:host {
+    display: block;
+}
+
+/* =====================================================
+   ESTADOS
+===================================================== */
+
+.state {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    border: 1px dashed var(--mat-sys-outline-variant);
+    border-radius: 22px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.state mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: var(--mat-sys-primary);
+}
+
+.state.error mat-icon {
+    color: var(--mat-sys-error);
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.detail-header {
+    margin-bottom: 20px;
+}
+
+.back-button {
+    min-height: 42px;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.cita-detail-card {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+    display: flex;
+    gap: 24px;
+    padding: 32px;
+    background: color-mix(
+        in srgb,
+        var(--mat-sys-primary-container) 16%,
+        transparent
+    );
+}
+
+.hero-icon {
+    width: 88px;
+    height: 88px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+}
+
+.hero-icon mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.category {
+    display: inline-flex;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    font-size: .82rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.hero-content h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.description {
+    margin: 18px 0;
+    color: var(--mat-sys-on-surface-variant);
+    line-height: 1.7;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* =====================================================
+   CONTENIDO
+===================================================== */
+
+mat-card-content {
+    padding: 30px;
+}
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.detail-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 18px;
+    border-radius: 18px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.detail-item mat-icon {
+    color: var(--mat-sys-primary);
+}
+
+.detail-item span {
+    display: block;
+    margin-bottom: 6px;
+    font-size: .82rem;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.detail-item strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* =====================================================
+   SECCIONES
+===================================================== */
+
+.comments-section,
+.history-section,
+.review-section {
+    margin-top: 34px;
+}
+
+.comments-section h2,
+.history-section h2,
+.review-section h2 {
+    margin-bottom: 18px;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* =====================================================
+   COMENTARIOS
+===================================================== */
+
+.comments-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 18px;
+}
+
+.comment-card {
+    display: flex;
+    gap: 14px;
+    padding: 20px;
+    border-radius: 18px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.comment-card mat-icon {
+    color: var(--mat-sys-primary);
+}
+
+.comment-card span {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.comment-card p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+/* =====================================================
+   HISTORIAL
+===================================================== */
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.history-item {
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 18px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.history-item mat-icon {
+    color: var(--mat-sys-primary);
+}
+
+.history-item strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.history-item span {
+    display: block;
+    color: var(--mat-sys-on-surface-variant);
+    margin-bottom: 6px;
+}
+
+.history-item p {
+    margin: 6px 0;
+}
+
+.history-item small {
+    color: var(--mat-sys-outline);
+}
+
+/* =====================================================
+   RESEÑA
+===================================================== */
+
+.review-card {
+    padding: 22px;
+    border-radius: 18px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.review-score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.review-score mat-icon {
+    color: #ffc107;
+}
+
+.review-score strong {
+    font-size: 1.15rem;
+}
+
+.review-card p {
+    margin: 0;
+    line-height: 1.7;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .detail-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+
+    .comments-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .hero {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+    }
+
+    mat-card-content {
+        padding: 20px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

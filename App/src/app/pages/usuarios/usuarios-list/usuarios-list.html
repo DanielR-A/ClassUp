@@ -1,0 +1,430 @@
+<section class="admin-header">
+    <div>
+        <span class="eyebrow">
+            Administración
+        </span>
+
+        <h1>
+            Gestión de usuarios
+        </h1>
+    </div>
+
+    <a
+        mat-flat-button
+        color="primary"
+        routerLink="/admin/usuarios/crear"
+    >
+        <mat-icon>person_add</mat-icon>
+        Registrar usuario
+    </a>
+</section>
+
+<section class="admin-filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar usuario</mat-label>
+
+        <input
+            matInput
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="Nombre, correo, teléfono o cédula"
+        />
+
+        <mat-icon matSuffix>
+            search
+        </mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Rol</mat-label>
+
+        <mat-select
+            [ngModel]="roleSeleccionado()"
+            (ngModelChange)="roleSeleccionado.set($event)"
+        >
+            <mat-option [value]="null">
+                Todos
+            </mat-option>
+
+            @for (rol of roles; track rol.value) {
+                <mat-option [value]="rol.value">
+                    {{ rol.label }}
+                </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <button
+        mat-stroked-button
+        type="button"
+        class="secondary-button"
+        (click)="clearFilters()"
+    >
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar
+    </button>
+</section>
+
+<p class="summary">
+    {{ totalUsuarios() }} usuarios encontrados
+</p>
+
+@if (loading()) {
+    <div class="state">
+        <mat-spinner diameter="42"></mat-spinner>
+
+        <p>
+            Cargando usuarios...
+        </p>
+    </div>
+} @else if (error()) {
+    <div class="state error">
+        <mat-icon>error</mat-icon>
+
+        <p>
+            {{ error() }}
+        </p>
+    </div>
+} @else if (usuariosFiltrados().length === 0) {
+    <div class="state">
+        <mat-icon>search_off</mat-icon>
+
+        <p>
+            No se encontraron usuarios.
+        </p>
+    </div>
+} @else {
+    <div class="table-wrapper">
+        <table
+            mat-table
+            [dataSource]="usuariosFiltrados()"
+            class="admin-table"
+        >
+            <!-- ID -->
+            <ng-container matColumnDef="id">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    ID
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    {{ usuario.id }}
+                </td>
+            </ng-container>
+
+            <!-- USUARIO -->
+            <ng-container matColumnDef="usuario">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Usuario
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <strong>
+                        {{ usuario.nombre }}
+                        {{ usuario.apellidos }}
+                    </strong>
+
+                    @if (usuario.perfilProfesional) {
+                        <small>
+                            {{
+                                usuario
+                                    .perfilProfesional
+                                    .tituloProfesional
+                            }}
+                        </small>
+                    } @else {
+                        <small>
+                            Usuario de ClassUp
+                        </small>
+                    }
+                </td>
+            </ng-container>
+
+            <!-- CORREO -->
+            <ng-container matColumnDef="correo">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Correo
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <div class="cell-with-icon">
+                        <mat-icon>
+                            mail
+                        </mat-icon>
+
+                        <span>
+                            {{ usuario.correo }}
+                        </span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- TELÉFONO -->
+            <ng-container matColumnDef="telefono">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Teléfono
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <div class="cell-with-icon">
+                        <mat-icon>
+                            phone
+                        </mat-icon>
+
+                        <span>
+                            {{
+                                usuario.telefono ||
+                                'No registrado'
+                            }}
+                        </span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- CÉDULA -->
+            <ng-container matColumnDef="cedula">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Cédula
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <div class="cell-with-icon">
+                        <mat-icon>
+                            badge
+                        </mat-icon>
+
+                        <span>
+                            {{
+                                usuario.cedula ||
+                                'No registrada'
+                            }}
+                        </span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <!-- ROL -->
+            <ng-container matColumnDef="role">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Rol
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <mat-chip class="role-chip">
+                        <mat-icon>
+                            {{
+                                getRoleIcon(
+                                    usuario.role
+                                )
+                            }}
+                        </mat-icon>
+
+                        {{
+                            getRoleLabel(
+                                usuario.role
+                            )
+                        }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <!-- ESTADO -->
+            <ng-container matColumnDef="estado">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Estado
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <mat-chip
+                        [class.active-chip]="
+                            usuario.estado
+                        "
+                        [class.inactive-chip]="
+                            !usuario.estado
+                        "
+                    >
+                        <mat-icon>
+                            {{
+                                usuario.estado
+                                    ? 'check_circle'
+                                    : 'cancel'
+                            }}
+                        </mat-icon>
+
+                        {{
+                            usuario.estado
+                                ? 'Activo'
+                                : 'Inactivo'
+                        }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <!-- PERFIL PROFESIONAL -->
+            <ng-container matColumnDef="perfilProfesional">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Perfil profesional
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    @if (usuario.perfilProfesional) {
+                        <div class="professional-info">
+                            <mat-icon>
+                                school
+                            </mat-icon>
+
+                            <span>
+                                {{
+                                    usuario
+                                        .perfilProfesional
+                                        .tituloProfesional
+                                }}
+                            </span>
+                        </div>
+                    } @else {
+                        <span class="muted">
+                            No aplica
+                        </span>
+                    }
+                </td>
+            </ng-container>
+
+            <!-- FECHA DE REGISTRO -->
+            <ng-container matColumnDef="fechaRegistro">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Registro
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    {{
+                        usuario.createdAt
+                            | date:'dd/MM/yyyy'
+                    }}
+                </td>
+            </ng-container>
+
+            <!-- ACCIONES -->
+            <ng-container matColumnDef="acciones">
+                <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                >
+                    Acciones
+                </th>
+
+                <td
+                    mat-cell
+                    *matCellDef="let usuario"
+                >
+                    <div class="action-buttons">
+                        <a
+                            mat-icon-button
+                            [routerLink]="[
+                                '/admin/usuarios/editar',
+                                usuario.id
+                            ]"
+                            aria-label="Editar usuario"
+                        >
+                            <mat-icon>
+                                edit
+                            </mat-icon>
+                        </a>
+
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="status-button"
+                            [class.activate-button]="
+                                !usuario.estado
+                            "
+                            [class.deactivate-button]="
+                                usuario.estado
+                            "
+                            (click)="toggleEstado(usuario)"
+                        >
+                            <mat-icon>
+                                {{
+                                    usuario.estado
+                                        ? 'block'
+                                        : 'check_circle'
+                                }}
+                            </mat-icon>
+
+                            {{
+                                usuario.estado
+                                    ? 'Desactivar'
+                                    : 'Activar'
+                            }}
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr
+                mat-header-row
+                *matHeaderRowDef="displayedColumns"
+            ></tr>
+
+            <tr
+                mat-row
+                *matRowDef="
+                    let row;
+                    columns: displayedColumns
+                "
+            ></tr>
+        </table>
+    </div>
+}

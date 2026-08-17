@@ -1,0 +1,207 @@
+<section class="admin-header">
+    <div>
+        <span class="eyebrow">Administración</span>
+        <h1>Gestión de especialidades</h1>
+    </div>
+</section>
+
+<section class="admin-filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar especialidad</mat-label>
+
+        <input
+            matInput
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="Nombre o descripción"
+        />
+
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <button
+        mat-stroked-button
+        class="secondary-button"
+        type="button"
+        (click)="clearSearch()"
+    >
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar
+    </button>
+</section>
+
+<p class="summary">
+    {{ totalEspecialidades() }} especialidades encontradas
+</p>
+
+@if (loading()) {
+    <div class="state">
+        <mat-spinner diameter="42"></mat-spinner>
+        <p>Cargando especialidades...</p>
+    </div>
+} @else if (error()) {
+    <div class="state error">
+        <mat-icon>error</mat-icon>
+        <p>{{ error() }}</p>
+    </div>
+} @else if (especialidadesFiltradas().length === 0) {
+    <div class="state">
+        <mat-icon>search_off</mat-icon>
+        <p>No se encontraron especialidades.</p>
+    </div>
+} @else {
+    <div class="table-wrapper">
+        <table
+            mat-table
+            [dataSource]="especialidadesFiltradas()"
+            class="admin-table"
+        >
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>
+                    ID
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    {{ especialidad.id }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="especialidad">
+                <th mat-header-cell *matHeaderCellDef>
+                    Especialidad
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    <strong>
+                        {{ especialidad.nombre }}
+                    </strong>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef>
+                    Descripción
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    {{
+                        especialidad.descripcion ||
+                        'Sin descripción'
+                    }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="profesionales">
+                <th mat-header-cell *matHeaderCellDef>
+                    Profesionales
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    {{
+                        getCantidadProfesionales(
+                            especialidad
+                        )
+                    }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="servicios">
+                <th mat-header-cell *matHeaderCellDef>
+                    Servicios
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    {{
+                        getCantidadServicios(
+                            especialidad
+                        )
+                    }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef>
+                    Estado
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    <mat-chip
+                        [class.active-chip]="especialidad.estado"
+                        [class.inactive-chip]="!especialidad.estado"
+                    >
+                        <mat-icon>
+                            {{
+                                especialidad.estado
+                                    ? 'check_circle'
+                                    : 'cancel'
+                            }}
+                        </mat-icon>
+
+                        {{
+                            especialidad.estado
+                                ? 'Activo'
+                                : 'Inactivo'
+                        }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="fechaRegistro">
+                <th mat-header-cell *matHeaderCellDef>
+                    Registro
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    {{
+                        especialidad.createdAt
+                            | date:'dd/MM/yyyy'
+                    }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef>
+                    Acciones
+                </th>
+
+                <td mat-cell *matCellDef="let especialidad">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="status-button"
+                        [class.activate-button]="!especialidad.estado"
+                        [class.deactivate-button]="especialidad.estado"
+                        (click)="toggleEstado(especialidad)"
+                    >
+                        <mat-icon>
+                            {{
+                                especialidad.estado
+                                    ? 'block'
+                                    : 'check_circle'
+                            }}
+                        </mat-icon>
+
+                        {{
+                            especialidad.estado
+                                ? 'Desactivar'
+                                : 'Activar'
+                        }}
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr
+                mat-header-row
+                *matHeaderRowDef="displayedColumns"
+            ></tr>
+
+            <tr
+                mat-row
+                *matRowDef="
+                    let row;
+                    columns: displayedColumns
+                "
+            ></tr>
+        </table>
+    </div>
+}

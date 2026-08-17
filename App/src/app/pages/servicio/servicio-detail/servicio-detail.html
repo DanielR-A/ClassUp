@@ -1,0 +1,185 @@
+@if (loading()) {
+<div class="state">
+    <mat-spinner diameter="42"></mat-spinner>
+    <p>Cargando servicio...</p>
+</div>
+} @else if (error()) {
+<div class="state error">
+    <mat-icon>error</mat-icon>
+    <p>{{ error() }}</p>
+</div>
+} @else if (servicio(); as servicio) {
+
+<section class="detail-header">
+    <a mat-stroked-button routerLink="/servicios" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Volver al catálogo
+    </a>
+</section>
+
+<mat-card class="service-detail-card">
+
+    <div class="hero">
+
+        <div class="hero-icon">
+            <mat-icon>school</mat-icon>
+        </div>
+
+        <div class="hero-content">
+
+            <span class="category">
+                {{ servicio.categoria?.nombre || 'Sin categoría' }}
+            </span>
+
+            <h1>
+                {{ servicio.nombre }}
+            </h1>
+
+            <p class="description">
+                {{ servicio.descripcion }}
+            </p>
+
+            <div class="chips">
+
+                <mat-chip>
+                    <mat-icon>
+                        {{ getModalidadIcon(servicio.modalidad) }}
+                    </mat-icon>
+
+                    {{ getModalidadLabel(servicio.modalidad) }}
+                </mat-chip>
+
+                <mat-chip>
+                    <mat-icon>schedule</mat-icon>
+
+                    {{ servicio.duracionMinutos }} minutos
+                </mat-chip>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <mat-card-content>
+
+        <section class="detail-grid">
+
+            <article class="detail-item">
+
+                <mat-icon>payments</mat-icon>
+
+                <div>
+                    <span>Precio</span>
+
+                    <strong>
+                        ₡{{ servicio.precio }}
+                    </strong>
+                </div>
+
+            </article>
+
+            <article class="detail-item">
+
+                <mat-icon>person</mat-icon>
+
+                <div>
+
+                    <span>Profesional</span>
+
+                    <strong>
+                        {{
+                        servicio.profesional?.usuario?.nombre
+                        }}
+                        {{
+                        servicio.profesional?.usuario?.apellidos
+                        }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+            <article class="detail-item">
+
+                <mat-icon>category</mat-icon>
+
+                <div>
+
+                    <span>Categoría</span>
+
+                    <strong>
+                        {{ servicio.categoria?.nombre }}
+                    </strong>
+
+                </div>
+
+            </article>
+
+        </section>
+
+        @if (servicio.especialidades?.length) {
+
+        <section class="especialidades">
+
+            <h2>Especialidades</h2>
+
+            <div class="chips">
+
+                @for (especialidad of servicio.especialidades; track especialidad.id) {
+
+                <mat-chip>
+
+                    {{ especialidad.nombre }}
+
+                </mat-chip>
+
+                }
+
+            </div>
+
+        </section>
+
+        }
+
+
+
+
+
+        <!-- QR -->
+        @if (qrValue()) {
+        <section class="qr-section">
+            <div class="qr-information">
+                <span class="qr-eyebrow">
+                    Compartir curso
+                </span>
+
+                <h2>
+                    Código QR
+                </h2>
+
+                <p>
+                    Escanee este código para consultar la información pública del curso
+                    <strong>{{ servicio.nombre }}</strong>.
+                </p>
+            </div>
+
+            <div class="qr-container">
+                <qrcode [qrdata]="qrValue()" [width]="220" [errorCorrectionLevel]="'M'" [allowEmptyString]="false"
+                    aria-label="Código QR del curso" title="Código QR del curso"></qrcode>
+
+            </div>
+        </section>
+        }
+
+
+
+
+
+
+
+    </mat-card-content>
+
+</mat-card>
+
+}

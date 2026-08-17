@@ -1,0 +1,368 @@
+:host {
+    display: block;
+}
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.page-header {
+    margin-bottom: 32px;
+}
+
+.eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: var(--mat-sys-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.page-header p {
+    max-width: 760px;
+    margin: 10px 0 0;
+    color: var(--mat-sys-on-surface-variant);
+    line-height: 1.6;
+}
+
+/* =====================================================
+   FILTROS
+===================================================== */
+
+.filters {
+    display: grid;
+    grid-template-columns:
+        minmax(260px, 2fr)
+        minmax(180px, 1fr)
+        minmax(180px, 1fr)
+        auto;
+    align-items: start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.filters mat-form-field {
+    width: 100%;
+}
+
+.primary-button {
+    min-width: 120px;
+    min-height: 56px;
+}
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.result-summary {
+    margin-bottom: 20px;
+    color: var(--mat-sys-on-surface-variant);
+    font-weight: 600;
+}
+
+/* =====================================================
+   ESTADOS
+===================================================== */
+
+.state {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    border: 1px dashed var(--mat-sys-outline-variant);
+    border-radius: 20px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.state mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: var(--mat-sys-primary);
+}
+
+.state.error mat-icon {
+    color: var(--mat-sys-error);
+}
+
+/* =====================================================
+   GRID DE CITAS
+===================================================== */
+
+.citas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: stretch;
+}
+
+/* =====================================================
+   TARJETA DE CITA
+===================================================== */
+
+.cita-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--mat-sys-surface-container-low);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.cita-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--mat-sys-primary);
+    box-shadow: var(--mat-sys-level2);
+}
+
+.cita-card mat-card-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 24px;
+}
+
+/* =====================================================
+   CABECERA DE LA TARJETA
+===================================================== */
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.category,
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.category {
+    color: var(--mat-sys-on-primary-container);
+    background: var(--mat-sys-primary-container);
+}
+
+.status {
+    color: var(--mat-sys-on-tertiary-container);
+    background: var(--mat-sys-tertiary-container);
+}
+
+/* =====================================================
+   ICONO DE LA CITA
+===================================================== */
+
+.cita-icon {
+    width: 62px;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 50%;
+    color: var(--mat-sys-on-primary-container);
+    background: var(--mat-sys-primary-container);
+}
+
+.cita-icon mat-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+}
+
+/* =====================================================
+   TÍTULO
+===================================================== */
+
+.cita-card h2 {
+    margin: 0 0 20px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+/* =====================================================
+   CLIENTE Y PROFESIONAL
+===================================================== */
+
+.people-info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.person-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.person-row mat-icon {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: var(--mat-sys-primary);
+}
+
+.person-row div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.person-row span {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.person-row strong {
+    overflow-wrap: anywhere;
+    color: var(--mat-sys-on-surface);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* =====================================================
+   FECHA Y HORARIO
+===================================================== */
+
+.appointment-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    color: var(--mat-sys-on-surface);
+    background: var(--mat-sys-surface-container);
+}
+
+.appointment-date mat-icon {
+    flex: 0 0 auto;
+    color: var(--mat-sys-primary);
+}
+
+.appointment-date span {
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+}
+
+/* =====================================================
+   MONTO Y MODALIDAD
+===================================================== */
+
+.cita-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: auto;
+}
+
+.cita-meta div {
+    min-width: 0;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--mat-sys-surface-container);
+}
+
+.cita-meta span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.cita-meta strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: var(--mat-sys-on-surface);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* =====================================================
+   ACCIONES
+===================================================== */
+
+.cita-card mat-card-actions {
+    padding: 0 24px 24px;
+}
+
+.view-icon-button {
+    width: 100%;
+    min-height: 42px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1100px) {
+    .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .primary-button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .citas-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .filters {
+        grid-template-columns: 1fr;
+    }
+
+    .primary-button {
+        grid-column: auto;
+    }
+
+    .card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .cita-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .cita-card mat-card-content {
+        padding: 18px;
+    }
+
+    .cita-card mat-card-actions {
+        padding: 0 18px 18px;
+    }
+}

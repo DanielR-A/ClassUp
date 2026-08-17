@@ -1,0 +1,21 @@
+.status-button {
+    min-width: 138px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.activate-button {
+    border-color: #16a34a;
+    color: #166534;
+}
+
+.deactivate-button {
+    border-color: #dc2626;
+    color: #991b1b;
+}
+
+.status-button mat-spinner {
+    display: inline-block;
+}

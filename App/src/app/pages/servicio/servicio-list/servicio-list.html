@@ -1,0 +1,149 @@
+<section class="page-header">
+    <span class="eyebrow">Catálogo</span>
+
+    <h1>Servicios disponibles</h1>
+
+    <p>
+        Explora los servicios académicos disponibles y encuentra el que mejor se adapte a tus necesidades.
+    </p>
+</section>
+
+<section class="filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar servicio</mat-label>
+
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)"
+            placeholder="Ejemplo: matemáticas, tutoría, programación" />
+
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Categoría</mat-label>
+
+        <mat-select [ngModel]="categoriaId()" (ngModelChange)="categoriaId.set($event)">
+            <mat-option [value]="null">
+                Todas
+            </mat-option>
+
+            @for (categoria of categorias(); track categoria.id) {
+            <mat-option [value]="categoria.id">
+                {{ categoria.nombre }}
+            </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button class="primary-button" type="button" (click)="clearFilters()">
+        Limpiar
+    </button>
+</section>
+
+<div class="result-summary">
+    {{ totalServicios() }} servicios encontrados
+</div>
+
+@if (loading()) {
+<div class="state">
+    <mat-spinner diameter="42" />
+    <p>Cargando servicios...</p>
+</div>
+} @else if (error()) {
+<div class="state error">
+    <mat-icon>error</mat-icon>
+    <p>{{ error() }}</p>
+</div>
+} @else if (serviciosFiltrados().length === 0) {
+<div class="state">
+    <mat-icon>search_off</mat-icon>
+
+    <p>
+        No hay servicios disponibles con los filtros seleccionados.
+    </p>
+</div>
+} @else {
+<section class="services-grid">
+    @for (servicio of serviciosFiltrados(); track servicio.id) {
+    <mat-card class="service-card">
+        <mat-card-content>
+            <div class="card-header">
+                <span class="category">
+                    {{
+                    servicio.categoria?.nombre ||
+                    'Sin categoría'
+                    }}
+                </span>
+
+                <span class="status">
+                    {{
+                    servicio.modalidad === 'VIRTUAL'
+                    ? 'Virtual'
+                    : servicio.modalidad === 'PRESENCIAL'
+                    ? 'Presencial'
+                    : 'Mixta'
+                    }}
+                </span>
+            </div>
+
+            <div class="service-icon">
+                <mat-icon>school</mat-icon>
+            </div>
+
+            <h2>
+                {{ servicio.nombre }}
+            </h2>
+
+            <p class="description">
+                {{
+                servicio.descripcion ||
+                'Este servicio no tiene descripción disponible.'
+                }}
+            </p>
+
+            <div class="professional">
+                <mat-icon>person</mat-icon>
+
+                <span>
+                    @if (
+                    servicio.profesional?.usuario?.nombre ||
+                    servicio.profesional?.usuario?.apellidos
+                    ) {
+                    {{ servicio.profesional?.usuario?.nombre }}
+                    {{ servicio.profesional?.usuario?.apellidos }}
+                    } @else {
+                    Profesional no asignado
+                    }
+                </span>
+            </div>
+
+            <div class="service-meta">
+                <div>
+                    <span>Precio</span>
+
+                    <strong>
+                        ₡{{ servicio.precio }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Duración</span>
+
+                    <strong>
+                        {{ servicio.duracionMinutos }} minutos
+                    </strong>
+                </div>
+            </div>
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+            <a mat-stroked-button color="primary" 
+            class="view-icon-button" 
+            [routerLink]="['/cursos', servicio.id]">
+                Ver detalle
+                <mat-icon>more_horiz</mat-icon>
+            </a>
+        </mat-card-actions>
+    </mat-card>
+    }
+</section>
+}

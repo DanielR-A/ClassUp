@@ -1,0 +1,239 @@
+<section class="admin-header">
+    <div>
+        <span class="eyebrow">Administración</span>
+        <h1>Gestión de reseñas</h1>
+    </div>
+</section>
+
+<section class="admin-filters">
+
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar reseña</mat-label>
+
+        <input
+            matInput
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="Cliente, profesional o comentario"
+        />
+
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Puntuación</mat-label>
+
+        <mat-select
+            [ngModel]="puntuacionSeleccionada()"
+            (ngModelChange)="puntuacionSeleccionada.set($event)"
+        >
+            <mat-option [value]="null">
+                Todas
+            </mat-option>
+
+            @for (item of puntuaciones; track item) {
+                <mat-option [value]="item">
+                    {{ item }} estrellas
+                </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <button
+        mat-stroked-button
+        class="secondary-button"
+        (click)="clearFilters()"
+    >
+        Limpiar
+    </button>
+
+</section>
+
+<div class="summary">
+
+    <span>
+        {{ totalResenas() }} reseñas encontradas
+    </span>
+
+    <span class="average-score">
+
+        Promedio:
+        {{ promedioPuntuacion().toFixed(1) }}
+
+        <mat-icon>
+            star
+        </mat-icon>
+
+    </span>
+
+</div>
+
+@if (loading()) {
+
+<div class="state">
+    <mat-spinner diameter="42" />
+    <p>Cargando reseñas...</p>
+</div>
+
+} @else if (error()) {
+
+<div class="state error">
+    <mat-icon>error</mat-icon>
+    <p>{{ error() }}</p>
+</div>
+
+} @else if (resenasFiltradas().length === 0) {
+
+<div class="state">
+    <mat-icon>search_off</mat-icon>
+    <p>No se encontraron reseñas.</p>
+</div>
+
+} @else {
+
+<div class="table-wrapper">
+
+    <table
+        mat-table
+        [dataSource]="resenasFiltradas()"
+        class="admin-table"
+    >
+
+        <ng-container matColumnDef="id">
+
+            <th mat-header-cell *matHeaderCellDef>
+                ID
+            </th>
+
+            <td mat-cell *matCellDef="let resena">
+                {{ resena.id }}
+            </td>
+
+        </ng-container>
+
+        <ng-container matColumnDef="cliente">
+
+            <th mat-header-cell *matHeaderCellDef>
+                Cliente
+            </th>
+
+            <td mat-cell *matCellDef="let resena">
+
+                @if (resena.cliente) {
+
+                    <strong>
+                        {{ resena.cliente.nombre }}
+                        {{ resena.cliente.apellidos }}
+                    </strong>
+
+                } @else {
+
+                    <span class="muted">
+                        No disponible
+                    </span>
+
+                }
+
+            </td>
+
+        </ng-container>
+
+        <ng-container matColumnDef="profesional">
+
+            <th mat-header-cell *matHeaderCellDef>
+                Profesional
+            </th>
+
+            <td mat-cell *matCellDef="let resena">
+
+                @if (resena.profesional?.usuario) {
+
+                    <strong>
+                        {{ resena.profesional.usuario.nombre }}
+                        {{ resena.profesional.usuario.apellidos }}
+                    </strong>
+
+                } @else {
+
+                    <span class="muted">
+                        No disponible
+                    </span>
+
+                }
+
+            </td>
+
+        </ng-container>
+
+        <ng-container matColumnDef="puntuacion">
+
+            <th mat-header-cell *matHeaderCellDef>
+                Puntuación
+            </th>
+
+            <td mat-cell *matCellDef="let resena">
+
+                <div class="stars">
+
+                    @for (star of getEstrellas(resena.puntuacion); track star) {
+                        <mat-icon class="star-filled">
+                            star
+                        </mat-icon>
+                    }
+
+                    @for (star of getEstrellasVacias(resena.puntuacion); track star) {
+                        <mat-icon class="star-empty">
+                            star_outline
+                        </mat-icon>
+                    }
+
+                </div>
+
+            </td>
+
+        </ng-container>
+
+        <ng-container matColumnDef="comentario">
+
+            <th mat-header-cell *matHeaderCellDef>
+                Comentario
+            </th>
+
+            <td mat-cell *matCellDef="let resena">
+
+                {{ resena.comentario || 'Sin comentario' }}
+
+            </td>
+
+        </ng-container>
+
+        <ng-container matColumnDef="fecha">
+
+            <th mat-header-cell *matHeaderCellDef>
+                Fecha
+            </th>
+
+            <td mat-cell *matCellDef="let resena">
+                {{ resena.createdAt | date:'dd/MM/yyyy' }}
+            </td>
+
+        </ng-container>
+
+        <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns"
+        ></tr>
+
+        <tr
+            mat-row
+            *matRowDef="
+                let row;
+                columns: displayedColumns
+            "
+        ></tr>
+
+    </table>
+
+</div>
+
+}

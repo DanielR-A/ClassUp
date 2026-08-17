@@ -1,0 +1,332 @@
+<section class="admin-header">
+    <div>
+        <span class="eyebrow">Administración</span>
+
+        <h1>Gestión de profesionales</h1>
+
+        <p class="header-description">
+            Administra los perfiles, especialidades y disponibilidad
+            de los profesionales registrados.
+        </p>
+    </div>
+
+    <a mat-stroked-button color="primary" class="create-icon-button" routerLink="/admin/profesionales/crear">
+        <mat-icon>person_add</mat-icon>
+        Nuevo profesional
+    </a>
+</section>
+
+<section class="admin-filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar profesional</mat-label>
+
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)"
+            placeholder="Nombre, título, correo o especialidad" />
+
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Modalidad</mat-label>
+
+        <mat-select [ngModel]="modalidadSeleccionada()" (ngModelChange)="modalidadSeleccionada.set($event)">
+            <mat-option [value]="null">
+                Todas las modalidades
+            </mat-option>
+
+            @for (
+            modalidad of modalidades;
+            track modalidad.value
+            ) {
+            <mat-option [value]="modalidad.value">
+                {{ modalidad.label }}
+            </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button type="button" class="secondary-button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar
+    </button>
+</section>
+
+<section class="summary-section">
+    <p class="summary">
+        {{ totalProfesionales() }}
+        {{
+        totalProfesionales() === 1
+        ? 'profesional encontrado'
+        : 'profesionales encontrados'
+        }}
+    </p>
+
+    <div class="summary-stats">
+        <span class="summary-stat available">
+            <mat-icon>check_circle</mat-icon>
+            {{ totalDisponibles() }} disponibles
+        </span>
+
+        <span class="summary-stat unavailable">
+            <mat-icon>block</mat-icon>
+            {{ totalNoDisponibles() }} no disponibles
+        </span>
+    </div>
+</section>
+
+@if (loading()) {
+<div class="state">
+    <mat-spinner diameter="42"></mat-spinner>
+
+    <p>Cargando profesionales...</p>
+</div>
+} @else if (error()) {
+<div class="state error">
+    <mat-icon>error</mat-icon>
+
+    <p>{{ error() }}</p>
+
+    <button mat-stroked-button type="button" (click)="loadProfesionales()">
+        <mat-icon>refresh</mat-icon>
+        Intentar nuevamente
+    </button>
+</div>
+} @else if (profesionalesFiltrados().length === 0) {
+<div class="state">
+    <mat-icon>person_search</mat-icon>
+
+    <p>No se encontraron profesionales.</p>
+
+    <button mat-stroked-button type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar filtros
+    </button>
+</div>
+} @else {
+<section class="professionals-grid">
+    @for (
+    profesional of profesionalesFiltrados();
+    track profesional.id
+    ) {
+    <mat-card class="professional-card">
+        <div class="professional-card-header">
+            <div class="profile-image-wrapper">
+                <img class="profile-image" [src]="
+                                profesional.imagenPerfil ||
+                                'profile-not-found.jpg'
+                            " [alt]="
+                                'Fotografía de ' +
+                                getNombreCompleto(profesional)
+                            " />
+
+                <span class="availability-indicator" [class.available]="profesional.disponible"
+                    [class.unavailable]="!profesional.disponible" [attr.title]="
+                                profesional.disponible
+                                    ? 'Disponible'
+                                    : 'No disponible'
+                            "></span>
+            </div>
+
+            <div class="professional-main-info">
+                <div class="professional-title-row">
+                    <div>
+                        <h2>
+                            {{ getNombreCompleto(profesional) }}
+                        </h2>
+
+                        <p class="professional-title">
+                            {{ profesional.tituloProfesional }}
+                        </p>
+                    </div>
+
+                    <span class="status-badge" [class.status-active]="
+                                    profesional.disponible
+                                " [class.status-inactive]="
+                                    !profesional.disponible
+                                ">
+                        <mat-icon>
+                            {{
+                            profesional.disponible
+                            ? 'check_circle'
+                            : 'block'
+                            }}
+                        </mat-icon>
+
+                        {{
+                        profesional.disponible
+                        ? 'Disponible'
+                        : 'No disponible'
+                        }}
+                    </span>
+                </div>
+
+                @if (profesional.usuario?.correo) {
+                <p class="professional-email">
+                    <mat-icon>mail</mat-icon>
+
+                    {{ profesional.usuario?.correo }}
+                </p>
+                }
+            </div>
+        </div>
+
+        <mat-card-content>
+            <p class="professional-description">
+                {{
+                profesional.descripcion ||
+                'Sin descripción profesional registrada.'
+                }}
+            </p>
+
+            <div class="professional-details">
+                <div class="detail-item">
+                    <mat-icon>workspace_premium</mat-icon>
+
+                    <div>
+                        <span class="detail-label">
+                            Experiencia
+                        </span>
+
+                        <strong>
+                            {{ profesional.annosExperiencia }}
+                            {{
+                            profesional.annosExperiencia === 1
+                            ? 'año'
+                            : 'años'
+                            }}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <mat-icon>
+                        {{
+                        getModalidadIcon(
+                        profesional.modalidad
+                        )
+                        }}
+                    </mat-icon>
+
+                    <div>
+                        <span class="detail-label">
+                            Modalidad
+                        </span>
+
+                        <strong>
+                            {{
+                            getModalidadLabel(
+                            profesional.modalidad
+                            )
+                            }}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <mat-icon>payments</mat-icon>
+
+                    <div>
+                        <span class="detail-label">
+                            Tarifa base
+                        </span>
+
+                        <strong>
+                            ₡{{ profesional.tarifaBase }}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <mat-icon>location_on</mat-icon>
+
+                    <div>
+                        <span class="detail-label">
+                            Ubicación
+                        </span>
+
+                        <strong>
+                            {{ getUbicacion(profesional) }}
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="specialties-section">
+                <span class="section-label">
+                    Especialidades
+                </span>
+
+                @if (profesional.especialidades?.length) {
+                <mat-chip-set aria-label="Especialidades del profesional">
+                    @for (
+                    especialidad of
+                    profesional.especialidades;
+                    track especialidad.id
+                    ) {
+                    <mat-chip>
+                        {{ especialidad.nombre }}
+                    </mat-chip>
+                    }
+                </mat-chip-set>
+                } @else {
+                <span class="muted">
+                    Sin especialidades registradas
+                </span>
+                }
+            </div>
+
+            <div class="availability-control">
+                <div>
+                    <span class="section-label">
+                        Disponibilidad
+                    </span>
+
+                    <p>
+                        {{
+                        profesional.disponible
+                        ? 'El profesional acepta nuevas citas.'
+                        : 'El profesional no acepta nuevas citas.'
+                        }}
+                    </p>
+                </div>
+
+                <mat-slide-toggle [checked]="profesional.disponible" [disabled]="estaActualizando(profesional.id)"
+                    (change)="toggleDisponibilidad(profesional)" [attr.aria-label]="
+        profesional.disponible
+            ? 'Desactivar disponibilidad'
+            : 'Activar disponibilidad'
+    ">
+                    @if (estaActualizando(profesional.id)) {
+                    Actualizando...
+                    } @else {
+                    {{
+                    profesional.disponible
+                    ? 'Disponible'
+                    : 'No disponible'
+                    }}
+                    }
+                </mat-slide-toggle>
+            </div>
+        </mat-card-content>
+
+        <mat-card-actions class="professional-actions">
+            <a mat-stroked-button color="primary" [routerLink]="[
+        '/profesionales',
+        profesional.id
+    ]">
+                <mat-icon>visibility</mat-icon>
+                Ver detalle
+            </a>
+
+            <a mat-stroked-button color="accent" [routerLink]="[
+                            '/admin/profesionales/editar',
+                            profesional.id
+                        ]">
+                <mat-icon>edit</mat-icon>
+                Editar
+            </a>
+        </mat-card-actions>
+    </mat-card>
+    }
+</section>
+}

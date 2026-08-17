@@ -1,0 +1,379 @@
+@if (loading()) {
+    <div class="state">
+        <mat-spinner diameter="42"></mat-spinner>
+
+        <p>Cargando profesional...</p>
+    </div>
+} @else if (error()) {
+    <div class="state error">
+        <mat-icon>error</mat-icon>
+
+        <p>{{ error() }}</p>
+    </div>
+} @else if (profesional(); as profesional) {
+    <section class="detail-header">
+        <a
+            mat-stroked-button
+            routerLink="/admin/profesionales"
+            class="back-button"
+        >
+            <mat-icon>arrow_back</mat-icon>
+            Volver a profesionales
+        </a>
+    </section>
+
+    <mat-card class="professional-detail-card">
+        <div class="hero">
+            <div class="profile-wrapper">
+                <img
+                    class="profile-image"
+                    [src]="getImagenPerfil(profesional)"
+                    [alt]="
+                        'Fotografía de ' +
+                        getNombreCompleto(profesional)
+                    "
+                />
+
+                <span
+                    class="availability-indicator"
+                    [class.available]="profesional.disponible"
+                    [class.unavailable]="!profesional.disponible"
+                ></span>
+            </div>
+
+            <div class="hero-content">
+                <span
+                    class="availability"
+                    [class.available-chip]="
+                        profesional.disponible
+                    "
+                    [class.unavailable-chip]="
+                        !profesional.disponible
+                    "
+                >
+                    <mat-icon>
+                        {{
+                            getDisponibilidadIcon(
+                                profesional.disponible
+                            )
+                        }}
+                    </mat-icon>
+
+                    {{
+                        getDisponibilidadLabel(
+                            profesional.disponible
+                        )
+                    }}
+                </span>
+
+                <h1>
+                    {{ getNombreCompleto(profesional) }}
+                </h1>
+
+                <span class="professional-title">
+                    {{ profesional.tituloProfesional }}
+                </span>
+
+                <p class="description">
+                    {{ profesional.descripcion }}
+                </p>
+
+                <div class="chips">
+                    <mat-chip>
+                        <mat-icon>
+                            {{
+                                getModalidadIcon(
+                                    profesional.modalidad
+                                )
+                            }}
+                        </mat-icon>
+
+                        {{
+                            getModalidadLabel(
+                                profesional.modalidad
+                            )
+                        }}
+                    </mat-chip>
+
+                    <mat-chip>
+                        <mat-icon>workspace_premium</mat-icon>
+
+                        {{
+                            getExperienciaLabel(
+                                profesional.annosExperiencia
+                            )
+                        }}
+                    </mat-chip>
+                </div>
+            </div>
+        </div>
+
+        <mat-card-content>
+            <section class="detail-grid">
+                <article class="detail-item">
+                    <mat-icon>payments</mat-icon>
+
+                    <div>
+                        <span>Tarifa base</span>
+
+                        <strong>
+                            ₡{{ profesional.tarifaBase }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>location_on</mat-icon>
+
+                    <div>
+                        <span>Ubicación</span>
+
+                        <strong>
+                            {{ getUbicacion(profesional) }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>mail</mat-icon>
+
+                    <div>
+                        <span>Correo electrónico</span>
+
+                        <strong>
+                            {{
+                                profesional.usuario?.correo ||
+                                    'Correo no registrado'
+                            }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>phone</mat-icon>
+
+                    <div>
+                        <span>Teléfono</span>
+
+                        <strong>
+                            {{
+                                profesional.usuario?.telefono ||
+                                    'Teléfono no registrado'
+                            }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>
+                        {{
+                            getDisponibilidadIcon(
+                                profesional.disponible
+                            )
+                        }}
+                    </mat-icon>
+
+                    <div>
+                        <span>Disponibilidad</span>
+
+                        <strong>
+                            {{
+                                getDisponibilidadLabel(
+                                    profesional.disponible
+                                )
+                            }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>badge</mat-icon>
+
+                    <div>
+                        <span>Rol</span>
+
+                        <strong>
+                            {{
+                                profesional.usuario?.role ||
+                                    'PROFESIONAL'
+                            }}
+                        </strong>
+                    </div>
+                </article>
+            </section>
+
+            <section class="especialidades">
+                <h2>Especialidades</h2>
+
+                @if (profesional.especialidades?.length) {
+                    <div class="chips">
+                        @for (
+                            especialidad of profesional.especialidades;
+                            track especialidad.id
+                        ) {
+                            <mat-chip>
+                                {{ especialidad.nombre }}
+                            </mat-chip>
+                        }
+                    </div>
+                } @else {
+                    <p class="empty-message">
+                        Este profesional no tiene especialidades
+                        registradas.
+                    </p>
+                }
+            </section>
+
+            <section class="servicios-section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">
+                            Cursos ofrecidos
+                        </span>
+
+                        <h2>Servicios del profesional</h2>
+                    </div>
+
+                    <span class="service-count">
+                        {{ profesional.servicios?.length || 0 }}
+                        {{
+                            profesional.servicios?.length === 1
+                                ? 'servicio'
+                                : 'servicios'
+                        }}
+                    </span>
+                </div>
+
+                @if (profesional.servicios?.length) {
+                    <div class="services-grid">
+                        @for (
+                            servicio of profesional.servicios;
+                            track servicio.id
+                        ) {
+                            <mat-card class="service-card">
+                                <mat-card-content>
+                                    <div class="service-card-header">
+                                        <div class="service-icon">
+                                            <mat-icon>school</mat-icon>
+                                        </div>
+
+                                        <span class="service-category">
+                                            {{
+                                                servicio.categoria?.nombre ||
+                                                    'Sin categoría'
+                                            }}
+                                        </span>
+                                    </div>
+
+                                    <h3>
+                                        {{ servicio.nombre }}
+                                    </h3>
+
+                                    <p>
+                                        {{ servicio.descripcion }}
+                                    </p>
+
+                                    <div class="service-information">
+                                        <span>
+                                            <mat-icon>
+                                                {{
+                                                    getModalidadIcon(
+                                                        servicio.modalidad
+                                                    )
+                                                }}
+                                            </mat-icon>
+
+                                            {{
+                                                getModalidadLabel(
+                                                    servicio.modalidad
+                                                )
+                                            }}
+                                        </span>
+
+                                        <span>
+                                            <mat-icon>schedule</mat-icon>
+
+                                            {{
+                                                servicio.duracionMinutos
+                                            }}
+                                            minutos
+                                        </span>
+
+                                        <span>
+                                            <mat-icon>payments</mat-icon>
+
+                                            ₡{{ servicio.precio }}
+                                        </span>
+                                    </div>
+
+                                    @if (
+                                        servicio.especialidades?.length
+                                    ) {
+                                        <div
+                                            class="service-specialties"
+                                        >
+                                            @for (
+                                                especialidad of
+                                                    servicio.especialidades;
+                                                track especialidad.id
+                                            ) {
+                                                <mat-chip>
+                                                    {{
+                                                        especialidad.nombre
+                                                    }}
+                                                </mat-chip>
+                                            }
+                                        </div>
+                                    }
+                                </mat-card-content>
+
+                                <mat-card-actions>
+                                    <a
+                                        mat-stroked-button
+                                        [routerLink]="[
+                                            '/cursos',
+                                            servicio.id
+                                        ]"
+                                    >
+                                        <mat-icon>visibility</mat-icon>
+                                        Ver curso
+                                    </a>
+                                </mat-card-actions>
+                            </mat-card>
+                        }
+                    </div>
+                } @else {
+                    <div class="empty-services">
+                        <mat-icon>school</mat-icon>
+
+                        <p>
+                            Este profesional no tiene servicios
+                            registrados.
+                        </p>
+                    </div>
+                }
+            </section>
+        </mat-card-content>
+
+        <mat-card-actions class="professional-actions">
+            <a
+                mat-stroked-button
+                routerLink="/admin/profesionales"
+            >
+                <mat-icon>arrow_back</mat-icon>
+                Volver
+            </a>
+
+            <a
+                mat-flat-button
+                [routerLink]="[
+                    '/admin/profesionales/editar',
+                    profesional.id
+                ]"
+            >
+                <mat-icon>edit</mat-icon>
+                Editar profesional
+            </a>
+        </mat-card-actions>
+    </mat-card>
+}

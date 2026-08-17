@@ -1,0 +1,239 @@
+<section class="admin-header">
+    <div>
+        <span class="eyebrow">Administración</span>
+        <h1>Mantenimiento de servicios</h1>
+    </div>
+
+    <a
+        mat-stroked-button
+        color="primary"
+        class="create-icon-button"
+        routerLink="/admin/servicios/crear"
+    >
+        <mat-icon>add</mat-icon>
+        Nuevo servicio
+    </a>
+</section>
+
+<section class="admin-filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar</mat-label>
+
+        <input
+            matInput
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="Nombre, descripción o categoría"
+        />
+
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <button
+        mat-stroked-button
+        class="secondary-button"
+        type="button"
+        (click)="clearSearch()"
+    >
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar
+    </button>
+</section>
+
+<p class="summary">
+    {{ totalServicios() }} servicios encontrados
+</p>
+
+@if (loading()) {
+    <div class="state">
+        <mat-spinner diameter="42"></mat-spinner>
+        <p>Cargando mantenimiento...</p>
+    </div>
+} @else if (error()) {
+    <div class="state error">
+        <mat-icon>error</mat-icon>
+        <p>{{ error() }}</p>
+
+        <button
+            mat-stroked-button
+            type="button"
+            (click)="loadServicios()"
+        >
+            <mat-icon>refresh</mat-icon>
+            Intentar nuevamente
+        </button>
+    </div>
+} @else if (serviciosFiltrados().length === 0) {
+    <div class="state">
+        <mat-icon>search_off</mat-icon>
+        <p>No se encontraron servicios.</p>
+    </div>
+} @else {
+    <div class="table-wrapper">
+        <table
+            mat-table
+            [dataSource]="serviciosFiltrados()"
+            class="admin-table"
+        >
+            <ng-container matColumnDef="nombre">
+                <th mat-header-cell *matHeaderCellDef>
+                    Servicio
+                </th>
+
+                <td mat-cell *matCellDef="let servicio">
+                    <strong>
+                        {{ servicio.nombre }}
+                    </strong>
+
+                    <small>
+                        {{
+                            servicio.descripcion ||
+                            'Sin descripción'
+                        }}
+                    </small>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="categoria">
+                <th mat-header-cell *matHeaderCellDef>
+                    Categoría
+                </th>
+
+                <td mat-cell *matCellDef="let servicio">
+                    {{
+                        servicio.categoria?.nombre ||
+                        'Sin categoría'
+                    }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="duracion">
+                <th mat-header-cell *matHeaderCellDef>
+                    Duración
+                </th>
+
+                <td mat-cell *matCellDef="let servicio">
+                    {{ servicio.duracionMinutos }} minutos
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="precio">
+                <th mat-header-cell *matHeaderCellDef>
+                    Precio
+                </th>
+
+                <td mat-cell *matCellDef="let servicio">
+                    ₡{{ servicio.precio }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef>
+                    Estado
+                </th>
+
+                <td mat-cell *matCellDef="let servicio">
+                    <mat-chip
+                        [class.active-chip]="servicio.estado"
+                        [class.inactive-chip]="!servicio.estado"
+                    >
+                        <mat-icon>
+                            {{
+                                servicio.estado
+                                    ? 'check_circle'
+                                    : 'block'
+                            }}
+                        </mat-icon>
+
+                        {{
+                            servicio.estado
+                                ? 'Activo'
+                                : 'Inactivo'
+                        }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef>
+                    Acciones
+                </th>
+
+                <td mat-cell *matCellDef="let servicio">
+                    <div class="actions">
+                        <a
+                            mat-stroked-button
+                            color="primary"
+                            class="view-icon-button"
+                            [routerLink]="[
+                                '/cursos',
+                                servicio.id
+                            ]"
+                        >
+                            Detalle
+                            <mat-icon>visibility</mat-icon>
+                        </a>
+
+                        <a
+                            mat-stroked-button
+                            color="accent"
+                            class="edit-icon-button"
+                            [routerLink]="[
+                                '/admin/servicios/editar',
+                                servicio.id
+                            ]"
+                        >
+                            Editar
+                            <mat-icon>edit</mat-icon>
+                        </a>
+
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="status-button"
+                            [class.activate-button]="!servicio.estado"
+                            [class.deactivate-button]="servicio.estado"
+                            [disabled]="estaActualizando(servicio.id)"
+                            (click)="toggleEstado(servicio)"
+                        >
+                            @if (estaActualizando(servicio.id)) {
+                                <mat-spinner
+                                    diameter="20"
+                                ></mat-spinner>
+
+                                Actualizando...
+                            } @else {
+                                {{
+                                    servicio.estado
+                                        ? 'Desactivar'
+                                        : 'Activar'
+                                }}
+
+                                <mat-icon>
+                                    {{
+                                        servicio.estado
+                                            ? 'block'
+                                            : 'check_circle'
+                                    }}
+                                </mat-icon>
+                            }
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr
+                mat-header-row
+                *matHeaderRowDef="displayedColumns"
+            ></tr>
+
+            <tr
+                mat-row
+                *matRowDef="
+                    let row;
+                    columns: displayedColumns
+                "
+            ></tr>
+        </table>
+    </div>
+}

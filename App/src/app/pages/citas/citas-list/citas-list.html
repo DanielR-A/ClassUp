@@ -1,0 +1,234 @@
+<section class="page-header">
+    <span class="eyebrow">Agenda</span>
+
+    <h1>Listado de citass</h1>
+
+    <p>
+        Consulte las citas registradas y filtre por cliente,
+        profesional, modalidad o estado.
+    </p>
+
+    <a mat-stroked-button color="primary" class="create-icon-button" routerLink="/admin/citas/crear">
+        <mat-icon>add</mat-icon>
+        Nueva Cita
+    </a>
+</section>
+
+<section class="filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar cita</mat-label>
+
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)"
+            placeholder="Cliente, profesional o servicio" />
+
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+
+        <mat-select [ngModel]="estadoSeleccionado()" (ngModelChange)="
+                estadoSeleccionado.set($event)
+            ">
+            <mat-option [value]="null">
+                Todos
+            </mat-option>
+
+            @for (
+            estado of estados;
+            track estado.value
+            ) {
+            <mat-option [value]="estado.value">
+                {{ estado.label }}
+            </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Modalidad</mat-label>
+
+        <mat-select [ngModel]="modalidadSeleccionada()" (ngModelChange)="
+                modalidadSeleccionada.set($event)
+            ">
+            <mat-option [value]="null">
+                Todas
+            </mat-option>
+
+            @for (
+            modalidad of modalidades;
+            track modalidad.value
+            ) {
+            <mat-option [value]="modalidad.value">
+                {{ modalidad.label }}
+            </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button class="primary-button" type="button" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar
+    </button>
+</section>
+
+<div class="result-summary">
+    {{ totalCitas() }}
+    {{
+    totalCitas() === 1
+    ? 'cita encontrada'
+    : 'citas encontradas'
+    }}
+</div>
+
+@if (loading()) {
+<div class="state">
+    <mat-spinner diameter="42"></mat-spinner>
+
+    <p>Cargando citas...</p>
+</div>
+} @else if (error()) {
+<div class="state error">
+    <mat-icon>error</mat-icon>
+
+    <p>{{ error() }}</p>
+</div>
+} @else if (citasFiltradas().length === 0) {
+<div class="state">
+    <mat-icon>search_off</mat-icon>
+
+    <p>
+        No hay citas registradas con los filtros
+        seleccionados.
+    </p>
+</div>
+} @else {
+<section class="citas-grid">
+    @for (
+    cita of citasFiltradas();
+    track cita.id
+    ) {
+    <mat-card class="cita-card">
+        <mat-card-content>
+            <div class="card-header">
+                <span class="category">
+                    {{
+                    getEstadoLabel(
+                    cita.estado
+                    )
+                    }}
+                </span>
+
+                <span class="status">
+                    {{
+                    getModalidadLabel(
+                    cita.modalidad
+                    )
+                    }}
+                </span>
+            </div>
+
+            <div class="cita-icon">
+                <mat-icon>
+                    {{
+                    getEstadoIcon(
+                    cita.estado
+                    )
+                    }}
+                </mat-icon>
+            </div>
+
+            <h2>
+                {{
+                cita.servicio?.nombre ||
+                'Servicio no registrado'
+                }}
+            </h2>
+
+            <div class="people-info">
+                <div class="person-row">
+                    <mat-icon>person</mat-icon>
+
+                    <div>
+                        <span>Cliente</span>
+
+                        <strong>
+                            {{
+                            getNombreCliente(
+                            cita
+                            )
+                            }}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="person-row">
+                    <mat-icon>
+                        school
+                    </mat-icon>
+
+                    <div>
+                        <span>Profesional</span>
+
+                        <strong>
+                            {{
+                            getNombreProfesional(
+                            cita
+                            )
+                            }}
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="appointment-date">
+                <mat-icon>
+                    calendar_month
+                </mat-icon>
+
+                <span>
+                    {{
+                    formatearFecha(
+                    cita.fechaCita
+                    )
+                    }}
+
+                    ·
+
+                    {{ getHorario(cita) }}
+                </span>
+            </div>
+
+            <div class="cita-meta">
+                <div>
+                    <span>Monto</span>
+
+                    <strong>
+                        ₡{{ cita.montoEstimado }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Modalidad</span>
+
+                    <strong>
+                        {{
+                        getModalidadLabel(
+                        cita.modalidad
+                        )
+                        }}
+                    </strong>
+                </div>
+            </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+            <a mat-stroked-button color="primary" class="view-icon-button" [routerLink]="['/admin/citas', cita.id]">
+                <mat-icon>visibility</mat-icon>
+                Ver detalle
+            </a>
+        </mat-card-actions>
+    </mat-card>
+    }
+</section>
+}

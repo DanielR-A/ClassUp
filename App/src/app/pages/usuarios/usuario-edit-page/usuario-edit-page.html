@@ -1,0 +1,31 @@
+<section class="page-header">
+    <div>
+        <span class="eyebrow">
+            Administración
+        </span>
+
+        <h1>
+            Editar usuario
+        </h1>
+
+        <p>
+            Actualice la información personal,
+            de contacto o acceso del usuario.
+        </p>
+    </div>
+</section>
+
+@if (loading()) {
+    <div class="state">
+        <p>
+            Cargando usuario...
+        </p>
+    </div>
+} @else if (usuario(); as usuarioActual) {
+    <app-usuario-form
+        [usuario]="usuarioActual"
+        [saving]="saving()"
+        (guardar)="guardar($event)"
+        (cancelar)="cancelar()"
+    ></app-usuario-form>
+}

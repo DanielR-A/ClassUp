@@ -1,0 +1,309 @@
+@if (loading()) {
+    <div class="state">
+        <mat-spinner diameter="42"></mat-spinner>
+
+        <p>Cargando cita...</p>
+    </div>
+} @else if (error()) {
+    <div class="state error">
+        <mat-icon>error</mat-icon>
+
+        <p>{{ error() }}</p>
+    </div>
+} @else if (cita(); as cita) {
+    <section class="detail-header">
+        <a
+            mat-stroked-button
+            routerLink="/admin/citas"
+            class="back-button"
+        >
+            <mat-icon>arrow_back</mat-icon>
+            Volver al listado
+        </a>
+    </section>
+
+    <mat-card class="cita-detail-card">
+        <div class="hero">
+            <div class="hero-icon">
+                <mat-icon>
+                    {{ getEstadoIcon(cita.estado) }}
+                </mat-icon>
+            </div>
+
+            <div class="hero-content">
+                <span class="category">
+                    {{ getEstadoLabel(cita.estado) }}
+                </span>
+
+                <h1>
+                    {{
+                        cita.servicio?.nombre ||
+                            'Servicio no registrado'
+                    }}
+                </h1>
+
+                <p class="description">
+                    {{
+                        cita.servicio?.descripcion ||
+                            'La cita no tiene una descripción de servicio disponible.'
+                    }}
+                </p>
+
+                <div class="chips">
+                    <mat-chip>
+                        <mat-icon>
+                            {{
+                                getModalidadIcon(
+                                    cita.modalidad
+                                )
+                            }}
+                        </mat-icon>
+
+                        {{
+                            getModalidadLabel(
+                                cita.modalidad
+                            )
+                        }}
+                    </mat-chip>
+
+                    <mat-chip>
+                        <mat-icon>calendar_month</mat-icon>
+
+                        {{
+                            formatearFecha(
+                                cita.fechaCita
+                            )
+                        }}
+                    </mat-chip>
+
+                    <mat-chip>
+                        <mat-icon>schedule</mat-icon>
+
+                        {{ getHorario(cita) }}
+                    </mat-chip>
+                </div>
+            </div>
+        </div>
+
+        <mat-card-content>
+            <section class="detail-grid">
+                <article class="detail-item">
+                    <mat-icon>person</mat-icon>
+
+                    <div>
+                        <span>Cliente</span>
+
+                        <strong>
+                            {{ getNombreCliente(cita) }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>school</mat-icon>
+
+                    <div>
+                        <span>Profesional</span>
+
+                        <strong>
+                            {{
+                                getNombreProfesional(
+                                    cita
+                                )
+                            }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>payments</mat-icon>
+
+                    <div>
+                        <span>Monto estimado</span>
+
+                        <strong>
+                            ₡{{ cita.montoEstimado }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>
+                        {{
+                            getModalidadIcon(
+                                cita.modalidad
+                            )
+                        }}
+                    </mat-icon>
+
+                    <div>
+                        <span>Modalidad</span>
+
+                        <strong>
+                            {{
+                                getModalidadLabel(
+                                    cita.modalidad
+                                )
+                            }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>event</mat-icon>
+
+                    <div>
+                        <span>Fecha</span>
+
+                        <strong>
+                            {{
+                                formatearFecha(
+                                    cita.fechaCita
+                                )
+                            }}
+                        </strong>
+                    </div>
+                </article>
+
+                <article class="detail-item">
+                    <mat-icon>schedule</mat-icon>
+
+                    <div>
+                        <span>Horario</span>
+
+                        <strong>
+                            {{ getHorario(cita) }}
+                        </strong>
+                    </div>
+                </article>
+            </section>
+
+            <section class="comments-section">
+                <h2>Comentarios</h2>
+
+                <div class="comments-grid">
+                    <article class="comment-card">
+                        <mat-icon>chat</mat-icon>
+
+                        <div>
+                            <span>Comentario del cliente</span>
+
+                            <p>
+                                {{
+                                    getComentarioCliente(
+                                        cita
+                                    )
+                                }}
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="comment-card">
+                        <mat-icon>forum</mat-icon>
+
+                        <div>
+                            <span>
+                                Comentario del profesional
+                            </span>
+
+                            <p>
+                                {{
+                                    getComentarioProfesional(
+                                        cita
+                                    )
+                                }}
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            @if (cita.historial?.length) {
+                <section class="history-section">
+                    <h2>Historial de estados</h2>
+
+                    <div class="history-list">
+                        @for (
+                            historial of cita.historial;
+                            track historial.id
+                        ) {
+                            <article class="history-item">
+                                <mat-icon>
+                                    {{
+                                        getEstadoIcon(
+                                            historial.estadoNuevo
+                                        )
+                                    }}
+                                </mat-icon>
+
+                                <div>
+                                    <strong>
+                                        {{
+                                            getEstadoLabel(
+                                                historial.estadoNuevo
+                                            )
+                                        }}
+                                    </strong>
+
+                                    @if (
+                                        historial.estadoAnterior
+                                    ) {
+                                        <span>
+                                            Estado anterior:
+                                            {{
+                                                getEstadoLabel(
+                                                    historial.estadoAnterior
+                                                )
+                                            }}
+                                        </span>
+                                    }
+
+                                    @if (historial.comentario) {
+                                        <p>
+                                            {{
+                                                historial.comentario
+                                            }}
+                                        </p>
+                                    }
+
+                                    @if (historial.createdAt) {
+                                        <small>
+                                            {{
+                                                formatearFecha(
+                                                    historial.createdAt
+                                                )
+                                            }}
+                                        </small>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                </section>
+            }
+
+            @if (cita.resena) {
+                <section class="review-section">
+                    <h2>Reseña</h2>
+
+                    <article class="review-card">
+                        <div class="review-score">
+                            <mat-icon>star</mat-icon>
+
+                            <strong>
+                                {{ cita.resena.puntuacion }}/5
+                            </strong>
+                        </div>
+
+                        <p>
+                            {{
+                                cita.resena.comentario ||
+                                    'La reseña no tiene comentario.'
+                            }}
+                        </p>
+                    </article>
+                </section>
+            }
+        </mat-card-content>
+    </mat-card>
+}

@@ -1,0 +1,36 @@
+<section class="page-container">
+
+    <header class="page-header">
+        <h1>Registrar cita</h1>
+
+        <p>
+            Agregue una nueva cita al sistema de ClassUP.
+        </p>
+    </header>
+
+    @if (loading()) {
+
+        <p>Cargando datos del formulario...</p>
+
+    } @else {
+
+        @if (error()) {
+
+            <p class="error-message">
+                {{ error() }}
+            </p>
+
+        }
+
+        <app-cita-form
+            [clientes]="clientes()"
+            [profesionales]="profesionales()"
+            [servicios]="servicios()"
+            [saving]="saving()"
+            (guardar)="guardar($event)"
+            (cancelar)="cancelar()"
+        />
+
+    }
+
+</section>

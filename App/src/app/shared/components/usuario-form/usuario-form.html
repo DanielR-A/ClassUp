@@ -1,0 +1,469 @@
+<mat-card class="usuario-form-card">
+    <mat-card-content>
+        <form
+            class="usuario-form"
+            (submit)="$event.preventDefault(); submit()"
+        >
+            <!-- =====================================================
+                 INFORMACIÓN PERSONAL
+            ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <mat-icon>person</mat-icon>
+
+                    <div>
+                        <h3>Información personal</h3>
+
+                        <p>
+                            Ingrese los datos personales del usuario que
+                            utilizará la plataforma ClassUp.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-columns">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Nombre</mat-label>
+
+                        <input
+                            matInput
+                            type="text"
+                            placeholder="Ejemplo: María"
+                            autocomplete="given-name"
+                            [formField]="usuarioForm.nombre"
+                        />
+
+                        <mat-icon matSuffix>person</mat-icon>
+
+                        @if (
+                            usuarioForm.nombre().touched() &&
+                            usuarioForm.nombre().invalid()
+                        ) {
+                            <mat-error>
+                                {{
+                                    usuarioForm
+                                        .nombre()
+                                        .errors()[0]
+                                        .message
+                                }}
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Apellidos</mat-label>
+
+                        <input
+                            matInput
+                            type="text"
+                            placeholder="Ejemplo: Rodríguez López"
+                            autocomplete="family-name"
+                            [formField]="usuarioForm.apellidos"
+                        />
+
+                        <mat-icon matSuffix>badge</mat-icon>
+
+                        @if (
+                            usuarioForm.apellidos().touched() &&
+                            usuarioForm.apellidos().invalid()
+                        ) {
+                            <mat-error>
+                                {{
+                                    usuarioForm
+                                        .apellidos()
+                                        .errors()[0]
+                                        .message
+                                }}
+                            </mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 CONTACTO E IDENTIFICACIÓN
+            ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <mat-icon>contact_phone</mat-icon>
+
+                    <div>
+                        <h3>Contacto e identificación</h3>
+
+                        <p>
+                            Registre el correo, teléfono y número de cédula
+                            del usuario.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid three-columns">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Correo electrónico</mat-label>
+
+                        <input
+                            matInput
+                            type="email"
+                            placeholder="usuario@classup.com"
+                            autocomplete="email"
+                            [formField]="usuarioForm.correo"
+                        />
+
+                        <mat-icon matSuffix>mail</mat-icon>
+
+                        @if (
+                            usuarioForm.correo().touched() &&
+                            usuarioForm.correo().invalid()
+                        ) {
+                            <mat-error>
+                                {{
+                                    usuarioForm
+                                        .correo()
+                                        .errors()[0]
+                                        .message
+                                }}
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+    <mat-label>Teléfono</mat-label>
+
+    <input
+        matInput
+        type="text"
+        inputmode="numeric"
+        autocomplete="tel"
+        placeholder="8888-8888"
+        mask="0000-0000"
+        [dropSpecialCharacters]="true"
+        [formField]="usuarioForm.telefono"
+    />
+
+    <mat-icon matSuffix>phone</mat-icon>
+
+    <mat-hint>
+        Formato: 8888-8888
+    </mat-hint>
+
+    @if (
+        usuarioForm.telefono().touched() &&
+        usuarioForm.telefono().invalid()
+    ) {
+        <mat-error>
+            {{
+                usuarioForm
+                    .telefono()
+                    .errors()[0]
+                    .message
+            }}
+        </mat-error>
+    }
+</mat-form-field>
+
+                    <mat-form-field appearance="outline">
+    <mat-label>Cédula</mat-label>
+
+    <input
+        matInput
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="1-1234-5678"
+        mask="0-0000-0000"
+        [dropSpecialCharacters]="true"
+        [formField]="usuarioForm.cedula"
+    />
+
+    <mat-icon matSuffix>badge</mat-icon>
+
+    <mat-hint>
+        Formato: 1-1234-5678
+    </mat-hint>
+
+    @if (
+        usuarioForm.cedula().touched() &&
+        usuarioForm.cedula().invalid()
+    ) {
+        <mat-error>
+            {{
+                usuarioForm
+                    .cedula()
+                    .errors()[0]
+                    .message
+            }}
+        </mat-error>
+    }
+</mat-form-field>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 ACCESO Y ROL
+            ====================================================== -->
+            <section class="form-section">
+                <div class="section-title">
+                    <mat-icon>manage_accounts</mat-icon>
+
+                    <div>
+                        <h3>Acceso y permisos</h3>
+
+                        <p>
+                            Configure la contraseña y el rol que tendrá el
+                            usuario dentro del sistema.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-grid two-columns">
+                    <mat-form-field appearance="outline">
+                        <mat-label>
+                            {{
+                                isEdit()
+                                    ? 'Nueva contraseña'
+                                    : 'Contraseña'
+                            }}
+                        </mat-label>
+
+                        <input
+                            matInput
+                            type="password"
+                            [placeholder]="
+                                isEdit()
+                                    ? 'Déjela vacía para conservar la actual'
+                                    : 'Mínimo 8 caracteres'
+                            "
+                            autocomplete="new-password"
+                            [formField]="usuarioForm.password"
+                        />
+
+                        <mat-icon matSuffix>lock</mat-icon>
+
+                        @if (isEdit()) {
+                            <mat-hint>
+                                Solo escriba una contraseña si desea cambiarla.
+                            </mat-hint>
+                        }
+
+                        @if (
+                            usuarioForm.password().touched() &&
+                            usuarioForm.password().invalid()
+                        ) {
+                            <mat-error>
+                                {{
+                                    usuarioForm
+                                        .password()
+                                        .errors()[0]
+                                        .message
+                                }}
+                            </mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Rol</mat-label>
+
+                        <mat-select
+                            [formField]="usuarioForm.role"
+                        >
+                            @for (rol of roles; track rol.value) {
+                                <mat-option [value]="rol.value">
+                                    <mat-icon>
+                                        {{ rol.icon }}
+                                    </mat-icon>
+
+                                    {{ rol.label }}
+                                </mat-option>
+                            }
+                        </mat-select>
+
+                        @if (
+                            usuarioForm.role().touched() &&
+                            usuarioForm.role().invalid()
+                        ) {
+                            <mat-error>
+                                {{
+                                    usuarioForm
+                                        .role()
+                                        .errors()[0]
+                                        .message
+                                }}
+                            </mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 RESUMEN
+            ====================================================== -->
+            <section class="form-section summary-section">
+                <div class="section-title">
+                    <mat-icon>fact_check</mat-icon>
+
+                    <div>
+                        <h3>Resumen</h3>
+
+                        <p>
+                            Verifique la información antes de guardar el
+                            usuario.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="usuario-summary">
+                    <div class="summary-item">
+                        <mat-icon>person</mat-icon>
+
+                        <div>
+                            <span>Usuario</span>
+
+                            <strong>
+                                {{
+                                    usuarioModel().nombre ||
+                                    'Sin nombre'
+                                }}
+                                {{
+                                    usuarioModel().apellidos
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>mail</mat-icon>
+
+                        <div>
+                            <span>Correo</span>
+
+                            <strong>
+                                {{
+                                    usuarioModel().correo ||
+                                    'No registrado'
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>phone</mat-icon>
+
+                        <div>
+                            <span>Teléfono</span>
+
+                            <strong>
+                                {{
+                                    usuarioModel().telefono ||
+                                    'No registrado'
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>fingerprint</mat-icon>
+
+                        <div>
+                            <span>Cédula</span>
+
+                            <strong>
+                                {{
+                                    usuarioModel().cedula ||
+                                    'No registrada'
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <mat-icon>
+                            @switch (usuarioModel().role) {
+                                @case ('ADMIN') {
+                                    admin_panel_settings
+                                }
+
+                                @case ('PROFESIONAL') {
+                                    school
+                                }
+
+                                @case ('USER') {
+                                    person
+                                }
+                            }
+                        </mat-icon>
+
+                        <div>
+                            <span>Rol</span>
+
+                            <strong>
+                                @switch (usuarioModel().role) {
+                                    @case ('ADMIN') {
+                                        Administrador
+                                    }
+
+                                    @case ('PROFESIONAL') {
+                                        Profesional
+                                    }
+
+                                    @case ('USER') {
+                                        Cliente
+                                    }
+                                }
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 BOTONES
+            ====================================================== -->
+            <div class="form-actions">
+                <button
+                    mat-stroked-button
+                    color="accent"
+                    class="cancel-button"
+                    type="button"
+                    [disabled]="isSubmitting()"
+                    (click)="cancelarFormulario()"
+                >
+                    <mat-icon>close</mat-icon>
+                    Cancelar
+                </button>
+
+                <button
+                    mat-flat-button
+                    type="submit"
+                    [color]="isEdit() ? 'accent' : 'primary'"
+                    [class.edit-button]="isEdit()"
+                    [class.create-button]="!isEdit()"
+                    [disabled]="isSubmitting()"
+                >
+                    @if (isSubmitting()) {
+                        <mat-spinner diameter="20"></mat-spinner>
+
+                        <span>Guardando...</span>
+                    } @else {
+                        <ng-container>
+                            <mat-icon>
+                                {{
+                                    isEdit()
+                                        ? 'edit'
+                                        : 'person_add'
+                                }}
+                            </mat-icon>
+
+                            <span>
+                                {{
+                                    isEdit()
+                                        ? 'Actualizar usuario'
+                                        : 'Registrar usuario'
+                                }}
+                            </span>
+                        </ng-container>
+                    }
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

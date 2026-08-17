@@ -1,0 +1,34 @@
+<section class="page-container">
+    <header class="page-header">
+        <h1>Registrar servicio</h1>
+
+        <p>
+            Agregue un nuevo servicio al catálogo de ClassUP.
+        </p>
+    </header>
+
+    @if (loading()) {
+
+        <p>Cargando datos del formulario...</p>
+
+    } @else {
+
+        @if (error()) {
+
+            <p class="error-message">
+                {{ error() }}
+            </p>
+
+        }
+
+        <app-servicio-form
+            [categorias]="categorias()"
+            [profesionales]="profesionales()"
+            [especialidades]="especialidades()"
+            [saving]="saving()"
+            (guardar)="guardar($event)"
+            (cancelar)="cancelar()"
+        />
+
+    }
+</section>

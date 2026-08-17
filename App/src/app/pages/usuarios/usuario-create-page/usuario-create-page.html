@@ -1,0 +1,22 @@
+<section class="page-header">
+    <div>
+        <span class="eyebrow">
+            Administración
+        </span>
+
+        <h1>
+            Registrar usuario
+        </h1>
+
+        <p>
+            Complete la información personal,
+            de contacto y acceso del nuevo usuario.
+        </p>
+    </div>
+</section>
+
+<app-usuario-form
+    [saving]="saving()"
+    (guardar)="guardar($event)"
+    (cancelar)="cancelar()"
+></app-usuario-form>

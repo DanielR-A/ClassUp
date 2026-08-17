@@ -1,0 +1,164 @@
+<section class="home-page">
+    @if (loading()) {
+        <div class="dashboard-state">
+            <mat-spinner diameter="44"></mat-spinner>
+
+            <p>Cargando información de ClassUP...</p>
+        </div>
+    } @else if (error()) {
+        <div class="dashboard-state error">
+            <mat-icon>error</mat-icon>
+
+            <p>{{ error() }}</p>
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="cargarDashboard()"
+            >
+                <mat-icon>refresh</mat-icon>
+                Intentar nuevamente
+            </button>
+        </div>
+    } @else {
+        <section class="hero">
+            <div class="hero-content">
+                <span class="eyebrow">
+                    Plataforma académica
+                </span>
+
+                <h1>Bienvenido a ClassUP</h1>
+
+                <p>
+                    Administra profesionales, usuarios y citas
+                    desde un solo lugar. Consulta la información
+                    más importante del sistema en tiempo real.
+                </p>
+
+            </div>
+
+            <div class="hero-visual">
+                <mat-icon>workspace_premium</mat-icon>
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <mat-icon>groups</mat-icon>
+
+                <div>
+                    <span>Profesionales</span>
+                    <strong>
+                        {{ totalProfesionales() }}
+                    </strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <mat-icon>calendar_month</mat-icon>
+
+                <div>
+                    <span>Citas registradas</span>
+                    <strong>
+                        {{ totalCitas() }}
+                    </strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <mat-icon>schedule</mat-icon>
+
+                <div>
+                    <span>Citas pendientes</span>
+                    <strong>
+                        {{ totalCitasPendientes() }}
+                    </strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <mat-icon>person</mat-icon>
+
+                <div>
+                    <span>Usuarios registrados</span>
+                    <strong>
+                        {{ totalUsuarios() }}
+                    </strong>
+                </div>
+            </article>
+        </section>
+
+        <section class="dashboard-grid">
+
+            <mat-card class="dashboard-card">
+<mat-card-header class="dashboard-card-header">
+    <div class="dashboard-card-heading">
+        <span class="section-eyebrow">
+            Profesionales
+        </span>
+    </div>
+</mat-card-header>
+
+                <mat-card-content>
+                    @if (
+                        profesionalesDisponibles().length > 0
+                    ) {
+                        <div class="professional-list">
+                            @for (
+                                profesional of
+                                    profesionalesDisponibles();
+                                track profesional.id
+                            ) {
+                                <a
+                                    class="professional-item"
+                                    [routerLink]="[
+                                        '/profesionales',
+                                        profesional.id
+                                    ]"
+                                >
+                                    <div class="avatar">
+                                        {{
+                                            getIniciales(
+                                                profesional
+                                            )
+                                        }}
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            {{
+                                                getNombreProfesional(
+                                                    profesional
+                                                )
+                                            }}
+                                        </strong>
+
+                                        <span>
+                                            {{
+                                                profesional
+                                                    .tituloProfesional
+                                            }}
+                                        </span>
+                                    </div>
+
+                                    <mat-icon>
+                                        check_circle
+                                    </mat-icon>
+                                </a>
+                            }
+                        </div>
+                    } @else {
+                        <div class="empty-dashboard">
+                            <mat-icon>person_off</mat-icon>
+
+                            <p>
+                                No hay profesionales disponibles.
+                            </p>
+                        </div>
+                    }
+                </mat-card-content>
+            </mat-card>
+        </section>
+
+    }
+</section>

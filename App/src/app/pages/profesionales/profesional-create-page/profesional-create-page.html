@@ -1,0 +1,27 @@
+<section>
+    <header>
+        <h1>Registrar profesional</h1>
+
+        <p>
+            Agregue un nuevo profesional a la plataforma ClassUP.
+        </p>
+    </header>
+
+    @if (loading()) {
+        <p>Cargando datos del formulario...</p>
+    } @else {
+        @if (error()) {
+            <p>
+                {{ error() }}
+            </p>
+        }
+
+        <app-profesional-form
+            [usuarios]="usuarios()"
+            [especialidades]="especialidades()"
+            [saving]="saving()"
+            (guardar)="guardar($event)"
+            (cancelar)="cancelar()"
+        />
+    }
+</section>

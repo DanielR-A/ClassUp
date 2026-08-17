@@ -1,0 +1,242 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+//Modelos
+enum Role {
+  ADMIN // Adminsitrador
+  PROFESIONAL // Tutor/Profesor
+  USER // Cliente
+}
+
+enum EstadoCita {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+  CANCELADA
+  COMPLETADA
+}
+
+enum Modalidad {
+  VIRTUAL
+  PRESENCIAL
+  MIXTA
+}
+
+enum ModalidadCita {
+  VIRTUAL
+  PRESENCIAL
+}
+
+//=====================================================
+// MODELO USUARIO
+//=====================================================
+
+model Usuario {
+  id        Int     @id @default(autoincrement())
+  nombre    String  @db.VarChar(100)
+  apellidos String  @db.VarChar(150)
+  correo    String  @unique @db.VarChar(150) // No permite repetir correo
+  password  String  @db.VarChar(255)
+  telefono  String? @db.VarChar(30)
+  cedula    String? @unique @db.VarChar(9)
+  role      Role    @default(USER) // Si no se le asigna rol se va como user 
+
+  estado Boolean @default(true)
+
+  // Nombre del campo/ modelo con el que se relaciona/ la realcion es opcional
+  perfilProfesional PerfilProfesional?
+
+  // Un usuario puede tener muchas citas Cita[] 
+  // Los corchetes significan:
+  // Uno a Muchos (1:N)
+
+  // ¿Por qué @relation("ClienteCitas")?
+  // Porque en la tabla Cita hay dos personas: 
+  // Cliente
+  // Profesional
+  // prisma necesita saber si la relacion corresponde a C o P
+  citasCliente Cita[]   @relation("ClienteCitas")
+  // El usuario puede escribir varias reseñas
+  resenas      Resena[]
+
+  //Guarda automáticamente la fecha de creación.
+  createdAt DateTime @default(now())
+  // Se actualiza automáticamente cada vez que modificas el registro.
+  updatedAt DateTime @updatedAt
+
+  // Cambia el nombre de la tabla en MySQL.
+  @@map("usuarios")
+}
+
+model PerfilProfesional {
+  id                Int       @id @default(autoincrement())
+  usuarioId         Int       @unique
+  tituloProfesional String    @db.VarChar(150)
+  descripcion       String    @db.VarChar(500)
+  annosExperiencia  Int
+  modalidad         Modalidad // Utiliza el Enum MIXT/PRES/VIRT
+  provincia         String    @db.VarChar(100)
+  canton            String    @db.VarChar(100)
+  distrito          String    @db.VarChar(100)
+  tarifaBase        Decimal   @db.Decimal(10, 2) // 10 cantidades de digitos 2 decimales 
+  // Sirve para saber si el tutor acepta nuevas citas  (True) (False) 
+  // ¿Qué hace @default(true)?
+  // Cuando se crea el perfil:
+  // { tituloProfesional: "Profesor de Matemáticas"}
+  // Prisma guarda // disponible = true
+  disponible        Boolean   @default(true)
+  // guarda el nombre o ruta de una imagen
+  // Si el usuario no sube una foto se guarda automaticamente la ruta 
+  //evita errores cuando no se ingresa una imagen
+  imagenPerfil      String    @default("profile-not-found.jpg") @db.VarChar(255)
+
+  // Este perfil profecional pertenece a un usuario 
+  // fields: [usuarioId]  significa
+  // usuarioId Int @unique
+  // es la llave foránea.
+  // references: [id] significa :
+  //  usuarioId apunta al Usuario.id
+  // 
+  usuario        Usuario        @relation(fields: [usuarioId], references: [id])
+  // Un perfil profesional puede tener muchos servicios. / Uno a Muchos (1:N)
+  servicios      Servicio[]
+  // Un profesor puede tener varias especialidades.
+  especialidades Especialidad[]
+  // Un profesor puede tener muchas citas.
+  citas          Cita[]
+  // Un profesor puede recibir muchas reseñas.
+  resenas        Resena[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Nombre en SQL
+  @@map("perfiles_profesionales")
+}
+
+model Categoria {
+  id          Int     @id @default(autoincrement())
+  nombre      String  @unique @db.VarChar(100)
+  descripcion String? @db.VarChar(255)
+
+  estado Boolean @default(true)
+
+  servicios Servicio[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categorias")
+}
+
+model Especialidad {
+  id          Int     @id @default(autoincrement())
+  nombre      String  @unique @db.VarChar(100)
+  descripcion String? @db.VarChar(255)
+
+  estado Boolean @default(true)
+
+  profesionales PerfilProfesional[]
+  servicios     Servicio[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("especialidades")
+}
+
+model Servicio {
+  id              Int       @id @default(autoincrement())
+  profesionalId   Int
+  categoriaId     Int
+  nombre          String    @db.VarChar(150)
+  descripcion     String    @db.VarChar(500)
+  precio          Decimal   @db.Decimal(10, 2)
+  duracionMinutos Int
+  modalidad       Modalidad
+
+  estado Boolean @default(true)
+
+  profesional    PerfilProfesional @relation(fields: [profesionalId], references: [id])
+  categoria      Categoria         @relation(fields: [categoriaId], references: [id])
+  especialidades Especialidad[]
+  citas          Cita[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("servicios")
+}
+
+model Cita {
+  id                    Int           @id @default(autoincrement())
+  clienteId             Int
+  profesionalId         Int
+  servicioId            Int
+  fechaCita             DateTime      @db.Date
+  horaInicio            DateTime      @db.Time(0)
+  horaFinalizacion      DateTime      @db.Time(0)
+  modalidad             ModalidadCita
+  estado                EstadoCita    @default(PENDIENTE)
+  comentarioCliente     String?       @db.VarChar(500)
+  comentarioProfesional String?       @db.VarChar(500)
+  montoEstimado         Decimal       @db.Decimal(10, 2)
+
+  cliente     Usuario               @relation("ClienteCitas", fields: [clienteId], references: [id])
+  profesional PerfilProfesional     @relation(fields: [profesionalId], references: [id])
+  servicio    Servicio              @relation(fields: [servicioId], references: [id])
+  historial   HistorialEstadoCita[]
+  resena      Resena?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clienteId])
+  @@index([profesionalId])
+  @@index([servicioId])
+  @@map("citas")
+}
+
+model HistorialEstadoCita {
+  id             Int         @id @default(autoincrement())
+  citaId         Int
+  estadoAnterior EstadoCita?
+  estadoNuevo    EstadoCita
+  comentario     String?     @db.VarChar(500)
+  cambiadoPorId  Int?
+
+  cita Cita @relation(fields: [citaId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("historial_estado_citas")
+}
+
+model Resena {
+  id            Int     @id @default(autoincrement())
+  citaId        Int     @unique
+  clienteId     Int
+  profesionalId Int
+  puntuacion    Int
+  comentario    String? @db.VarChar(500)
+
+  cita        Cita              @relation(fields: [citaId], references: [id])
+  cliente     Usuario           @relation(fields: [clienteId], references: [id])
+  profesional PerfilProfesional @relation(fields: [profesionalId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("resenas")
+}
