@@ -39,3 +39,22 @@ export function authenticateToken(request: AuthRequest, response: Response, next
             .json({ success: false, message: "Token inválido o expirado" })
     }
 }
+
+// authenticateToke
+// atua como un filtro de seguimiento 
+// Angular
+//    ↓
+// Petición + JWT
+//    ↓
+// authenticateToken
+//    ↓
+// ¿Hay token?
+//    ↓
+// ¿Tiene formato Bearer?
+//    ↓
+// ¿El JWT es válido?
+//    ↓
+// ¿Contiene id, email y role?
+//    ↓
+// SÍ → next() → continúa al controlador
+// NO → 401 Unauthorized
