@@ -21,7 +21,7 @@
                         {{ iniciales() }}
                     </div>
                     <h2>{{ usuarioActual.nombre }}</h2>
-                    <p class="email">{{ usuarioActual.correo }}</p>
+                    <p class="email">{{ usuarioActual.email }}</p>
                     <mat-chip-set class="role-chip" aria-label="Rol del usuario">
                         <mat-chip>
                             <mat-icon matChipAvatar>{{ iconoRol() }}</mat-icon>
@@ -63,7 +63,7 @@
                                 </div>
                                 <div>
                                     <span class="detail-label">Correo electrónico</span>
-                                    <strong>{{ usuarioActual.correo }}</strong>
+                                    <strong>{{ usuarioActual.email }}</strong>
                                 </div>
                             </article>
                             <article class="detail-item">

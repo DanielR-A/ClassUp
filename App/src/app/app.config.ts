@@ -12,6 +12,7 @@ import { AuthService } from './core/services/auth.service';
 
 // AGREGAMOS EL IMPORT
 import { provideEnvironmentNgxMask } from 'ngx-mask';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([
-        httpErrorInterceptor,
+        authInterceptor,
         httpErrorInterceptor,
       ])
     ),  

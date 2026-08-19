@@ -12,7 +12,7 @@ export interface Usuario {
     id: number;
     nombre: string;
     apellidos: string;
-    correo: string;
+    email: string;
     telefono?: string | null;
     cedula?: string | null;
     role: Role;
@@ -32,7 +32,7 @@ export interface Usuario {
 export interface UsuarioFormModel {
     nombre: string;
     apellidos: string;
-    correo: string;
+    email: string;
     password: string;
     telefono: string;
     cedula: string;
@@ -42,7 +42,7 @@ export interface UsuarioFormModel {
 export interface UsuarioCreateDto {
     nombre: string;
     apellidos: string;
-    correo: string;
+    email: string;
     password: string;
     telefono?: string | null;
     cedula?: string | null;
@@ -52,7 +52,7 @@ export interface UsuarioCreateDto {
 export interface UsuarioUpdateDto {
     nombre?: string;
     apellidos?: string;
-    correo?: string;
+    email?: string;
     password?: string;
     telefono?: string | null;
     cedula?: string | null;
