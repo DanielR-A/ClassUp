@@ -29,7 +29,7 @@ export const usuarioService = {
                     id: true,
                     nombre: true,
                     apellidos: true,
-                    correo: true,
+                    email: true,
                     telefono: true,
                     cedula: true,
                     role: true,
@@ -78,7 +78,7 @@ export const usuarioService = {
                 id: true,
                 nombre: true,
                 apellidos: true,
-                correo: true,
+                email: true,
                 telefono: true,
                 cedula: true,
                 role: true,
@@ -161,7 +161,7 @@ export const usuarioService = {
                 id: true,
                 nombre: true,
                 apellidos: true,
-                correo: true,
+                email: true,
                 telefono: true,
                 cedula: true,
                 role: true,
@@ -172,14 +172,14 @@ export const usuarioService = {
     },
 
         async registrar(data: {
-        correo: string;
+        email: string;
         password: string;
         nombre: string;
         apellidos: string;
         role?: Role;
     }) {
         const usuarioExists = await prisma.usuario.findUnique({
-            where: { correo: data.correo }
+            where: { email: data.email }
         });
         if (usuarioExists) {
             throw new Error("El correo ya está registrado");
@@ -187,7 +187,7 @@ export const usuarioService = {
         const hashedPassword = await bcrypt.hash(data.password, 10);
         const usuario = await prisma.usuario.create({
             data: {
-                correo: data.correo,
+                email: data.email,
                 password: hashedPassword,
                 nombre: data.nombre,
                 apellidos: data.apellidos,
@@ -198,9 +198,9 @@ export const usuarioService = {
         return usuarioWithoutPassword;
     },
 
-        async login(data: { correo: string; password: string }) {
+        async login(data: { email: string; password: string }) {
         const usuario = await prisma.usuario.findUnique({
-            where: { correo: data.correo }
+            where: { email: data.email }
         });
         if (!usuario) {
             throw new Error("Correo o contraseña incorrectos");
@@ -211,7 +211,7 @@ export const usuarioService = {
         }
         const payload = {
             id: usuario.id,
-            correo: usuario.correo,
+            email: usuario.email,
             role: usuario.role,
         };
         const secret: Secret = process.env.JWT_SECRET || "vj_utn_2026";

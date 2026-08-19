@@ -141,7 +141,7 @@ async function main() {
             {
                 nombre: "Administrador",
                 apellidos: "Sistema",
-                correo: "admin@classup.com",
+                email: "admin@classup.com",
                 password: "123456",
                 telefono: "8888-0000",
                 cedula: "101010101",
@@ -151,7 +151,7 @@ async function main() {
             {
                 nombre: "Juan",
                 apellidos: "Pérez",
-                correo: "juan@classup.com",
+                email: "juan@classup.com",
                 password: "123456",
                 telefono: "8888-1111",
                 cedula: "103030303",
@@ -161,7 +161,7 @@ async function main() {
             {
                 nombre: "Sofía",
                 apellidos: "Gómez",
-                correo: "sofia@classup.com",
+                email: "sofia@classup.com",
                 password: "123456",
                 telefono: "8888-2222",
                 cedula: "104040404",
@@ -171,7 +171,7 @@ async function main() {
             {
                 nombre: "María",
                 apellidos: "Rodríguez",
-                correo: "maria@classup.com",
+                email: "maria@classup.com",
                 password: "123456",
                 telefono: "8888-3333",
                 cedula: "104040405",
@@ -181,7 +181,7 @@ async function main() {
             {
                 nombre: "Carlos",
                 apellidos: "Ramírez",
-                correo: "carlos@classup.com",
+                email: "carlos@classup.com",
                 password: "123456",
                 telefono: "8888-4444",
                 cedula: "104040406",
@@ -191,7 +191,7 @@ async function main() {
             {
                 nombre: "Ana",
                 apellidos: "Mora",
-                correo: "ana@classup.com",
+                email: "ana@classup.com",
                 password: "123456",
                 telefono: "8888-5555",
                 cedula: "404040407",
@@ -201,7 +201,7 @@ async function main() {
             {
                 nombre: "Luis",
                 apellidos: "Fernández",
-                correo: "luis@classup.com",
+                email: "luis@classup.com",
                 password: "123456",
                 telefono: "8888-6666",
                 cedula: "404040408", 
@@ -211,7 +211,7 @@ async function main() {
             {
                 nombre: "Valeria",
                 apellidos: "Castro",
-                correo: "valeria@classup.com",
+                email: "valeria@classup.com",
                 password: "123456",
                 telefono: "8888-7777",
                 cedula: "404040409",
@@ -221,7 +221,7 @@ async function main() {
             {
                 nombre: "Diego",
                 apellidos: "Sánchez",
-                correo: "diego@classup.com",
+                email: "diego@classup.com",
                 password: "123456",
                 telefono: "8888-8888",
                 cedula: "504040410",
@@ -231,7 +231,7 @@ async function main() {
             {
                 nombre: "Laura",
                 apellidos: "Vargas",
-                correo: "laura@classup.com",
+                email: "laura@classup.com",
                 password: "123456",
                 telefono: "8888-9999",
                 cedula: "504040411",
@@ -242,7 +242,7 @@ async function main() {
             {
                 nombre: "Pedro",
                 apellidos: "Álvarez",
-                correo: "pedro@classup.com",
+                email: "pedro@classup.com",
                 password: "123456",
                 telefono: "8888-1010",
                 cedula: "504040412",
@@ -263,7 +263,7 @@ async function main() {
         prisma.especialidad.findMany(),
     ]);
 
-    const userMap = Object.fromEntries(usuarios.map((u) => [u.correo, u.id]));
+    const userMap = Object.fromEntries(usuarios.map((u) => [u.email, u.id]));
     const catMap = Object.fromEntries(categorias.map((c) => [c.nombre, c.id]));
     const espMap = Object.fromEntries(especialidades.map((e) => [e.nombre, e.id]));
 

@@ -46,7 +46,7 @@ model Usuario {
   id        Int     @id @default(autoincrement())
   nombre    String  @db.VarChar(100)
   apellidos String  @db.VarChar(150)
-  correo    String  @unique @db.VarChar(150) // No permite repetir correo
+  email    String  @unique @db.VarChar(150) // No permite repetir correo
   password  String  @db.VarChar(255)
   telefono  String? @db.VarChar(30)
   cedula    String? @unique @db.VarChar(9)

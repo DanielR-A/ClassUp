@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { email, z } from "zod";
 import { Role } from "../../generated/prisma/enums";
 
 export const createUsuarioSchema = z.object({
@@ -14,7 +14,7 @@ export const createUsuarioSchema = z.object({
         .min(2, "Los apellidos deben tener al menos 2 caracteres")
         .max(150, "Los apellidos no pueden superar 150 caracteres"),
 
-    correo: z
+    email: z
         .string()
         .trim()
         .email("El correo electrónico no es válido")
@@ -73,31 +73,54 @@ export type CambiarEstadoUsuarioDto = z.infer<
 
 export const registerUserSchema = z.object({
     email: z
-        .email({ error: "Debe ingresar un correo válido" }) // Zod v4: API de nivel superior 'z.email()' sin encadenar .string()
-        .max(100, { error: "El correo no puede superar 100 caracteres" }),
+        .email({
+            error: "Debe ingresar un correo válido",
+        })
+        .max(100, {
+            error: "El correo no puede superar 100 caracteres",
+        }),
+
     password: z
         .string()
-        .min(6, { error: "La contraseña debe tener al menos 6 caracteres" })
-        .max(255, { error: "La contraseña no puede superar 255 caracteres" }),
+        .min(6, {
+            error: "La contraseña debe tener al menos 6 caracteres",
+        })
+        .max(255, {
+            error: "La contraseña no puede superar 255 caracteres",
+        }),
+
     fullName: z
         .string()
         .trim()
-        .min(3, { error: "El nombre completo debe tener al menos 3 caracteres" })
-        .max(120, { error: "El nombre completo no puede superar 120 caracteres" }),
+        .min(3, {
+            error: "El nombre completo debe tener al menos 3 caracteres",
+        })
+        .max(120, {
+            error: "El nombre completo no puede superar 120 caracteres",
+        }),
+
     role: z
-        .enum(Role, { 
-            error: "El rol proporcionado no es válido (Debe ser USER o ADMIN)"
+        .enum(Role, {
+            error: "El rol proporcionado no es válido (Debe ser USER o ADMIN)",
         })
         .optional(),
 });
 
 export const loginUserSchema = z.object({
     email: z
-        .email({ error: "Debe ingresar un correo válido" }),
+        .email({
+            error: "Debe ingresar un correo válido",
+        }),
+
     password: z
         .string()
-        .min(6, { error: "La contraseña debe tener al menos 6 caracteres" }),
+        .min(6, {
+            error: "La contraseña debe tener al menos 6 caracteres",
+        }),
 });
 
-export type RegisterUserDto = z.infer<typeof registerUserSchema>;
-export type LoginUserDto = z.infer<typeof loginUserSchema>;
+export type RegisterUserDto =
+    z.infer<typeof registerUserSchema>;
+
+export type LoginUserDto =
+    z.infer<typeof loginUserSchema>;
