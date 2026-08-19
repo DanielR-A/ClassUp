@@ -29,7 +29,6 @@ export const appConfig: ApplicationConfig = {
         inject(AuthService);
       return authService.inicializarSesion();
     }),
-
     //AGREGAMOS EL PROVAIDER
     provideEnvironmentNgxMask()
   ]
