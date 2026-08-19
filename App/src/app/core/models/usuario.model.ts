@@ -2,7 +2,11 @@ import { Cita } from './cita.model';
 import { PerfilProfesional } from './perfil-profesional.model';
 import { Resena } from './resena.model';
 
-export type Role = 'ADMIN' | 'PROFESIONAL' | 'USER';
+export enum Role {
+    ADMIN = 'ADMIN',
+    PROFESIONAL= 'PROFESIONAL', 
+    USER= 'USER',
+}
 
 export interface Usuario {
     id: number;
@@ -60,4 +64,19 @@ export interface UsuarioUpdateDto {
  */
 export interface CambiarEstadoUsuarioDto {
     estado: boolean;
+}
+
+export interface LoginResult {
+    token: string;
+}
+
+export interface RegisterRequest {
+    nombre: string;
+    email: string;
+    password: string;
+}
+
+export interface LoginRequest {
+    email: string;
+    password: string;
 }

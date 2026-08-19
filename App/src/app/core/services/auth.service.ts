@@ -26,9 +26,10 @@ import {
     LoginRequest,
     LoginResult,
     RegisterRequest,
+    Role,
     Usuario,
 } from '../models/usuario.model'
-import { Role } from '../models/role.model'
+
 
 
 @Injectable({
