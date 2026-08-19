@@ -62,15 +62,15 @@ export class UsuariosList implements OnInit {
     label: string;
   }[] = [
     {
-      value: 'ADMIN',
+      value: Role.ADMIN,
       label: 'Administrador',
     },
     {
-      value: 'PROFESIONAL',
+      value: Role.PROFESIONAL,
       label: 'Profesional',
     },
     {
-      value: 'USER',
+      value: Role.USER,
       label: 'Cliente',
     },
   ];

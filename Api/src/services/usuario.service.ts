@@ -1,4 +1,10 @@
+import bcrypt from "bcryptjs";
+import { Role } from "../../generated/prisma/enums";
 import { prisma } from "../config/prisma";
+import jwt, {
+    Secret,
+    SignOptions,
+} from "jsonwebtoken";
 
 export const usuarioService = {
     async listar(page: number = 1, limit: number = 0) {
@@ -164,4 +170,70 @@ export const usuarioService = {
             },
         });
     },
+
+        async registrar(data: {
+        correo: string;
+        password: string;
+        nombre: string;
+        apellidos: string;
+        role?: Role;
+    }) {
+        const usuarioExists = await prisma.usuario.findUnique({
+            where: { correo: data.correo }
+        });
+        if (usuarioExists) {
+            throw new Error("El correo ya está registrado");
+        }
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const usuario = await prisma.usuario.create({
+            data: {
+                correo: data.correo,
+                password: hashedPassword,
+                nombre: data.nombre,
+                apellidos: data.apellidos,
+                role: data.role ?? Role.USER,
+            },
+        });
+        const { password, ...usuarioWithoutPassword } = usuario;
+        return usuarioWithoutPassword;
+    },
+
+        async login(data: { correo: string; password: string }) {
+        const usuario = await prisma.usuario.findUnique({
+            where: { correo: data.correo }
+        });
+        if (!usuario) {
+            throw new Error("Correo o contraseña incorrectos");
+        }
+        const isPasswordValid = await bcrypt.compare(data.password, usuario.password);
+        if (!isPasswordValid) {
+            throw new Error("Correo o contraseña incorrectos");
+        }
+        const payload = {
+            id: usuario.id,
+            correo: usuario.correo,
+            role: usuario.role,
+        };
+        const secret: Secret = process.env.JWT_SECRET || "vj_utn_2026";
+        const options: SignOptions = {
+            expiresIn: "2h",
+        };
+        const token = jwt.sign(payload, secret, options);
+        return {
+            token
+        };
+    },
+
+        async perfil(usuarioId: number) {
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: usuarioId },
+        });
+        if (!usuario) {
+            throw new Error("El usuario no existe");
+        }
+        const { password, ...usuarioSinPassword } = usuario;
+
+        return usuarioSinPassword;
+    },
+
 };

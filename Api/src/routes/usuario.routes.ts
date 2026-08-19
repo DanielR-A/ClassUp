@@ -6,7 +6,10 @@ import { validateRequest } from "../middlewares/validate-request.middleware";
 
 import {
     cambiarEstadoUsuarioSchema,
+    loginUserSchema,
+    registerUserSchema,
 } from "../dtos/usuario.dto";
+import { authenticateToken } from "../middlewares/auth.middleware";
 
 export class UsuarioRoutes {
     static get routes(): Router {
@@ -17,6 +20,27 @@ export class UsuarioRoutes {
         router.get(
             "/",
             asyncHandler(controller.listar),
+        );
+
+        // POST http://localhost:3000/usuario/register
+        router.post(
+            "/register",
+            validateRequest(registerUserSchema),
+            asyncHandler(controller.registrar),
+        );
+
+        // POST http://localhost:3000/usuario/login
+        router.post(
+            "/login",
+            validateRequest(loginUserSchema),
+            asyncHandler(controller.login),
+        );
+
+        // GET http://localhost:3000/usuario/perfil
+        router.get(
+            "/perfil",
+            authenticateToken,
+            asyncHandler(controller.perfil),
         );
 
         // GET http://localhost:3000/usuario/1

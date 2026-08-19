@@ -86,22 +86,22 @@ export class UsuarioForm {
     label: string;
     icon: string;
   }[] = [
-    {
-      value: 'ADMIN',
-      label: 'Administrador',
-      icon: 'admin_panel_settings',
-    },
-    {
-      value: 'PROFESIONAL',
-      label: 'Profesional',
-      icon: 'school',
-    },
-    {
-      value: 'USER',
-      label: 'Cliente',
-      icon: 'person',
-    },
-  ];
+      {
+        value: Role.ADMIN,
+        label: 'Administrador',
+        icon: 'admin_panel_settings',
+      },
+      {
+        value: Role.PROFESIONAL,
+        label: 'Profesional',
+        icon: 'school',
+      },
+      {
+        value: Role.USER,
+        label: 'Cliente',
+        icon: 'person',
+      },
+    ];
 
   /*
    * Estado principal del formulario.
@@ -113,7 +113,7 @@ export class UsuarioForm {
     password: '',
     telefono: '',
     cedula: '',
-    role: 'USER',
+    role: Role.USER,
   });
 
   /*
@@ -297,9 +297,9 @@ export class UsuarioForm {
         const role = ctx.value();
 
         const rolesValidos: Role[] = [
-          'ADMIN',
-          'PROFESIONAL',
-          'USER',
+          Role.ADMIN,
+          Role.PROFESIONAL,
+          Role.USER,
         ];
 
         if (!rolesValidos.includes(role)) {
@@ -382,7 +382,7 @@ export class UsuarioForm {
       password: '',
       telefono: '',
       cedula: '',
-      role: 'USER',
+      role: Role.USER,
     });
   }
 

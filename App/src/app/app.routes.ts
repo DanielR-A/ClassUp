@@ -28,7 +28,15 @@ import { CitaDetail } from './pages/citas/cita-detail/cita-detail';
 import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
 import { CitaCreatePage } from './pages/citas/cita-create-page/cita-create-page';
 
+//logings
+import { Login } from './pages/usuarios/login/login';
+import { Perfil } from './pages/perfil/perfil/perfil';
+import { SinAutorizacion } from './pages/auth/sin-autorizacion/sin-autorizacion';
 
+import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
+
+import { Role } from './core/models/usuario.model';
 
 export const routes: Routes = [
     {
@@ -40,6 +48,22 @@ export const routes: Routes = [
                 component: Home,
                 title: 'Inicio',
             },
+            {
+    path: 'login',
+    component: Login,
+    title: 'Iniciar sesión',
+},
+{
+    path: 'perfil',
+    component: Perfil,
+    title: 'Mi perfil',
+    canActivate: [authGuard],
+},
+{
+    path: 'sin-autorizacion',
+    component: SinAutorizacion,
+    title: 'No autorizado',
+},
 
             // =====================
             // CURSOS (SERVICIOS)
@@ -151,6 +175,7 @@ export const routes: Routes = [
                 component: ResenasList,
                 title: 'Gestión de reseñas',
             },
+            
         ],
     },
 
