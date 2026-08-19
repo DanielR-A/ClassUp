@@ -1,97 +1,336 @@
 <header class="site-header">
     <mat-toolbar class="toolbar">
-        <a class="brand" routerLink="/">
+
+        <!-- Identidad de ClassUP -->
+        <a
+            class="brand"
+            routerLink="/"
+            aria-label="Ir al inicio"
+        >
             <span class="brand-icon">
                 <mat-icon>menu_book</mat-icon>
             </span>
+
             <span class="brand-text">
                 <strong>ClassUP</strong>
                 <small>Plataforma académica</small>
             </span>
         </a>
-        <nav class="desktop-nav">
-            @for (item of publicMenu(); track item.path) {
-            @if (canShowItem()(item)) {
-            <a mat-button [routerLink]="item.path" routerLinkActive="active-link"
-                [routerLinkActiveOptions]="{ exact: item.path === '/' }">
-                <mat-icon>{{ item.icon }}</mat-icon>
-                {{ item.label }}
-            </a>
+
+        <!-- Navegación principal -->
+        <nav
+            class="desktop-nav"
+            aria-label="Navegación principal"
+        >
+            @for (
+                item of publicMenuVisible();
+                track item.path
+            ) {
+                <a
+                    mat-button
+                    [routerLink]="item.path"
+                    routerLinkActive="active-link"
+                    [routerLinkActiveOptions]="{
+                        exact: item.path === '/'
+                    }"
+                >
+                    <mat-icon>
+                        {{ item.icon }}
+                    </mat-icon>
+
+                    <span>
+                        {{ item.label }}
+                    </span>
+                </a>
             }
+
+            @if (mostrarMenuMantenimientos()) {
+                <button
+                    mat-button
+                    [matMenuTriggerFor]="maintenanceMenu"
+                >
+                    <mat-icon>settings</mat-icon>
+
+                    <span>
+                        Mantenimientos
+                    </span>
+
+                    <mat-icon>
+                        expand_more
+                    </mat-icon>
+                </button>
             }
-            @if (isAdmin()) {
-            <button mat-button [matMenuTriggerFor]="maintenanceMenu">
-                <mat-icon>settings</mat-icon>
-                Mantenimientos
-            </button>
-            <button mat-button [matMenuTriggerFor]="managementMenu">
-                <mat-icon>admin_panel_settings</mat-icon>
-                Gestión
-            </button>
+
+            @if (mostrarMenuGestion()) {
+                <button
+                    mat-button
+                    [matMenuTriggerFor]="managementMenu"
+                >
+                    <mat-icon>
+                        admin_panel_settings
+                    </mat-icon>
+
+                    <span>
+                        Gestión
+                    </span>
+
+                    <mat-icon>
+                        expand_more
+                    </mat-icon>
+                </button>
             }
         </nav>
+
         <span class="spacer"></span>
-        <button mat-icon-button routerLink="/carrito" aria-label="Carrito de compras">
-            <mat-icon [matBadge]="cartCount()" [matBadgeHidden]="cartCount() === 0" matBadgeColor="accent">
-shopping_cart
+
+        <!-- Sesión cargando -->
+        @if (
+            !sesionInicializada() ||
+            cargandoSesion()
+        ) {
+            <button
+                mat-button
+                type="button"
+                disabled
+                class="session-loading"
+            >
+                <mat-icon>
+                    hourglass_top
+                </mat-icon>
+
+                <span>
+                    Cargando sesión...
+                </span>
+            </button>
+        }
+
+        <!-- Usuario autenticado -->
+        @else if (usuario(); as usuarioActual) {
+            <button
+                type="button"
+                class="user-menu-trigger"
+                [matMenuTriggerFor]="userMenu"
+                aria-label="Abrir menú de usuario"
+            >
+                <span class="user-avatar">
+                    {{ iniciales() }}
+                </span>
+
+                <span class="user-summary">
+                    <strong>
+                        {{ usuarioActual.nombre }}
+                    </strong>
+
+                    <small>
+                        {{ nombreRol() }}
+                    </small>
+                </span>
+
+                <mat-icon class="user-menu-arrow">
+                    expand_more
+                </mat-icon>
+            </button>
+        }
+
+        <!-- Visitante -->
+        @else {
+            <a
+                mat-flat-button
+                routerLink="/login"
+            >
+                <mat-icon>
+                    login
+                </mat-icon>
+
+                Iniciar sesión
+            </a>
+        }
+
+        <!-- Menú móvil -->
+        <button
+            class="mobile-menu-button"
+            mat-icon-button
+            [matMenuTriggerFor]="mobileMenu"
+            aria-label="Abrir menú"
+        >
+            <mat-icon>
+                menu
             </mat-icon>
         </button>
-        @if (currentUser(); as user) {
-        <div class="user-chip">
-            <mat-icon>person</mat-icon>
-            <span>{{ user.nombre }}</span>
-            <strong>{{ user.role }}</strong>
-        </div>
-        <button mat-flat-button color="primary" (click)="logoutUser.emit()">
-            Salir
-        </button>
-        } @else {
-        <button mat-stroked-button color="primary" (click)="loginClient.emit()">
-            Estudiantes demo
-        </button>
-        <button mat-flat-button color="primary" (click)="loginAdmin.emit()">
-            Admin demo
- </button>
-        }
-        <button class="mobile-menu-button" mat-icon-button [matMenuTriggerFor]="mobileMenu">
-            <mat-icon>menu</mat-icon>
-        </button>
+
     </mat-toolbar>
 </header>
 
+
+<!-- Menú de mantenimientos -->
 <mat-menu #maintenanceMenu="matMenu">
-    @for (item of adminMaintenanceMenu(); track item.path) {
-    <a mat-menu-item [routerLink]="item.path">
-        <mat-icon>{{ item.icon }}</mat-icon>
-        <span>{{ item.label }}</span>
-    </a>
+
+    @for (
+        item of adminMaintenanceMenuVisible();
+        track item.path
+    ) {
+        <a
+            mat-menu-item
+            [routerLink]="item.path"
+        >
+            <mat-icon>
+                {{ item.icon }}
+            </mat-icon>
+
+            <span>
+                {{ item.label }}
+            </span>
+        </a>
     }
+
 </mat-menu>
+
+
+<!-- Menú de gestión -->
 <mat-menu #managementMenu="matMenu">
-    @for (item of adminManagementMenu(); track item.path) {
-    <a mat-menu-item [routerLink]="item.path">
-        <mat-icon>{{ item.icon }}</mat-icon>
-        <span>{{ item.label }}</span>
-    </a>
+
+    @for (
+        item of adminManagementMenuVisible();
+        track item.path
+    ) {
+        <a
+            mat-menu-item
+            [routerLink]="item.path"
+        >
+            <mat-icon>
+                {{ item.icon }}
+            </mat-icon>
+
+            <span>
+                {{ item.label }}
+            </span>
+        </a>
     }
+
 </mat-menu>
+
+
+<!-- Menú del usuario -->
+<mat-menu #userMenu="matMenu">
+
+    @if (usuario(); as usuarioActual) {
+
+        <div class="user-menu-info">
+
+            <strong>
+                {{ usuarioActual.nombre }}
+                {{ usuarioActual.apellidos }}
+            </strong>
+
+            <span>
+                {{ usuarioActual.correo }}
+            </span>
+
+            <small>
+                {{ nombreRol() }}
+            </small>
+
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <a
+            mat-menu-item
+            routerLink="/perfil"
+        >
+            <mat-icon>
+                person
+            </mat-icon>
+
+            <span>
+                Mi perfil
+            </span>
+        </a>
+
+        @if (esAdmin()) {
+            <a
+                mat-menu-item
+                routerLink="/admin/usuarios"
+            >
+                <mat-icon>
+                    manage_accounts
+                </mat-icon>
+
+                <span>
+                    Gestión de usuarios
+                </span>
+            </a>
+        }
+
+        <mat-divider></mat-divider>
+
+        <button
+            mat-menu-item
+            type="button"
+            (click)="cerrarSesion()"
+        >
+            <mat-icon>
+                logout
+            </mat-icon>
+
+            <span>
+                Cerrar sesión
+            </span>
+        </button>
+    }
+
+</mat-menu>
+
+
+<!-- Menú móvil -->
 <mat-menu #mobileMenu="matMenu">
-    @for (item of publicMenu(); track item.path) {
-    @if (canShowItem()(item)) {
-    <a mat-menu-item [routerLink]="item.path">
-        <mat-icon>{{ item.icon }}</mat-icon>
-        <span>{{ item.label }}</span>
-    </a>
+
+    @for (
+        item of publicMenuVisible();
+        track item.path
+    ) {
+        <a
+            mat-menu-item
+            [routerLink]="item.path"
+        >
+            <mat-icon>
+                {{ item.icon }}
+            </mat-icon>
+
+            <span>
+                {{ item.label }}
+            </span>
+        </a>
     }
+
+    @if (mostrarMenuMantenimientos()) {
+        <button
+            mat-menu-item
+            [matMenuTriggerFor]="maintenanceMenu"
+        >
+            <mat-icon>
+                settings
+            </mat-icon>
+
+            <span>
+                Mantenimientos
+            </span>
+        </button>
     }
-    @if (isAdmin()) {
-    <button mat-menu-item [matMenuTriggerFor]="maintenanceMenu">
-        <mat-icon>settings</mat-icon>
-        <span>Mantenimientos</span>
-    </button>
-    <button mat-menu-item [matMenuTriggerFor]="managementMenu">
-        <mat-icon>admin_panel_settings</mat-icon>
-        <span>Gestión</span>
-    </button>
+
+    @if (mostrarMenuGestion()) {
+        <button
+            mat-menu-item
+            [matMenuTriggerFor]="managementMenu"
+        >
+            <mat-icon>
+                admin_panel_settings
+            </mat-icon>
+
+            <span>
+                Gestión
+            </span>
+        </button>
     }
+
 </mat-menu>
