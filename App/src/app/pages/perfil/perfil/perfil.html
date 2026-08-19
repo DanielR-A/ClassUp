@@ -1,0 +1,124 @@
+<main class="profile-page">
+    <div class="profile-container">
+        @if (usuario(); as usuarioActual) {
+        <section class="profile-header">
+            <div>
+                <p class="eyebrow">Mi cuenta</p>
+                <h1>Perfil de usuario</h1>
+                <p class="page-description">
+                    Consulte la información asociada a su sesión actual.
+                </p>
+            </div>
+            <button mat-stroked-button type="button" (click)="regresarAlInicio()">
+                <mat-icon>arrow_back</mat-icon>
+                Regresar
+            </button>
+        </section>
+        <div class="profile-layout">
+            <mat-card class="identity-card" appearance="outlined">
+                <mat-card-content>
+                    <div class="avatar" aria-hidden="true">
+                        {{ iniciales() }}
+                    </div>
+                    <h2>{{ usuarioActual.nombre }}</h2>
+                    <p class="email">{{ usuarioActual.correo }}</p>
+                    <mat-chip-set class="role-chip" aria-label="Rol del usuario">
+                        <mat-chip>
+                            <mat-icon matChipAvatar>{{ iconoRol() }}</mat-icon>
+                            {{ rolDescripcion() }}
+                        </mat-chip>
+                    </mat-chip-set>
+                    <mat-divider></mat-divider>
+                    <button mat-stroked-button type="button" class="logout-button" (click)="cerrarSesion()">
+                        <mat-icon>logout</mat-icon>
+                        Cerrar sesión
+                    </button>
+                </mat-card-content>
+            </mat-card>
+            <section class="details-column">
+                <mat-card class="details-card" appearance="outlined">
+                    <mat-card-header>
+                        <div mat-card-avatar class="header-icon">
+                            <mat-icon>badge</mat-icon>
+                        </div>
+                        <mat-card-title>Información personal</mat-card-title>
+                        <mat-card-subtitle>
+                            Datos registrados en el sistema
+                        </mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="details-grid">
+                            <article class="detail-item">
+                                <div class="detail-icon">
+                                    <mat-icon>person</mat-icon>
+                                </div>
+                                <div>
+                                    <span class="detail-label">Nombre completo</span>
+                                    <strong>{{ usuarioActual.nombre }}</strong>
+                                </div>
+                            </article>
+                            <article class="detail-item">
+                                <div class="detail-icon">
+                                    <mat-icon>mail</mat-icon>
+                                </div>
+                                <div>
+                                    <span class="detail-label">Correo electrónico</span>
+                                    <strong>{{ usuarioActual.correo }}</strong>
+                                </div>
+                            </article>
+                            <article class="detail-item">
+                                <div class="detail-icon">
+                                    <mat-icon>{{ iconoRol() }}</mat-icon>
+                                </div>
+                                <div>
+                                    <span class="detail-label">Rol asignado</span>
+                                    <strong>{{ rolDescripcion() }}</strong>
+                                </div>
+                            </article>
+                            <article class="detail-item">
+                                <div class="detail-icon">
+                                    <mat-icon>tag</mat-icon>
+                                </div>
+                                <div>
+                                    <span class="detail-label">Identificador</span>
+                                    <strong>#{{ usuarioActual.id }}</strong>
+                                </div>
+                            </article>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                @if (esAdministrador()) {
+                <mat-card class="permissions-card" appearance="outlined">
+                    <mat-card-content>
+                        <div class="permissions-icon">
+                            <mat-icon>shield</mat-icon>
+                        </div>
+                        <div>
+                            <h3>Permisos administrativos</h3>
+                            <p>
+                                Esta cuenta tiene acceso a las funciones de administración
+                                habilitadas en la aplicación.
+                            </p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                }
+            </section>
+        </div>
+        } @else {
+        <mat-card class="empty-state" appearance="outlined">
+            <mat-card-content>
+                <mat-icon>person_off</mat-icon>
+                <h2>No fue posible cargar el perfil</h2>
+                <p>
+                    No existe información de un usuario autenticado en este momento.
+                </p>
+                <button mat-flat-button type="button" (click)="cerrarSesion()">
+                    <mat-icon>login</mat-icon>
+                    Ir al inicio de sesión
+                </button>
+            </mat-card-content>
+        </mat-card>
+        }
+    </div>
+</main>
