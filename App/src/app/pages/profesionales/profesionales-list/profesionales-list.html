@@ -21,7 +21,7 @@
         <mat-label>Buscar profesional</mat-label>
 
         <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)"
-            placeholder="Nombre, título, correo o especialidad" />
+            placeholder="Nombre, título, email o especialidad" />
 
         <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
@@ -160,11 +160,11 @@
                     </span>
                 </div>
 
-                @if (profesional.usuario?.correo) {
+                @if (profesional.usuario?.email) {
                 <p class="professional-email">
                     <mat-icon>mail</mat-icon>
 
-                    {{ profesional.usuario?.correo }}
+                    {{ profesional.usuario?.email }}
                 </p>
                 }
             </div>

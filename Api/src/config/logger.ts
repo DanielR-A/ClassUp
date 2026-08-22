@@ -22,6 +22,7 @@ export const logger = winston.createLogger({
     level: "info",
     format: logFormat,
     transports: [
+        
         new winston.transports.DailyRotateFile({
             filename: "%DATE%-app.log",
             dirname: "logs",

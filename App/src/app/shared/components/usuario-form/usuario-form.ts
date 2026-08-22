@@ -17,6 +17,7 @@ import {
   maxLength,
   pattern,
   validate,
+  email,
 } from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -109,7 +110,7 @@ export class UsuarioForm {
   usuarioModel = signal<UsuarioFormModel>({
     nombre: '',
     apellidos: '',
-    correo: '',
+    email: '',
     password: '',
     telefono: '',
     cedula: '',
@@ -177,17 +178,17 @@ export class UsuarioForm {
       /*
        * Correo
        */
-      required(path.correo, {
+      required(path.email, {
         message: 'El correo es obligatorio',
       });
 
-      maxLength(path.correo, 150, {
+      maxLength(path.email, 150, {
         message:
           'El correo no puede superar los 150 caracteres',
       });
 
       pattern(
-        path.correo,
+        path.email,
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         {
           message:
@@ -350,8 +351,8 @@ export class UsuarioForm {
         apellidos:
           usuarioActual.apellidos ?? '',
 
-        correo:
-          usuarioActual.correo ?? '',
+        email:
+          usuarioActual.email ?? '',
 
         /*
          * La contraseña nunca se carga
@@ -378,7 +379,7 @@ export class UsuarioForm {
     this.usuarioModel.set({
       nombre: '',
       apellidos: '',
-      correo: '',
+      email: '',
       password: '',
       telefono: '',
       cedula: '',
@@ -416,7 +417,7 @@ export class UsuarioForm {
       .markAsTouched();
 
     this.usuarioForm
-      .correo()
+      .email()
       .markAsTouched();
 
     this.usuarioForm
@@ -445,7 +446,7 @@ export class UsuarioForm {
       this.usuarioForm
         .apellidos()
         .invalid() ||
-      this.usuarioForm.correo().invalid() ||
+      this.usuarioForm.email().invalid() ||
       this.usuarioForm
         .password()
         .invalid() ||
@@ -488,7 +489,7 @@ export class UsuarioForm {
       apellidos:
         value.apellidos.trim(),
 
-      correo: value.correo
+      email: value.email
         .trim()
         .toLowerCase(),
 

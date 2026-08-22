@@ -174,7 +174,7 @@ export class CitasList implements OnInit {
                     : '';
 
             const clienteCorreo =
-                cita.cliente?.correo
+                cita.cliente?.email
                     ?.toLowerCase() ?? '';
 
             const profesionalNombre =

@@ -104,7 +104,7 @@ export class ProfesionalesList implements OnInit {
                     `${nombre} ${apellidos}`.trim();
 
                 const correo =
-                    profesional.usuario?.correo
+                    profesional.usuario?.email
                         ?.toLowerCase() ?? '';
 
                 const titulo =

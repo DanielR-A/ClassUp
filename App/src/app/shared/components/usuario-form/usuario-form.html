@@ -106,19 +106,19 @@
                             type="email"
                             placeholder="usuario@classup.com"
                             autocomplete="email"
-                            [formField]="usuarioForm.correo"
+                            [formField]="usuarioForm.email"
                         />
 
                         <mat-icon matSuffix>mail</mat-icon>
 
                         @if (
-                            usuarioForm.correo().touched() &&
-                            usuarioForm.correo().invalid()
+                            usuarioForm.email().touched() &&
+                            usuarioForm.email().invalid()
                         ) {
                             <mat-error>
                                 {{
                                     usuarioForm
-                                        .correo()
+                                        .email()
                                         .errors()[0]
                                         .message
                                 }}
@@ -338,7 +338,7 @@
 
                             <strong>
                                 {{
-                                    usuarioModel().correo ||
+                                    usuarioModel().email ||
                                     'No registrado'
                                 }}
                             </strong>

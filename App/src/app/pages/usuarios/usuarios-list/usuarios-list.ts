@@ -78,7 +78,7 @@ export class UsuariosList implements OnInit {
   displayedColumns: string[] = [
     'id',
     'usuario',
-    'correo',
+    'email',
     'telefono',
     'cedula',
     'role',
@@ -105,8 +105,8 @@ export class UsuariosList implements OnInit {
       const nombreCompleto =
         `${nombre} ${apellidos}`.trim();
 
-      const correo =
-        usuario.correo?.toLowerCase() ?? '';
+      const email =
+        usuario.email?.toLowerCase() ?? '';
 
       const telefono =
         usuario.telefono?.toLowerCase() ?? '';
@@ -127,7 +127,7 @@ export class UsuariosList implements OnInit {
         nombre.includes(texto) ||
         apellidos.includes(texto) ||
         nombreCompleto.includes(texto) ||
-        correo.includes(texto) ||
+        email.includes(texto) ||
         telefono.includes(texto) ||
         cedula.includes(texto) ||
         rol.includes(texto) ||

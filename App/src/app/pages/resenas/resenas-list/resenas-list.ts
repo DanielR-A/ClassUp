@@ -74,20 +74,18 @@ export class ResenasList implements OnInit {
 
             const clienteNombre =
                 resena.cliente
-                    ? `${resena.cliente.nombre ?? ''} ${
-                          resena.cliente.apellidos ?? ''
-                      }`
-                          .trim()
-                          .toLowerCase()
+                    ? `${resena.cliente.nombre ?? ''} ${resena.cliente.apellidos ?? ''
+                        }`
+                        .trim()
+                        .toLowerCase()
                     : '';
 
             const profesionalNombre =
                 resena.profesional?.usuario
-                    ? `${resena.profesional.usuario.nombre ?? ''} ${
-                          resena.profesional.usuario.apellidos ?? ''
-                      }`
-                          .trim()
-                          .toLowerCase()
+                    ? `${resena.profesional.usuario.nombre ?? ''} ${resena.profesional.usuario.apellidos ?? ''
+                        }`
+                        .trim()
+                        .toLowerCase()
                     : '';
 
             const coincideTexto =
@@ -187,9 +185,9 @@ export class ResenasList implements OnInit {
         data:
             | T[]
             | {
-                  data: T[];
-                  meta?: unknown;
-              }
+                data: T[];
+                meta?: unknown;
+            }
             | null
             | undefined,
     ): T[] {
