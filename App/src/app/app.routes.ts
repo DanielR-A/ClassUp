@@ -10,25 +10,30 @@ import { ServicioAdminList } from './pages/servicio/servicio-admin-list/servicio
 import { ServicioCreatePage } from './pages/servicio/servicio-create-page/servicio-create-page';
 import { ServicioEditPage } from './pages/servicio/servicio-edit-page/servicio-edit-page';
 
-// Administración
+// Usuarios
 import { UsuarioCreatePage } from './pages/usuarios/usuario-create-page/usuario-create-page';
 import { UsuarioEditPage } from './pages/usuarios/usuario-edit-page/usuario-edit-page';
 import { UsuariosList } from './pages/usuarios/usuarios-list/usuarios-list';
+
+// Profesionales
 import { ProfesionalesList } from './pages/profesionales/profesionales-list/profesionales-list';
 import { ProfesionalDetail } from './pages/profesionales/profesional-detail/profesional-detail';
 import { ProfesionalCreatePage } from './pages/profesionales/profesional-create-page/profesional-create-page';
 import { ProfesionalEditPage } from './pages/profesionales/profesional-edit-page/profesional-edit-page';
 
+// Categorías y especialidades
 import { CategoriasList } from './pages/categorias/categorias-list/categorias-list';
 import { EspecialidadesList } from './pages/especialidades/especialidades-list/especialidades-list';
 
+// Citas
 import { CitasList } from './pages/citas/citas-list/citas-list';
 import { CitaDetail } from './pages/citas/cita-detail/cita-detail';
-
-import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
 import { CitaCreatePage } from './pages/citas/cita-create-page/cita-create-page';
 
-//logings
+// Reseñas
+import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
+
+// Autenticación
 import { Login } from './pages/usuarios/login/login';
 import { Perfil } from './pages/perfil/perfil/perfil';
 import { SinAutorizacion } from './pages/auth/sin-autorizacion/sin-autorizacion';
@@ -43,30 +48,42 @@ export const routes: Routes = [
         path: '',
         component: MainLayout,
         children: [
+
+            // =====================
+            // INICIO
+            // =====================
+
             {
                 path: '',
                 component: Home,
                 title: 'Inicio',
             },
-            {
-    path: 'login',
-    component: Login,
-    title: 'Iniciar sesión',
-},
-{
-    path: 'perfil',
-    component: Perfil,
-    title: 'Mi perfil',
-    canActivate: [authGuard],
-},
-{
-    path: 'sin-autorizacion',
-    component: SinAutorizacion,
-    title: 'No autorizado',
-},
 
             // =====================
-            // CURSOS (SERVICIOS)
+            // AUTENTICACIÓN
+            // =====================
+
+            {
+                path: 'login',
+                component: Login,
+                title: 'Iniciar sesión',
+            },
+
+            {
+                path: 'perfil',
+                component: Perfil,
+                title: 'Mi perfil',
+                canActivate: [authGuard],
+            },
+
+            {
+                path: 'sin-autorizacion',
+                component: SinAutorizacion,
+                title: 'No autorizado',
+            },
+
+            // =====================
+            // CURSOS
             // =====================
 
             {
@@ -74,6 +91,7 @@ export const routes: Routes = [
                 component: ServicioList,
                 title: 'Catálogo de cursos',
             },
+
             {
                 path: 'cursos/:id',
                 component: ServicioDetail,
@@ -81,7 +99,7 @@ export const routes: Routes = [
             },
 
             // =====================
-            // PROFESIONALES
+            // PROFESIONALES PÚBLICOS
             // =====================
 
             {
@@ -91,91 +109,182 @@ export const routes: Routes = [
             },
 
             // =====================
-            // ADMINISTRACIÓN
+            // ADMIN - SERVICIOS
             // =====================
 
             {
                 path: 'admin/servicios',
                 component: ServicioAdminList,
                 title: 'Mantenimiento de cursos',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/servicios/crear',
                 component: ServicioCreatePage,
                 title: 'Registrar curso',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/servicios/editar/:id',
                 component: ServicioEditPage,
                 title: 'Actualizar curso',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
+            // =====================
+            // ADMIN - USUARIOS
+            // =====================
 
             {
                 path: 'admin/usuarios',
                 component: UsuariosList,
                 title: 'Gestión de usuarios',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/usuarios/crear',
                 component: UsuarioCreatePage,
                 title: 'Registrar usuario',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/usuarios/editar/:id',
                 component: UsuarioEditPage,
                 title: 'Actualizar usuario',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
+            // =====================
+            // ADMIN - PROFESIONALES
+            // =====================
 
             {
                 path: 'admin/profesionales',
                 component: ProfesionalesList,
                 title: 'Gestión de profesionales',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/profesionales/crear',
                 component: ProfesionalCreatePage,
                 title: 'Registrar profesional',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/profesionales/editar/:id',
                 component: ProfesionalEditPage,
                 title: 'Actualizar profesional',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
+            // =====================
+            // ADMIN - CATEGORÍAS
+            // =====================
 
             {
                 path: 'admin/categorias',
                 component: CategoriasList,
                 title: 'Gestión de categorías',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
+            // =====================
+            // ADMIN - ESPECIALIDADES
+            // =====================
 
             {
                 path: 'admin/especialidades',
                 component: EspecialidadesList,
                 title: 'Gestión de especialidades',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
+            // =====================
+            // ADMIN - CITAS
+            // =====================
 
             {
                 path: 'admin/citas',
                 component: CitasList,
                 title: 'Gestión de citas',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/citas/crear',
                 component: CitaCreatePage,
                 title: 'Registrar cita',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
             {
                 path: 'admin/citas/:id',
                 component: CitaDetail,
                 title: 'Detalle de la cita',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
+
+            // =====================
+            // ADMIN - RESEÑAS
+            // =====================
 
             {
                 path: 'admin/resenas',
                 component: ResenasList,
                 title: 'Gestión de reseñas',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.ADMIN],
+                },
             },
-            
         ],
     },
 
