@@ -102,6 +102,13 @@ export const routes: Routes = [
             // PROFESIONALES PÚBLICOS
             // =====================
 
+
+            {
+                path: 'profesionales',
+                component: ProfesionalesList,
+                title: 'Profesionales',
+            },
+
             {
                 path: 'profesionales/:id',
                 component: ProfesionalDetail,

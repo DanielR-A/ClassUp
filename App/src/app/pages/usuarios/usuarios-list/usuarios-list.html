@@ -27,7 +27,7 @@
             matInput
             [ngModel]="search()"
             (ngModelChange)="search.set($event)"
-            placeholder="Nombre, correo, teléfono o cédula"
+            placeholder="Nombre, email, teléfono o cédula"
         />
 
         <mat-icon matSuffix>
@@ -152,12 +152,12 @@
             </ng-container>
 
             <!-- CORREO -->
-            <ng-container matColumnDef="correo">
+            <ng-container matColumnDef="email">
                 <th
                     mat-header-cell
                     *matHeaderCellDef
                 >
-                    Correo
+                    email
                 </th>
 
                 <td
@@ -170,7 +170,7 @@
                         </mat-icon>
 
                         <span>
-                            {{ usuario.correo }}
+                            {{ usuario.email }}
                         </span>
                     </div>
                 </td>

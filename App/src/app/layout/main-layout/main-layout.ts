@@ -43,6 +43,7 @@ export class MainLayout {
             path: '/cursos',
             icon: 'school',
         },
+        
         {
             label: 'Profesionales',
             path: '/profesionales',
