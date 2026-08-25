@@ -848,5 +848,50 @@ async obtenerDetalleProfesional(
     return cita;
 },
 
+async misCitasCliente(usuarioId: number) {
+    return prisma.cita.findMany({
+        where: {
+            clienteId: usuarioId,
+        },
+
+        include: {
+            profesional: {
+                include: {
+                    usuario: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                        },
+                    },
+                },
+            },
+
+            servicio: {
+                include: {
+                    categoria: true,
+                    especialidades: true,
+                },
+            },
+
+            historial: {
+                orderBy: {
+                    createdAt: "asc",
+                },
+            },
+        },
+
+        orderBy: [
+            {
+                fechaCita: "desc",
+            },
+            {
+                horaInicio: "asc",
+            },
+        ],
+    });
+},
+
 
 };
