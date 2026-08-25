@@ -146,12 +146,16 @@ actualizar = async (
 
     
 
-    registrar = async (
-        request: Request,
-        response: Response,
-        next: NextFunction
-    ) => {
-        const usuario = await usuarioService.registrar(request.body);
+registrar = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+) => {
+    try {
+        const usuario =
+            await usuarioService.registrar(
+                request.body,
+            );
 
         return sendSuccess(
             response,
@@ -159,7 +163,46 @@ actualizar = async (
             "Usuario registrado correctamente",
             StatusCodes.CREATED
         );
-    };
+
+    } catch (error) {
+
+        const message =
+            error instanceof Error
+                ? error.message
+                : "Error al registrar usuario";
+
+        if (
+            message ===
+            "El correo ya está registrado"
+        ) {
+            return response
+                .status(StatusCodes.CONFLICT)
+                .json({
+                    success: false,
+                    message:
+                        "El correo electrónico ya está registrado",
+                });
+        }
+
+        if (
+            message ===
+            "La cédula ya está registrada"
+        ) {
+            return response
+                .status(StatusCodes.CONFLICT)
+                .json({
+                    success: false,
+                    message:
+                        "La cédula ya está registrada",
+                });
+        }
+
+        next(error);
+    }
+};
+
+
+
 
     login = async (request: Request, response: Response, next: NextFunction) => {
         try {

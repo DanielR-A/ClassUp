@@ -334,33 +334,75 @@ async actualizar(
 
 
 
-
-        async registrar(data: {
-        email: string;
-        password: string;
-        nombre: string;
-        apellidos: string;
-        role?: Role;
-    }) {
-        const usuarioExists = await prisma.usuario.findUnique({
-            where: { email: data.email }
+async registrar(data: {
+    email: string;
+    password: string;
+    nombre: string;
+    apellidos: string;
+    telefono?: string;
+    cedula?: string;
+    role?: Role;
+}) {
+    // Verificar correo duplicado
+    const usuarioExists =
+        await prisma.usuario.findUnique({
+            where: {
+                email: data.email,
+            },
         });
-        if (usuarioExists) {
-            throw new Error("El correo ya está registrado");
+
+    if (usuarioExists) {
+        throw new Error(
+            "El correo ya está registrado"
+        );
+    }
+
+    // Verificar cédula duplicada
+    if (data.cedula) {
+        const cedulaExists =
+            await prisma.usuario.findUnique({
+                where: {
+                    cedula: data.cedula,
+                },
+            });
+
+        if (cedulaExists) {
+            throw new Error(
+                "La cédula ya está registrada"
+            );
         }
-        const hashedPassword = await bcrypt.hash(data.password, 10);
-        const usuario = await prisma.usuario.create({
+    }
+
+    const hashedPassword =
+        await bcrypt.hash(
+            data.password,
+            10
+        );
+
+    const usuario =
+        await prisma.usuario.create({
             data: {
                 email: data.email,
                 password: hashedPassword,
                 nombre: data.nombre,
                 apellidos: data.apellidos,
-                role: data.role ?? Role.USER,
+                telefono: data.telefono,
+                cedula: data.cedula,
+
+                // Registro público siempre USER
+                role: Role.USER,
+
+                estado: true,
             },
         });
-        const { password, ...usuarioWithoutPassword } = usuario;
-        return usuarioWithoutPassword;
-    },
+
+    const {
+        password,
+        ...usuarioWithoutPassword
+    } = usuario;
+
+    return usuarioWithoutPassword;
+},
 
         async login(data: { email: string; password: string }) {
         const usuario = await prisma.usuario.findUnique({
@@ -399,5 +441,9 @@ async actualizar(
 
         return usuarioSinPassword;
     },
+
+
+
+
 
 };

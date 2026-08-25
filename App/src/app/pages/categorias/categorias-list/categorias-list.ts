@@ -9,6 +9,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,21 +20,24 @@ import { MatTableModule } from '@angular/material/table';
 
 import { Categoria } from '../../../core/models/categoria.model';
 import { CategoriaService } from '../../../core/services/categoria.service';
+import { MatOption } from "@angular/material/select";
 
 @Component({
     selector: 'app-categorias-list',
     standalone: true,
     imports: [
-        FormsModule,
-        DatePipe,
-        MatButtonModule,
-        MatChipsModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
-    ],
+    FormsModule,
+    DatePipe,
+    MatButtonModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatTableModule,
+    MatOption
+],
     templateUrl: './categorias-list.html',
     styleUrl: './categorias-list.css',
 })
@@ -45,6 +49,8 @@ export class CategoriasList implements OnInit {
     categorias = signal<Categoria[]>([]);
 
     search = signal('');
+    estadoFiltro = signal<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
+    descripcionFiltro = signal('');
     loading = signal(false);
     error = signal<string | null>(null);
 
@@ -58,28 +64,51 @@ export class CategoriasList implements OnInit {
         'acciones',
     ];
 
-    categoriasFiltradas = computed(() => {
-        const texto = this.search()
-            .trim()
-            .toLowerCase();
 
-        if (!texto) {
-            return this.categorias();
-        }
 
-        return this.categorias().filter((categoria) => {
-            const nombre =
-                categoria.nombre?.toLowerCase() ?? '';
 
-            const descripcion =
-                categoria.descripcion?.toLowerCase() ?? '';
+categoriasFiltradas = computed(() => {
+    const texto = this.search()
+        .trim()
+        .toLowerCase();
 
-            return (
-                nombre.includes(texto) ||
-                descripcion.includes(texto)
-            );
-        });
+    const descripcionTexto = this.descripcionFiltro()
+        .trim()
+        .toLowerCase();
+
+    const estado = this.estadoFiltro();
+
+    return this.categorias().filter((categoria) => {
+        const nombre =
+            categoria.nombre?.toLowerCase() ?? '';
+
+        const descripcion =
+            categoria.descripcion?.toLowerCase() ?? '';
+
+        const coincideNombre =
+            !texto ||
+            nombre.includes(texto);
+
+        const coincideDescripcion =
+            !descripcionTexto ||
+            descripcion.includes(descripcionTexto);
+
+        const coincideEstado =
+            estado === 'TODOS' ||
+            (estado === 'ACTIVOS' &&
+                categoria.estado) ||
+            (estado === 'INACTIVOS' &&
+                !categoria.estado);
+
+        return (
+            coincideNombre &&
+            coincideDescripcion &&
+            coincideEstado
+        );
     });
+});
+
+
 
     totalCategorias = computed(
         () => this.categoriasFiltradas().length,
@@ -140,6 +169,8 @@ export class CategoriasList implements OnInit {
 
     clearSearch(): void {
         this.search.set('');
+        this.descripcionFiltro.set('');
+        this.estadoFiltro.set('TODOS');
     }
 
     toggleEstado(categoria: Categoria): void {
@@ -162,9 +193,9 @@ export class CategoriasList implements OnInit {
                             categorias.map((item) =>
                                 item.id === categoria.id
                                     ? {
-                                          ...item,
-                                          ...categoriaActualizada,
-                                      }
+                                        ...item,
+                                        ...categoriaActualizada,
+                                    }
                                     : item,
                             ),
                     );
@@ -200,9 +231,9 @@ export class CategoriasList implements OnInit {
         data:
             | T[]
             | {
-                  data: T[];
-                  meta?: unknown;
-              }
+                data: T[];
+                meta?: unknown;
+            }
             | null
             | undefined,
     ): T[] {
