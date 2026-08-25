@@ -72,37 +72,68 @@ export type CambiarEstadoUsuarioDto = z.infer<
 >;
 
 export const registerUserSchema = z.object({
+    nombre: z
+        .string()
+        .trim()
+        .min(2, {
+            error: "El nombre debe tener al menos 2 caracteres",
+        })
+        .max(100, {
+            error: "El nombre no puede superar 100 caracteres",
+        }),
+
+    apellidos: z
+        .string()
+        .trim()
+        .min(2, {
+            error: "Los apellidos deben tener al menos 2 caracteres",
+        })
+        .max(150, {
+            error: "Los apellidos no pueden superar 150 caracteres",
+        }),
+
     email: z
+        .string()
+        .trim()
         .email({
             error: "Debe ingresar un correo válido",
         })
-        .max(100, {
-            error: "El correo no puede superar 100 caracteres",
-        }),
+        .max(150, {
+            error: "El correo no puede superar 150 caracteres",
+        })
+        .toLowerCase(),
 
     password: z
         .string()
-        .min(6, {
-            error: "La contraseña debe tener al menos 6 caracteres",
+        .min(8, {
+            error: "La contraseña debe tener al menos 8 caracteres",
         })
         .max(255, {
             error: "La contraseña no puede superar 255 caracteres",
         }),
 
-    fullName: z
+    telefono: z
         .string()
         .trim()
-        .min(3, {
-            error: "El nombre completo debe tener al menos 3 caracteres",
+        .min(8, {
+            error: "El teléfono debe tener al menos 8 caracteres",
         })
-        .max(120, {
-            error: "El nombre completo no puede superar 120 caracteres",
-        }),
+        .max(30, {
+            error: "El teléfono no puede superar 30 caracteres",
+        })
+        .optional(),
+
+    cedula: z
+        .string()
+        .trim()
+        .regex(
+            /^\d{9}$/,
+            "La cédula debe contener exactamente 9 dígitos",
+        )
+        .optional(),
 
     role: z
-        .enum(Role, {
-            error: "El rol proporcionado no es válido (Debe ser USER o ADMIN)",
-        })
+        .enum(Role)
         .optional(),
 });
 

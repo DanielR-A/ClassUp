@@ -70,6 +70,12 @@ export class UsuarioForm {
    */
   saving = input<boolean>(false);
 
+
+/*
+ * Indica si el formulario se usa para registro público.
+ * En este modo no se permite seleccionar el rol.
+ */
+modoRegistroPublico = input<boolean>(false);
   /*
    * Eventos enviados al componente padre.
    */

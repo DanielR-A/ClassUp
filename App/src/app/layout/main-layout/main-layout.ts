@@ -43,11 +43,11 @@ export class MainLayout {
             path: '/cursos',
             icon: 'school',
         },
-        
+
         {
-            label: 'Profesionales',
-            path: '/profesionales',
-            icon: 'person_search',
+            label: 'Crear cuenta',
+            path: '/registro',
+            icon: 'person_add',
         },
         {
             label: 'Mi Agenda',

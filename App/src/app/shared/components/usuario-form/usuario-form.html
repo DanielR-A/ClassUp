@@ -260,37 +260,44 @@
                         }
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline">
-                        <mat-label>Rol</mat-label>
+                    @if (!modoRegistroPublico()) {
 
-                        <mat-select
-                            [formField]="usuarioForm.role"
-                        >
-                            @for (rol of roles; track rol.value) {
-                                <mat-option [value]="rol.value">
-                                    <mat-icon>
-                                        {{ rol.icon }}
-                                    </mat-icon>
+    <mat-form-field appearance="outline">
+        <mat-label>Rol</mat-label>
 
-                                    {{ rol.label }}
-                                </mat-option>
-                            }
-                        </mat-select>
+        <mat-select
+            [formField]="usuarioForm.role"
+        >
+            @for (rol of roles; track rol.value) {
+                <mat-option [value]="rol.value">
+                    <mat-icon>
+                        {{ rol.icon }}
+                    </mat-icon>
 
-                        @if (
-                            usuarioForm.role().touched() &&
-                            usuarioForm.role().invalid()
-                        ) {
-                            <mat-error>
-                                {{
-                                    usuarioForm
-                                        .role()
-                                        .errors()[0]
-                                        .message
-                                }}
-                            </mat-error>
-                        }
-                    </mat-form-field>
+                    {{ rol.label }}
+                </mat-option>
+            }
+        </mat-select>
+
+        @if (
+            usuarioForm.role().touched() &&
+            usuarioForm.role().invalid()
+        ) {
+            <mat-error>
+                {{
+                    usuarioForm
+                        .role()
+                        .errors()[0]
+                        .message
+                }}
+            </mat-error>
+        }
+    </mat-form-field>
+
+}
+
+
+
                 </div>
             </section>
 

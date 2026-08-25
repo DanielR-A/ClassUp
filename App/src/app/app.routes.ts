@@ -14,7 +14,7 @@ import { ServicioEditPage } from './pages/servicio/servicio-edit-page/servicio-e
 import { UsuarioCreatePage } from './pages/usuarios/usuario-create-page/usuario-create-page';
 import { UsuarioEditPage } from './pages/usuarios/usuario-edit-page/usuario-edit-page';
 import { UsuariosList } from './pages/usuarios/usuarios-list/usuarios-list';
-
+import { UsuarioNormalPage } from './pages/usuarios/usuario-normal-page/usuario-normal-page';
 // Profesionales
 import { ProfesionalesList } from './pages/profesionales/profesionales-list/profesionales-list';
 import { ProfesionalDetail } from './pages/profesionales/profesional-detail/profesional-detail';
@@ -67,6 +67,12 @@ export const routes: Routes = [
                 path: 'login',
                 component: Login,
                 title: 'Iniciar sesión',
+            },
+
+            {
+                path: 'registro',
+                component: UsuarioNormalPage,
+                title: 'Crear cuenta',
             },
 
             {

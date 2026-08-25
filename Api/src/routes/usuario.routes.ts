@@ -38,6 +38,13 @@ export class UsuarioRoutes {
             asyncHandler(controller.registrar),
         );
 
+        // POST http://localhost:3000/usuario/registro
+        router.post(
+            "/registro",
+            validateRequest(registerUserSchema),
+            asyncHandler(controller.registrar),
+        );
+
         // POST http://localhost:3000/usuario/login
         router.post(
             "/login",

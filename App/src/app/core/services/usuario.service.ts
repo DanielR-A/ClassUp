@@ -27,6 +27,13 @@ export class UsuarioService {
         return this.http.post<ApiResponse<Usuario>>(this.apiUrl, data);
     }
 
+    registrar(data: UsuarioCreateDto) {
+    return this.http.post<ApiResponse<Usuario>>(
+        `${this.apiUrl}/registro`,
+        data,
+    );
+}
+
     actualizar(id: number, data: UsuarioUpdateDto) {
         return this.http.put<ApiResponse<Usuario>>(
             `${this.apiUrl}/${id}`,

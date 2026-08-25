@@ -1,1 +1,23 @@
-<p>usuario-normal-page works!</p>
+<section class="page-header">
+    <div>
+        <span class="eyebrow">
+            ClassUP
+        </span>
+
+        <h1>
+            Crear cuenta
+        </h1>
+
+        <p>
+            Complete su información personal y de acceso
+            para registrarse en ClassUP.
+        </p>
+    </div>
+</section>
+
+<app-usuario-form
+    [saving]="saving()"
+    [modoRegistroPublico]="true"
+    (guardar)="guardar($event)"
+    (cancelar)="cancelar()"
+></app-usuario-form>
