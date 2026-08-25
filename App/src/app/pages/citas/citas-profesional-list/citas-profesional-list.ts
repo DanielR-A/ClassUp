@@ -248,6 +248,85 @@ export class CitasProfesionalList implements OnInit {
             });
     }
 
+    rechazarCita(cita: Cita): void {
+    if (
+        cita.estado !== 'PENDIENTE' ||
+        this.estaActualizando(cita.id)
+    ) {
+        return;
+    }
+
+    const comentarioProfesional =
+        window.prompt(
+            'Indique el motivo del rechazo:',
+        );
+
+    if (
+        !comentarioProfesional ||
+        comentarioProfesional.trim().length < 3
+    ) {
+        this.notificationService.error(
+            'Debe indicar un motivo válido para rechazar la cita',
+        );
+
+        return;
+    }
+
+    this.citaActualizando.set(
+        cita.id,
+    );
+
+    this.error.set(null);
+
+    this.citaService
+        .rechazar(
+            cita.id,
+            comentarioProfesional.trim(),
+        )
+        .subscribe({
+            next: (response) => {
+                const citaActualizada =
+                    response.data;
+
+                this.citas.update(
+                    (citas) =>
+                        citas.map((item) =>
+                            item.id === cita.id
+                                ? {
+                                      ...item,
+                                      ...citaActualizada,
+                                  }
+                                : item,
+                        ),
+                );
+
+                this.notificationService.success(
+                    'Cita rechazada correctamente',
+                );
+
+                this.citaActualizando.set(
+                    null,
+                );
+            },
+
+            error: (error) => {
+                console.error(
+                    'Error rechazando cita:',
+                    error,
+                );
+
+                this.notificationService.error(
+                    error?.error?.message ??
+                    'No se pudo rechazar la cita',
+                );
+
+                this.citaActualizando.set(
+                    null,
+                );
+            },
+        });
+}
+
     estaActualizando(
         citaId: number,
     ): boolean {
@@ -262,6 +341,11 @@ export class CitasProfesionalList implements OnInit {
             cita.estado === 'PENDIENTE'
         );
     }
+    puedeRechazar(cita: Cita): boolean {
+    return (
+        cita.estado === 'PENDIENTE'
+    );
+}
 
     getNombreCliente(
         cita: Cita,

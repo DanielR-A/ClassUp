@@ -42,11 +42,20 @@ export class CitaRoutes {
             asyncHandler(controller.rechazar),
         );
 
+        // PATCH http://localhost:3000/cita/1/completar
+        router.patch(
+            "/:id/completar",
+            authenticateToken,
+            asyncHandler(controller.completar),
+        );
+
         // GET http://localhost:3000/cita/1
         router.get(
             "/:id",
             asyncHandler(controller.obtenerPorId),
         );
+
+
 
         return router;
     }

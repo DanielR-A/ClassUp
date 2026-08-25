@@ -323,38 +323,61 @@
 
                 <mat-card-actions>
 
-                    <!-- ACEPTAR -->
-                    @if (puedeAceptar(cita)) {
+<!-- ACCIONES PARA CITAS PENDIENTES -->
+@if (cita.estado === 'PENDIENTE') {
 
-                        <button
-                            mat-flat-button
-                            type="button"
-                            class="accept-button"
-                            [disabled]="estaActualizando(cita.id)"
-                            (click)="aceptarCita(cita)"
-                        >
+    <div class="pending-actions">
 
-                            @if (estaActualizando(cita.id)) {
+        <!-- ACEPTAR -->
+        <button
+            mat-flat-button
+            type="button"
+            class="accept-button"
+            [disabled]="estaActualizando(cita.id)"
+            (click)="aceptarCita(cita)"
+        >
 
-                                <mat-spinner
-                                    diameter="20"
-                                ></mat-spinner>
+            @if (estaActualizando(cita.id)) {
 
-                                Procesando...
+                <mat-spinner
+                    diameter="20"
+                ></mat-spinner>
 
-                            } @else {
+                Procesando...
 
-                                <mat-icon>
-                                    check_circle
-                                </mat-icon>
+            } @else {
 
-                                Aceptar
+                <mat-icon>
+                    check_circle
+                </mat-icon>
 
-                            }
+                Aceptar
 
-                        </button>
+            }
 
-                    }
+        </button>
+
+
+        <!-- RECHAZAR -->
+        <button
+            mat-stroked-button
+            type="button"
+            class="reject-button"
+            [disabled]="estaActualizando(cita.id)"
+            (click)="rechazarCita(cita)"
+        >
+
+            <mat-icon>
+                cancel
+            </mat-icon>
+
+            Rechazar
+
+        </button>
+
+    </div>
+
+}
 
 
                     <!-- MENSAJE CUANDO YA NO ESTÁ PENDIENTE -->

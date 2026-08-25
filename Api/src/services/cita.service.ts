@@ -641,5 +641,141 @@ export const citaService = {
     });
 },
 
+async completar(
+    citaId: number,
+    usuarioId: number,
+) {
+    const cita = await prisma.cita.findUnique({
+        where: {
+            id: citaId,
+        },
+
+        include: {
+            profesional: {
+                include: {
+                    usuario: true,
+                },
+            },
+        },
+    });
+
+    if (!cita) {
+        throw AppError.notFound(
+            "La cita indicada no existe",
+        );
+    }
+
+    /*
+     * Solo el profesional dueño de la cita
+     * puede completarla.
+     */
+    if (
+        cita.profesional.usuario.id !== usuarioId
+    ) {
+        throw AppError.badRequest(
+            "No tiene permiso para gestionar esta cita",
+        );
+    }
+
+    /*
+     * Solo una cita ACEPTADA puede completarse.
+     */
+    if (cita.estado !== "ACEPTADA") {
+        throw AppError.badRequest(
+            "Solo se pueden completar citas aceptadas",
+        );
+    }
+
+    /*
+     * Combina la fecha de la cita con
+     * la hora programada.
+     */
+    const fechaProgramada =
+        new Date(cita.fechaCita);
+
+    const horaInicio =
+        new Date(cita.horaInicio);
+
+    fechaProgramada.setHours(
+        horaInicio.getHours(),
+        horaInicio.getMinutes(),
+        horaInicio.getSeconds(),
+        0,
+    );
+
+    const ahora = new Date();
+
+    /*
+     * No permite completar antes
+     * de la fecha y hora programadas.
+     */
+    if (ahora < fechaProgramada) {
+        throw AppError.badRequest(
+            "La cita no puede completarse antes de la fecha y hora programadas",
+        );
+    }
+
+    return prisma.$transaction(async (tx) => {
+
+        const citaActualizada =
+            await tx.cita.update({
+                where: {
+                    id: citaId,
+                },
+
+                data: {
+                    estado: "COMPLETADA",
+                },
+
+                include: {
+                    cliente: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                            telefono: true,
+                        },
+                    },
+
+                    profesional: {
+                        include: {
+                            usuario: {
+                                select: {
+                                    id: true,
+                                    nombre: true,
+                                    apellidos: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+
+                    servicio: true,
+                },
+            });
+
+        await tx.historialEstadoCita.create({
+            data: {
+                citaId: citaId,
+
+                estadoAnterior:
+                    "ACEPTADA",
+
+                estadoNuevo:
+                    "COMPLETADA",
+
+                comentario:
+                    "Cita completada por el profesional",
+
+                cambiadoPorId:
+                    usuarioId,
+            },
+        });
+
+        return citaActualizada;
+    });
+},
+
 
 };
