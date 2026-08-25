@@ -20,6 +20,7 @@ import { ProfesionalesList } from './pages/profesionales/profesionales-list/prof
 import { ProfesionalDetail } from './pages/profesionales/profesional-detail/profesional-detail';
 import { ProfesionalCreatePage } from './pages/profesionales/profesional-create-page/profesional-create-page';
 import { ProfesionalEditPage } from './pages/profesionales/profesional-edit-page/profesional-edit-page';
+import { CitasProfesionalList } from './pages/citas/citas-profesional-list/citas-profesional-list';
 
 // Categorías y especialidades
 import { CategoriasList } from './pages/categorias/categorias-list/categorias-list';
@@ -250,6 +251,23 @@ export const routes: Routes = [
                     roles: [Role.ADMIN],
                 },
             },
+
+
+            // =====================
+            // PROFESIONAL - SOLICITUDES
+            // =====================
+
+            {
+                path: 'profesional/solicitudes',
+                component: CitasProfesionalList,
+                title: 'Mis solicitudes',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.PROFESIONAL],
+                },
+            },
+
+
 
             // =====================
             // ADMIN - CITAS

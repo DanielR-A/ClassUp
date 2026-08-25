@@ -15,6 +15,13 @@ export class CitaRoutes {
             asyncHandler(controller.listar),
         );
 
+        // GET http://localhost:3000/cita/mis-solicitudes
+        router.get(
+            "/mis-solicitudes",
+            authenticateToken,
+            asyncHandler(controller.misSolicitudes),
+        );
+
         // PATCH http://localhost:3000/cita/1/aceptar
         router.patch(
             "/:id/aceptar",

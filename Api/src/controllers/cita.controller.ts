@@ -79,50 +79,80 @@ export class CitaController {
     };
 
 
+    misSolicitudes = async (
+        request: AuthRequest,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        const usuarioId = request.user?.id;
 
-aceptar = async (
-    request: AuthRequest,
-    response: Response,
-    next: NextFunction,
-) => {
-    const rawId = Array.isArray(request.params.id)
-        ? request.params.id[0]
-        : request.params.id;
+        if (!usuarioId) {
+            return response
+                .status(StatusCodes.UNAUTHORIZED)
+                .json({
+                    success: false,
+                    message: "Usuario no autenticado",
+                });
+        }
 
-    const citaId = parseInt(rawId ?? "", 10);
+        const resultado =
+            await citaService.misSolicitudes(
+                usuarioId,
+            );
 
-    if (isNaN(citaId)) {
         return response
-            .status(StatusCodes.BAD_REQUEST)
+            .status(StatusCodes.OK)
             .json({
-                success: false,
-                message: "ID de cita inválido",
+                success: true,
+                data: resultado,
             });
-    }
+    };
 
-    const usuarioId = request.user?.id;
 
-    if (!usuarioId) {
+
+    aceptar = async (
+        request: AuthRequest,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        const rawId = Array.isArray(request.params.id)
+            ? request.params.id[0]
+            : request.params.id;
+
+        const citaId = parseInt(rawId ?? "", 10);
+
+        if (isNaN(citaId)) {
+            return response
+                .status(StatusCodes.BAD_REQUEST)
+                .json({
+                    success: false,
+                    message: "ID de cita inválido",
+                });
+        }
+
+        const usuarioId = request.user?.id;
+
+        if (!usuarioId) {
+            return response
+                .status(StatusCodes.UNAUTHORIZED)
+                .json({
+                    success: false,
+                    message: "Usuario no autenticado",
+                });
+        }
+
+        const cita = await citaService.aceptar(
+            citaId,
+            usuarioId,
+        );
+
         return response
-            .status(StatusCodes.UNAUTHORIZED)
+            .status(StatusCodes.OK)
             .json({
-                success: false,
-                message: "Usuario no autenticado",
+                success: true,
+                message: "Cita aceptada correctamente",
+                data: cita,
             });
-    }
-
-    const cita = await citaService.aceptar(
-        citaId,
-        usuarioId,
-    );
-
-    return response
-        .status(StatusCodes.OK)
-        .json({
-            success: true,
-            message: "Cita aceptada correctamente",
-            data: cita,
-        });
-};
+    };
 
 }

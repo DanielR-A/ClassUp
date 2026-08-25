@@ -72,41 +72,41 @@ export class CitasList implements OnInit {
         value: EstadoCita;
         label: string;
     }[] = [
-        {
-            value: 'PENDIENTE',
-            label: 'Pendiente',
-        },
-        {
-            value: 'ACEPTADA',
-            label: 'Aceptada',
-        },
-        {
-            value: 'RECHAZADA',
-            label: 'Rechazada',
-        },
-        {
-            value: 'CANCELADA',
-            label: 'Cancelada',
-        },
-        {
-            value: 'COMPLETADA',
-            label: 'Completada',
-        },
-    ];
+            {
+                value: 'PENDIENTE',
+                label: 'Pendiente',
+            },
+            {
+                value: 'ACEPTADA',
+                label: 'Aceptada',
+            },
+            {
+                value: 'RECHAZADA',
+                label: 'Rechazada',
+            },
+            {
+                value: 'CANCELADA',
+                label: 'Cancelada',
+            },
+            {
+                value: 'COMPLETADA',
+                label: 'Completada',
+            },
+        ];
 
     readonly modalidades: {
         value: ModalidadCita;
         label: string;
     }[] = [
-        {
-            value: 'VIRTUAL',
-            label: 'Virtual',
-        },
-        {
-            value: 'PRESENCIAL',
-            label: 'Presencial',
-        },
-    ];
+            {
+                value: 'VIRTUAL',
+                label: 'Virtual',
+            },
+            {
+                value: 'PRESENCIAL',
+                label: 'Presencial',
+            },
+        ];
 
     ngOnInit(): void {
         this.loadCitas();
@@ -166,11 +166,10 @@ export class CitasList implements OnInit {
         return this.citas().filter((cita) => {
             const clienteNombre =
                 cita.cliente
-                    ? `${cita.cliente.nombre ?? ''} ${
-                          cita.cliente.apellidos ?? ''
-                      }`
-                          .trim()
-                          .toLowerCase()
+                    ? `${cita.cliente.nombre ?? ''} ${cita.cliente.apellidos ?? ''
+                        }`
+                        .trim()
+                        .toLowerCase()
                     : '';
 
             const clienteCorreo =
@@ -179,15 +178,13 @@ export class CitasList implements OnInit {
 
             const profesionalNombre =
                 cita.profesional?.usuario
-                    ? `${
-                          cita.profesional.usuario
-                              .nombre ?? ''
-                      } ${
-                          cita.profesional.usuario
-                              .apellidos ?? ''
-                      }`
-                          .trim()
-                          .toLowerCase()
+                    ? `${cita.profesional.usuario
+                            .nombre ?? ''
+                        } ${cita.profesional.usuario
+                            .apellidos ?? ''
+                        }`
+                        .trim()
+                        .toLowerCase()
                     : '';
 
             const profesionalTitulo =
@@ -419,9 +416,9 @@ export class CitasList implements OnInit {
         data:
             | T[]
             | {
-                  data: T[];
-                  meta?: unknown;
-              }
+                data: T[];
+                meta?: unknown;
+            }
             | null
             | undefined,
     ): T[] {

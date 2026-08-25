@@ -55,10 +55,18 @@ export class MainLayout {
             icon: 'calendar_month',
             roles: [
                 Role.USER,
-                Role.PROFESIONAL,
-                Role.ADMIN,
+
             ],
         },
+        {
+            label: 'Solicitudes',
+            path: '/profesional/solicitudes',
+            icon: 'event_available',
+            roles: [
+                Role.PROFESIONAL,
+            ],
+        },
+
     ];
 
     /*

@@ -325,114 +325,195 @@ export const citaService = {
     },
 
 
-
-
-async aceptar(
-    citaId: number,
-    usuarioId: number,
-) {
-    const cita = await prisma.cita.findUnique({
-        where: {
-            id: citaId,
-        },
-
-        include: {
-            profesional: {
-                include: {
-                    usuario: true,
-                },
-            },
-        },
-    });
-
-    if (!cita) {
-        throw AppError.notFound(
-            "La cita indicada no existe",
-        );
-    }
-
-    /*
-     * Verifica que la cita pertenezca
-     * al profesional autenticado.
-     */
-    if (
-        cita.profesional.usuario.id !== usuarioId
-    ) {
-        throw AppError.badRequest(
-            "No tiene permiso para gestionar esta cita",
-        );
-    }
-
-    /*
-     * Solo las citas PENDIENTES
-     * pueden aceptarse.
-     */
-    if (cita.estado !== "PENDIENTE") {
-        throw AppError.badRequest(
-            "Solo se pueden aceptar citas pendientes",
-        );
-    }
-
-    return prisma.$transaction(async (tx) => {
-
-        const citaActualizada =
-            await tx.cita.update({
+    async misSolicitudes(usuarioId: number) {
+        /*
+         * Busca el perfil profesional asociado
+         * al usuario autenticado.
+         */
+        const profesional =
+            await prisma.perfilProfesional.findUnique({
                 where: {
-                    id: citaId,
-                },
-
-                data: {
-                    estado: "ACEPTADA",
-                },
-
-                include: {
-                    cliente: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
-                            telefono: true,
-                        },
-                    },
-
-                    profesional: {
-                        include: {
-                            usuario: {
-                                select: {
-                                    id: true,
-                                    nombre: true,
-                                    apellidos: true,
-                                    email: true,
-                                },
-                            },
-                        },
-                    },
-
-                    servicio: true,
+                    usuarioId: usuarioId,
                 },
             });
 
-        await tx.historialEstadoCita.create({
-            data: {
-                citaId: citaId,
+        if (!profesional) {
+            throw AppError.notFound(
+                "El usuario autenticado no tiene un perfil profesional",
+            );
+        }
 
-                estadoAnterior:
-                    "PENDIENTE",
+        /*
+         * Busca únicamente las citas asignadas
+         * al profesional autenticado.
+         */
+        return prisma.cita.findMany({
+            where: {
+                profesionalId: profesional.id,
+            },
 
-                estadoNuevo:
-                    "ACEPTADA",
+            include: {
+                cliente: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        apellidos: true,
+                        email: true,
+                        telefono: true,
+                    },
+                },
 
-                comentario:
-                    "Cita aceptada por el profesional",
+                profesional: {
+                    include: {
+                        usuario: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
 
-                cambiadoPorId:
-                    usuarioId,
+                servicio: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        descripcion: true,
+                        precio: true,
+                        duracionMinutos: true,
+                        modalidad: true,
+                    },
+                },
+
+                historial: {
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                },
+            },
+
+            orderBy: [
+                {
+                    fechaCita: "desc",
+                },
+                {
+                    horaInicio: "asc",
+                },
+            ],
+        });
+    },
+
+
+
+
+    async aceptar(
+        citaId: number,
+        usuarioId: number,
+    ) {
+        const cita = await prisma.cita.findUnique({
+            where: {
+                id: citaId,
+            },
+
+            include: {
+                profesional: {
+                    include: {
+                        usuario: true,
+                    },
+                },
             },
         });
 
-        return citaActualizada;
-    });
-},
+        if (!cita) {
+            throw AppError.notFound(
+                "La cita indicada no existe",
+            );
+        }
+
+        /*
+         * Verifica que la cita pertenezca
+         * al profesional autenticado.
+         */
+        if (
+            cita.profesional.usuario.id !== usuarioId
+        ) {
+            throw AppError.badRequest(
+                "No tiene permiso para gestionar esta cita",
+            );
+        }
+
+        /*
+         * Solo las citas PENDIENTES
+         * pueden aceptarse.
+         */
+        if (cita.estado !== "PENDIENTE") {
+            throw AppError.badRequest(
+                "Solo se pueden aceptar citas pendientes",
+            );
+        }
+
+        return prisma.$transaction(async (tx) => {
+
+            const citaActualizada =
+                await tx.cita.update({
+                    where: {
+                        id: citaId,
+                    },
+
+                    data: {
+                        estado: "ACEPTADA",
+                    },
+
+                    include: {
+                        cliente: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                                telefono: true,
+                            },
+                        },
+
+                        profesional: {
+                            include: {
+                                usuario: {
+                                    select: {
+                                        id: true,
+                                        nombre: true,
+                                        apellidos: true,
+                                        email: true,
+                                    },
+                                },
+                            },
+                        },
+
+                        servicio: true,
+                    },
+                });
+
+            await tx.historialEstadoCita.create({
+                data: {
+                    citaId: citaId,
+
+                    estadoAnterior:
+                        "PENDIENTE",
+
+                    estadoNuevo:
+                        "ACEPTADA",
+
+                    comentario:
+                        "Cita aceptada por el profesional",
+
+                    cambiadoPorId:
+                        usuarioId,
+                },
+            });
+
+            return citaActualizada;
+        });
+    },
 
 };
