@@ -7,6 +7,7 @@ import { validateRequest } from "../middlewares/validate-request.middleware";
 
 import {
     rechazarCitaSchema,
+    cancelarCitaSchema,
 } from "../dtos/cita.dto";
 
 export class CitaRoutes {
@@ -60,6 +61,21 @@ export class CitaRoutes {
             "/:id/completar",
             authenticateToken,
             asyncHandler(controller.completar),
+        );
+
+        // PATCH http://localhost:3000/cita/1/cancelar
+        router.patch(
+            "/:id/cancelar",
+            authenticateToken,
+            validateRequest(cancelarCitaSchema),
+            asyncHandler(controller.cancelar),
+        );
+
+        // GET http://localhost:3000/cita/mis-citas/1
+        router.get(
+            "/mis-citas/:id",
+            authenticateToken,
+            asyncHandler(controller.detalleCliente),
         );
 
         // GET http://localhost:3000/cita/1

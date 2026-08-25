@@ -1,0 +1,391 @@
+<section class="page-header">
+    <span class="eyebrow">
+        Cliente
+    </span>
+
+    <h1>
+        Detalle de cita
+    </h1>
+
+    <p>
+        Consulte la información completa de su cita
+        y el historial de cambios de estado.
+    </p>
+
+    <a
+        mat-stroked-button
+        routerLink="/mis-citas"
+    >
+        <mat-icon>
+            arrow_back
+        </mat-icon>
+
+        Volver a mis citas
+    </a>
+</section>
+
+
+@if (loading()) {
+
+    <div class="state">
+        <mat-spinner diameter="42"></mat-spinner>
+
+        <p>
+            Cargando detalle de la cita...
+        </p>
+    </div>
+
+} @else if (error()) {
+
+    <div class="state error">
+        <mat-icon>
+            error
+        </mat-icon>
+
+        <p>
+            {{ error() }}
+        </p>
+
+        <button
+            mat-stroked-button
+            type="button"
+            (click)="loadCita()"
+        >
+            <mat-icon>
+                refresh
+            </mat-icon>
+
+            Intentar nuevamente
+        </button>
+    </div>
+
+} @else if (cita(); as citaActual) {
+
+    <section class="detail-grid">
+
+        <!-- INFORMACIÓN GENERAL -->
+        <mat-card class="detail-card">
+
+            <mat-card-header>
+                <mat-card-title>
+                    Información de la cita
+                </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+
+                <div class="detail-list">
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            school
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Servicio
+                            </span>
+
+                            <strong>
+                                {{
+                                    citaActual.servicio?.nombre ||
+                                    'Sin servicio'
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            person
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Profesional
+                            </span>
+
+                            <strong>
+                                {{
+                                    getNombreProfesional(
+                                        citaActual
+                                    )
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            calendar_month
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Fecha
+                            </span>
+
+                            <strong>
+                                {{
+                                    formatearFecha(
+                                        citaActual.fechaCita
+                                    )
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            schedule
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Horario
+                            </span>
+
+                            <strong>
+                                {{
+                                    getHorario(
+                                        citaActual
+                                    )
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            videocam
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Modalidad
+                            </span>
+
+                            <strong>
+                                {{
+                                    getModalidadLabel(
+                                        citaActual.modalidad
+                                    )
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            payments
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Monto estimado
+                            </span>
+
+                            <strong>
+                                ₡{{ citaActual.montoEstimado }}
+                            </strong>
+                        </div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <mat-icon>
+                            {{
+                                getEstadoIcon(
+                                    citaActual.estado
+                                )
+                            }}
+                        </mat-icon>
+
+                        <div>
+                            <span>
+                                Estado
+                            </span>
+
+                            <strong>
+                                {{
+                                    getEstadoLabel(
+                                        citaActual.estado
+                                    )
+                                }}
+                            </strong>
+                        </div>
+                    </div>
+
+                </div>
+
+            </mat-card-content>
+
+        </mat-card>
+
+
+        <!-- COMENTARIOS -->
+        <mat-card class="detail-card">
+
+            <mat-card-header>
+                <mat-card-title>
+                    Comentarios
+                </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+
+                <div class="comment-box">
+
+                    <span>
+                        Mi comentario
+                    </span>
+
+                    <p>
+                        {{
+                            citaActual.comentarioCliente ||
+                            'Sin comentario'
+                        }}
+                    </p>
+
+                </div>
+
+
+                <div class="comment-box">
+
+                    <span>
+                        Comentario del profesional
+                    </span>
+
+                    <p>
+                        {{
+                            citaActual.comentarioProfesional ||
+                            'Sin comentario'
+                        }}
+                    </p>
+
+                </div>
+
+            </mat-card-content>
+
+        </mat-card>
+
+
+        <!-- HISTORIAL -->
+        <mat-card class="detail-card history-card">
+
+            <mat-card-header>
+                <mat-card-title>
+                    Historial de estados
+                </mat-card-title>
+            </mat-card-header>
+
+            <mat-card-content>
+
+                @if (
+                    citaActual.historial &&
+                    citaActual.historial.length > 0
+                ) {
+
+                    <div class="history-list">
+
+                        @for (
+                            item of citaActual.historial;
+                            track item.id
+                        ) {
+
+                            <div class="history-item">
+
+                                <div class="history-icon">
+                                    <mat-icon>
+                                        {{
+                                            getEstadoIcon(
+                                                item.estadoNuevo
+                                            )
+                                        }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="history-content">
+
+                                    <div class="history-header">
+
+                                        <strong>
+                                            {{
+                                                getEstadoLabel(
+                                                    item.estadoNuevo
+                                                )
+                                            }}
+                                        </strong>
+
+                                        <span>
+                                            {{
+                                                formatearFechaHora(
+                                                    item.createdAt
+                                                )
+                                            }}
+                                        </span>
+
+                                    </div>
+
+                                    @if (item.estadoAnterior) {
+
+                                        <p>
+                                            {{
+                                                getEstadoLabel(
+                                                    item.estadoAnterior
+                                                )
+                                            }}
+
+                                            →
+
+                                            {{
+                                                getEstadoLabel(
+                                                    item.estadoNuevo
+                                                )
+                                            }}
+                                        </p>
+
+                                    }
+
+                                    @if (item.comentario) {
+
+                                        <p class="history-comment">
+                                            {{ item.comentario }}
+                                        </p>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                } @else {
+
+                    <div class="empty-history">
+                        <mat-icon>
+                            history
+                        </mat-icon>
+
+                        <p>
+                            No hay historial registrado.
+                        </p>
+                    </div>
+
+                }
+
+            </mat-card-content>
+
+        </mat-card>
+
+    </section>
+
+}

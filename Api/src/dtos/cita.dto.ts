@@ -76,6 +76,20 @@ export const rechazarCitaSchema = z.object({
         ),
 });
 
+export const cancelarCitaSchema = z.object({
+    comentarioCliente: z
+        .string()
+        .trim()
+        .min(
+            3,
+            "Debe indicar el motivo de la cancelación",
+        )
+        .max(
+            500,
+            "El comentario no puede superar 500 caracteres",
+        ),
+});
+
 export type CreateCitaDto = z.infer<
     typeof createCitaSchema
 >;
@@ -86,4 +100,8 @@ export type UpdateCitaDto = z.infer<
 
 export type RechazarCitaDto = z.infer<
     typeof rechazarCitaSchema
+>;
+
+export type CancelarCitaDto = z.infer<
+    typeof cancelarCitaSchema
 >;

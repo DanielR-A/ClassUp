@@ -1,0 +1,685 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+/* ========================================
+   ENCABEZADO
+======================================== */
+
+.page-header {
+    max-width: 1200px;
+    margin: 32px auto 24px;
+    padding: 0 24px;
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 6px;
+
+    color: var(--mat-sys-primary);
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-header h1 {
+    margin: 0;
+
+    color: var(--mat-sys-on-surface);
+
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.page-header p {
+    max-width: 720px;
+
+    margin: 12px 0 0;
+
+    color: var(--mat-sys-on-surface-variant);
+
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   FILTROS
+======================================== */
+
+.filters {
+    display: grid;
+
+    grid-template-columns:
+        minmax(200px, 1fr)
+        minmax(200px, 1fr)
+        minmax(200px, 1fr)
+        auto;
+
+    gap: 16px;
+
+    align-items: center;
+
+    max-width: 1200px;
+
+    margin: 28px auto 0;
+
+    padding: 0 24px;
+}
+
+.filters mat-form-field {
+    width: 100%;
+}
+
+.primary-button {
+    min-height: 56px;
+
+    padding: 0 22px;
+
+    border-radius: 28px;
+}
+
+.primary-button mat-icon {
+    margin-right: 6px;
+}
+
+
+/* ========================================
+   RESULTADOS
+======================================== */
+
+.result-summary {
+    max-width: 1200px;
+
+    margin: 18px auto;
+
+    padding: 0 24px;
+
+    color: var(--mat-sys-on-surface);
+
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   GRID DE CITAS
+======================================== */
+
+.citas-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 22px;
+
+    max-width: 1200px;
+
+    margin: 0 auto 48px;
+
+    padding: 0 24px;
+}
+
+
+/* ========================================
+   TARJETA
+======================================== */
+
+.cita-card {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    height: 100%;
+
+    border: 1px solid
+        var(--mat-sys-outline-variant);
+
+    border-radius: 22px;
+
+    overflow: hidden;
+
+    background:
+        var(--mat-sys-surface-container-low);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.cita-card:hover {
+    transform: translateY(-3px);
+
+    border-color:
+        var(--mat-sys-outline);
+
+    box-shadow:
+        0 12px 28px
+        rgba(0, 0, 0, 0.16);
+}
+
+.cita-card mat-card-content {
+    flex: 1;
+
+    padding: 24px;
+}
+
+
+/* ========================================
+   ESTADO Y MODALIDAD
+======================================== */
+
+.card-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.category,
+.status {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 34px;
+
+    padding: 0 14px;
+
+    border-radius: 999px;
+
+    font-size: 0.78rem;
+
+    font-weight: 700;
+}
+
+.category {
+    color:
+        var(--mat-sys-on-primary-container);
+
+    background:
+        var(--mat-sys-primary-container);
+}
+
+.status {
+    color:
+        var(--mat-sys-on-secondary-container);
+
+    background:
+        var(--mat-sys-secondary-container);
+}
+
+
+/* ========================================
+   ICONO PRINCIPAL
+======================================== */
+
+.cita-icon {
+    display: grid;
+
+    place-items: center;
+
+    width: 54px;
+
+    height: 54px;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+
+    color:
+        var(--mat-sys-primary);
+
+    background:
+        var(--mat-sys-surface-container-highest);
+}
+
+.cita-icon mat-icon {
+    width: 30px;
+
+    height: 30px;
+
+    font-size: 30px;
+}
+
+
+/* ========================================
+   TÍTULO
+======================================== */
+
+.cita-card h2 {
+    margin: 0 0 18px;
+
+    color:
+        var(--mat-sys-on-surface);
+
+    font-size: 1.25rem;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+
+/* ========================================
+   PROFESIONAL
+======================================== */
+
+.people-info {
+    margin-bottom: 14px;
+}
+
+.person-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 64px;
+
+    padding: 12px 14px;
+
+    border-radius: 15px;
+
+    background:
+        var(--mat-sys-surface-container);
+}
+
+.person-row mat-icon {
+    flex-shrink: 0;
+
+    color:
+        var(--mat-sys-primary);
+}
+
+.person-row div {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.person-row span {
+    margin-bottom: 2px;
+
+    color:
+        var(--mat-sys-on-surface-variant);
+
+    font-size: 0.76rem;
+}
+
+.person-row strong {
+    overflow: hidden;
+
+    color:
+        var(--mat-sys-on-surface);
+
+    font-size: 0.92rem;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   FECHA Y HORA
+======================================== */
+
+.appointment-date {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 58px;
+
+    margin-bottom: 14px;
+
+    padding: 12px 14px;
+
+    border-radius: 15px;
+
+    background:
+        var(--mat-sys-surface-container-high);
+}
+
+.appointment-date mat-icon {
+    flex-shrink: 0;
+
+    color:
+        var(--mat-sys-primary);
+}
+
+.appointment-date span {
+    color:
+        var(--mat-sys-on-surface);
+
+    font-size: 0.9rem;
+
+    font-weight: 600;
+
+    line-height: 1.4;
+}
+
+
+/* ========================================
+   MONTO Y MODALIDAD
+======================================== */
+
+.cita-meta {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-bottom: 16px;
+}
+
+.cita-meta > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    min-width: 0;
+
+    padding: 13px;
+
+    border: 1px solid
+        var(--mat-sys-outline-variant);
+
+    border-radius: 14px;
+}
+
+.cita-meta span {
+    color:
+        var(--mat-sys-on-surface-variant);
+
+    font-size: 0.75rem;
+}
+
+.cita-meta strong {
+    color:
+        var(--mat-sys-on-surface);
+
+    font-size: 0.9rem;
+}
+
+
+/* ========================================
+   COMENTARIOS
+======================================== */
+
+.client-comment,
+.professional-comment {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    margin-top: 14px;
+
+    padding: 15px;
+
+    border-left: 3px solid
+        var(--mat-sys-primary);
+
+    border-radius: 12px;
+
+    background:
+        var(--mat-sys-surface-container);
+}
+
+.client-comment mat-icon,
+.professional-comment mat-icon {
+    flex-shrink: 0;
+
+    color:
+        var(--mat-sys-primary);
+}
+
+.client-comment > div,
+.professional-comment > div {
+    min-width: 0;
+}
+
+.client-comment span,
+.professional-comment span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color:
+        var(--mat-sys-on-surface);
+
+    font-size: 0.78rem;
+
+    font-weight: 700;
+}
+
+.client-comment p,
+.professional-comment p {
+    margin: 0;
+
+    color:
+        var(--mat-sys-on-surface-variant);
+
+    font-size: 0.88rem;
+
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ========================================
+   ACCIONES
+======================================== */
+
+.cita-card mat-card-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding: 0 24px 24px;
+}
+
+.cita-card mat-card-actions a,
+.cita-card mat-card-actions button {
+    min-height: 42px;
+
+    border-radius: 22px;
+}
+
+
+/* ========================================
+   BOTÓN CANCELAR
+======================================== */
+
+.cancel-button {
+    color:
+        var(--mat-sys-error) !important;
+
+    border-color:
+        var(--mat-sys-error) !important;
+}
+
+.cancel-button mat-icon {
+    color:
+        var(--mat-sys-error);
+}
+
+.cancel-button:disabled {
+    opacity: 0.55;
+}
+
+
+/* ========================================
+   ESTADOS LOADING / ERROR / VACÍO
+======================================== */
+
+.state {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 14px;
+
+    max-width: 1152px;
+
+    min-height: 260px;
+
+    margin: 24px auto 48px;
+
+    padding: 40px 24px;
+
+    border: 1px solid
+        var(--mat-sys-outline-variant);
+
+    border-radius: 22px;
+
+    color:
+        var(--mat-sys-on-surface-variant);
+
+    text-align: center;
+
+    background:
+        var(--mat-sys-surface-container-low);
+}
+
+.state > mat-icon {
+    width: 44px;
+
+    height: 44px;
+
+    font-size: 44px;
+
+    color:
+        var(--mat-sys-primary);
+}
+
+.state p {
+    margin: 0;
+
+    font-size: 0.95rem;
+}
+
+.state.error > mat-icon {
+    color:
+        var(--mat-sys-error);
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1050px) {
+
+    .citas-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .filters {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .primary-button {
+        width: fit-content;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .page-header {
+        margin-top: 20px;
+
+        padding: 0 16px;
+    }
+
+    .filters {
+        grid-template-columns: 1fr;
+
+        padding: 0 16px;
+    }
+
+    .result-summary {
+        padding: 0 16px;
+    }
+
+    .citas-grid {
+        grid-template-columns: 1fr;
+
+        padding: 0 16px;
+    }
+
+    .primary-button {
+        width: 100%;
+    }
+
+    .cita-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .cita-card mat-card-actions {
+        flex-direction: column;
+    }
+
+    .cita-card mat-card-actions a,
+    .cita-card mat-card-actions button {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 420px) {
+
+    .cita-card mat-card-content {
+        padding: 18px;
+    }
+
+    .cita-card mat-card-actions {
+        padding:
+            0 18px 18px;
+    }
+
+    .card-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .appointment-date {
+        align-items: flex-start;
+    }
+}

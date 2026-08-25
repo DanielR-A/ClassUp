@@ -32,6 +32,7 @@ import { CitasList } from './pages/citas/citas-list/citas-list';
 import { CitaDetail } from './pages/citas/cita-detail/cita-detail';
 import { CitaCreatePage } from './pages/citas/cita-create-page/cita-create-page';
 import { CitasClienteList } from './pages/citas/citas-cliente-list/citas-cliente-list';
+import { CitaClienteDetail } from './pages/citas/cita-cliente-detail/cita-cliente-detail';
 
 // Reseñas
 import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
@@ -319,6 +320,16 @@ export const routes: Routes = [
                 path: 'mis-citas',
                 component: CitasClienteList,
                 title: 'Mis citas',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.USER],
+                },
+            },
+
+            {
+                path: 'mis-citas/:id',
+                component: CitaClienteDetail,
+                title: 'Detalle de mi cita',
                 canActivate: [authGuard, roleGuard],
                 data: {
                     roles: [Role.USER],

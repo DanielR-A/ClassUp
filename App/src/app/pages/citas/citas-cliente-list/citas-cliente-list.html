@@ -1,1 +1,383 @@
-<p>citas-cliente-list works!</p>
+<section class="page-header">
+    <span class="eyebrow">
+        Cliente
+    </span>
+
+    <h1>
+        Mis citas
+    </h1>
+
+    <p>
+        Consulte su historial de citas y filtre por
+        estado o rango de fechas.
+    </p>
+</section>
+
+
+<section class="filters">
+
+    <!-- ESTADO -->
+    <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+
+        <mat-select [ngModel]="estadoSeleccionado()" (ngModelChange)="estadoSeleccionado.set($event)">
+            <mat-option [value]="null">
+                Todos
+            </mat-option>
+
+            @for (
+            estado of estados;
+            track estado.value
+            ) {
+            <mat-option [value]="estado.value">
+                {{ estado.label }}
+            </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+
+    <!-- FECHA DESDE -->
+    <mat-form-field appearance="outline">
+        <mat-label>Fecha desde</mat-label>
+
+        <input matInput type="date" [ngModel]="fechaDesde()" (ngModelChange)="fechaDesde.set($event)" />
+
+        <mat-icon matSuffix>
+            event
+        </mat-icon>
+    </mat-form-field>
+
+
+    <!-- FECHA HASTA -->
+    <mat-form-field appearance="outline">
+        <mat-label>Fecha hasta</mat-label>
+
+        <input matInput type="date" [ngModel]="fechaHasta()" (ngModelChange)="fechaHasta.set($event)" />
+
+        <mat-icon matSuffix>
+            event
+        </mat-icon>
+    </mat-form-field>
+
+
+    <!-- LIMPIAR -->
+    <button mat-stroked-button class="primary-button" type="button" (click)="clearFilters()">
+        <mat-icon>
+            filter_alt_off
+        </mat-icon>
+
+        Limpiar
+    </button>
+
+</section>
+
+
+<div class="result-summary">
+    {{ totalCitas() }}
+
+    {{
+    totalCitas() === 1
+    ? 'cita encontrada'
+    : 'citas encontradas'
+    }}
+</div>
+
+
+@if (loading()) {
+
+<div class="state">
+    <mat-spinner diameter="42"></mat-spinner>
+
+    <p>
+        Cargando sus citas...
+    </p>
+</div>
+
+} @else if (error()) {
+
+<div class="state error">
+    <mat-icon>
+        error
+    </mat-icon>
+
+    <p>
+        {{ error() }}
+    </p>
+
+    <button mat-stroked-button type="button" (click)="loadCitas()">
+        <mat-icon>
+            refresh
+        </mat-icon>
+
+        Intentar nuevamente
+    </button>
+</div>
+
+} @else if (citasFiltradas().length === 0) {
+
+<div class="state">
+    <mat-icon>
+        event_busy
+    </mat-icon>
+
+    <p>
+        No hay citas con los filtros seleccionados.
+    </p>
+</div>
+
+} @else {
+
+<section class="citas-grid">
+
+    @for (
+    cita of citasFiltradas();
+    track cita.id
+    ) {
+
+    <mat-card class="cita-card">
+
+        <mat-card-content>
+
+            <!-- ESTADO Y MODALIDAD -->
+            <div class="card-header">
+
+                <span class="category">
+                    {{
+                    getEstadoLabel(
+                    cita.estado
+                    )
+                    }}
+                </span>
+
+                <span class="status">
+                    {{
+                    getModalidadLabel(
+                    cita.modalidad
+                    )
+                    }}
+                </span>
+
+            </div>
+
+
+            <!-- ICONO -->
+            <div class="cita-icon">
+
+                <mat-icon>
+                    {{
+                    getEstadoIcon(
+                    cita.estado
+                    )
+                    }}
+                </mat-icon>
+
+            </div>
+
+
+            <!-- SERVICIO -->
+            <h2>
+                {{
+                cita.servicio?.nombre ||
+                'Servicio no registrado'
+                }}
+            </h2>
+
+
+            <!-- PROFESIONAL -->
+            <div class="people-info">
+
+                <div class="person-row">
+
+                    <mat-icon>
+                        school
+                    </mat-icon>
+
+                    <div>
+                        <span>
+                            Profesional
+                        </span>
+
+                        <strong>
+                            {{
+                            getNombreProfesional(
+                            cita
+                            )
+                            }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FECHA Y HORA -->
+            <div class="appointment-date">
+
+                <mat-icon>
+                    calendar_month
+                </mat-icon>
+
+                <span>
+                    {{
+                    formatearFecha(
+                    cita.fechaCita
+                    )
+                    }}
+
+                    ·
+
+                    {{
+                    getHorario(
+                    cita
+                    )
+                    }}
+                </span>
+
+            </div>
+
+
+            <!-- META -->
+            <div class="cita-meta">
+
+                <div>
+                    <span>
+                        Monto
+                    </span>
+
+                    <strong>
+                        ₡{{ cita.montoEstimado }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Modalidad
+                    </span>
+
+                    <strong>
+                        {{
+                        getModalidadLabel(
+                        cita.modalidad
+                        )
+                        }}
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <!-- COMENTARIO DEL CLIENTE -->
+            @if (cita.comentarioCliente) {
+
+            <div class="client-comment">
+
+                <mat-icon>
+                    chat
+                </mat-icon>
+
+                <div>
+                    <span>
+                        Mi comentario
+                    </span>
+
+                    <p>
+                        {{
+                        cita.comentarioCliente
+                        }}
+                    </p>
+                </div>
+
+            </div>
+
+            }
+
+
+            <!-- COMENTARIO DEL PROFESIONAL -->
+            @if (cita.comentarioProfesional) {
+
+            <div class="professional-comment">
+
+                <mat-icon>
+                    comment
+                </mat-icon>
+
+                <div>
+                    <span>
+                        Comentario del profesional
+                    </span>
+
+                    <p>
+                        {{
+                        cita.comentarioProfesional
+                        }}
+                    </p>
+                </div>
+
+            </div>
+
+            }
+
+        </mat-card-content>
+
+
+
+
+
+
+        <mat-card-actions>
+
+            <!-- DETALLE -->
+            <a mat-stroked-button [routerLink]="[
+                            '/mis-citas',
+                            cita.id
+                        ]">
+                <mat-icon>
+                    visibility
+                </mat-icon>
+
+                Ver detalle
+            </a>
+
+           @if (puedeCancelar(cita)) {
+
+    <button
+        mat-stroked-button
+        type="button"
+        class="cancel-button"
+        [disabled]="estaActualizando(cita.id)"
+        (click)="cancelarCita(cita)"
+    >
+
+        @if (estaActualizando(cita.id)) {
+
+            <mat-spinner
+                diameter="20"
+            ></mat-spinner>
+
+            Procesando...
+
+        } @else {
+
+            <mat-icon>
+                cancel
+            </mat-icon>
+
+            Cancelar cita
+
+        }
+
+    </button>
+
+}
+
+        </mat-card-actions>
+
+    </mat-card>
+
+    }
+
+</section>
+
+}

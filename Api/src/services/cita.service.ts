@@ -777,6 +777,131 @@ async completar(
     });
 },
 
+async cancelar(
+    citaId: number,
+    usuarioId: number,
+    comentarioCliente: string,
+) {
+    const cita = await prisma.cita.findUnique({
+        where: {
+            id: citaId,
+        },
+    });
+    
+
+    if (!cita) {
+        throw AppError.notFound(
+            "La cita indicada no existe",
+        );
+    }
+
+    /*
+     * Verifica que la cita pertenezca
+     * al cliente autenticado.
+     */
+    if (cita.clienteId !== usuarioId) {
+        throw AppError.badRequest(
+            "No tiene permiso para cancelar esta cita",
+        );
+    }
+
+    /*
+     * Solo se permite cancelar citas
+     * PENDIENTES o ACEPTADAS.
+     */
+    if (
+        cita.estado !== "PENDIENTE" &&
+        cita.estado !== "ACEPTADA"
+    ) {
+        throw AppError.badRequest(
+            "La cita no puede cancelarse en su estado actual",
+        );
+    }
+
+    /*
+     * El motivo es obligatorio.
+     */
+    const motivo =
+        comentarioCliente?.trim();
+
+    if (!motivo || motivo.length < 3) {
+        throw AppError.badRequest(
+            "Debe indicar el motivo de la cancelación",
+        );
+    }
+
+    const estadoAnterior =
+        cita.estado;
+
+    return prisma.$transaction(async (tx) => {
+
+        const citaActualizada =
+            await tx.cita.update({
+                where: {
+                    id: citaId,
+                },
+
+                data: {
+                    estado: "CANCELADA",
+
+                    /*
+                     * Guarda el motivo enviado
+                     * por el cliente.
+                     */
+                    comentarioCliente:
+                        motivo,
+                },
+
+                include: {
+                    cliente: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                            telefono: true,
+                        },
+                    },
+
+                    profesional: {
+                        include: {
+                            usuario: {
+                                select: {
+                                    id: true,
+                                    nombre: true,
+                                    apellidos: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+
+                    servicio: true,
+                },
+            });
+
+        await tx.historialEstadoCita.create({
+            data: {
+                citaId: citaId,
+
+                estadoAnterior:
+                    estadoAnterior,
+
+                estadoNuevo:
+                    "CANCELADA",
+
+                comentario:
+                    motivo,
+
+                cambiadoPorId:
+                    usuarioId,
+            },
+        });
+
+        return citaActualizada;
+    });
+},
+
 async obtenerDetalleProfesional(
     citaId: number,
     usuarioId: number,
@@ -892,6 +1017,57 @@ async misCitasCliente(usuarioId: number) {
         ],
     });
 },
+
+
+async obtenerDetalleCliente(
+    citaId: number,
+    usuarioId: number,
+) {
+    const cita = await prisma.cita.findFirst({
+        where: {
+            id: citaId,
+            clienteId: usuarioId,
+        },
+
+        include: {
+            profesional: {
+                include: {
+                    usuario: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                            telefono: true,
+                        },
+                    },
+                },
+            },
+
+            servicio: {
+                include: {
+                    categoria: true,
+                    especialidades: true,
+                },
+            },
+
+            historial: {
+                orderBy: {
+                    createdAt: "asc",
+                },
+            },
+        },
+    });
+
+    if (!cita) {
+        throw AppError.notFound(
+            "La cita indicada no existe o no pertenece al cliente autenticado",
+        );
+    }
+
+    return cita;
+},
+
 
 
 };
