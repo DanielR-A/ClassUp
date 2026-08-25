@@ -5,7 +5,12 @@
     </div>
 </section>
 
+
+
+
 <section class="admin-filters">
+
+    <!-- ESPECIALIDAD -->
     <mat-form-field appearance="outline">
         <mat-label>Buscar especialidad</mat-label>
 
@@ -13,12 +18,52 @@
             matInput
             [ngModel]="search()"
             (ngModelChange)="search.set($event)"
-            placeholder="Nombre o descripción"
+            placeholder="Nombre de especialidad"
         />
 
         <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
+
+    <!-- DESCRIPCIÓN -->
+    <mat-form-field appearance="outline">
+        <mat-label>Buscar descripción</mat-label>
+
+        <input
+            matInput
+            [ngModel]="descripcionFiltro()"
+            (ngModelChange)="descripcionFiltro.set($event)"
+            placeholder="Descripción"
+        />
+
+        <mat-icon matSuffix>description</mat-icon>
+    </mat-form-field>
+
+
+    <!-- ESTADO -->
+    <mat-form-field appearance="outline">
+        <mat-label>Estado</mat-label>
+
+        <mat-select
+            [ngModel]="estadoFiltro()"
+            (ngModelChange)="estadoFiltro.set($event)"
+        >
+            <mat-option value="TODOS">
+                Todos
+            </mat-option>
+
+            <mat-option value="ACTIVOS">
+                Activos
+            </mat-option>
+
+            <mat-option value="INACTIVOS">
+                Inactivos
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+
+    <!-- LIMPIAR -->
     <button
         mat-stroked-button
         class="secondary-button"
@@ -28,7 +73,11 @@
         <mat-icon>filter_alt_off</mat-icon>
         Limpiar
     </button>
+
 </section>
+
+
+
 
 <p class="summary">
     {{ totalEspecialidades() }} especialidades encontradas

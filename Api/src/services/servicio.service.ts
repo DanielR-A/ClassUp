@@ -126,7 +126,7 @@ export const servicioService = {
                             select: {
                                 nombre: true,
                                 apellidos: true,
-                                correo: true,
+                                email: true,
                             },
                         },
                     },
@@ -206,7 +206,7 @@ export const servicioService = {
                             select: {
                                 nombre: true,
                                 apellidos: true,
-                                correo: true,
+                                email: true,
                             },
                         },
                     },

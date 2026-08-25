@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 
+import { MatSelectModule } from '@angular/material/select';
 import { Especialidad } from '../../../core/models/especialidad.model';
 import { EspecialidadService } from '../../../core/services/especialidad.service';
 
@@ -32,6 +33,7 @@ import { EspecialidadService } from '../../../core/services/especialidad.service
         MatIconModule,
         MatInputModule,
         MatProgressSpinnerModule,
+        MatSelectModule,
         MatTableModule,
     ],
     templateUrl: './especialidades-list.html',
@@ -45,6 +47,8 @@ export class EspecialidadesList implements OnInit {
     especialidades = signal<Especialidad[]>([]);
 
     search = signal('');
+    descripcionFiltro = signal('');
+    estadoFiltro = signal<'TODOS' | 'ACTIVOS' | 'INACTIVOS'>('TODOS');
     loading = signal(false);
     error = signal<string | null>(null);
 
@@ -59,32 +63,61 @@ export class EspecialidadesList implements OnInit {
         'acciones',
     ];
 
-    especialidadesFiltradas = computed(() => {
-        const texto = this.search()
+
+
+
+especialidadesFiltradas = computed(() => {
+    const texto = this.search()
+        .trim()
+        .toLowerCase();
+
+    const descripcionTexto =
+        this.descripcionFiltro()
             .trim()
             .toLowerCase();
 
-        if (!texto) {
-            return this.especialidades();
-        }
+    const estado = this.estadoFiltro();
 
-        return this.especialidades().filter(
-            (especialidad) => {
-                const nombre =
-                    especialidad.nombre
-                        ?.toLowerCase() ?? '';
+    return this.especialidades().filter(
+        (especialidad) => {
 
-                const descripcion =
-                    especialidad.descripcion
-                        ?.toLowerCase() ?? '';
+            const nombre =
+                especialidad.nombre
+                    ?.toLowerCase() ?? '';
 
-                return (
-                    nombre.includes(texto) ||
-                    descripcion.includes(texto)
+            const descripcion =
+                especialidad.descripcion
+                    ?.toLowerCase() ?? '';
+
+            const coincideNombre =
+                !texto ||
+                nombre.includes(texto);
+
+            const coincideDescripcion =
+                !descripcionTexto ||
+                descripcion.includes(
+                    descripcionTexto,
                 );
-            },
-        );
-    });
+
+            const coincideEstado =
+                estado === 'TODOS' ||
+                (
+                    estado === 'ACTIVOS' &&
+                    especialidad.estado
+                ) ||
+                (
+                    estado === 'INACTIVOS' &&
+                    !especialidad.estado
+                );
+
+            return (
+                coincideNombre &&
+                coincideDescripcion &&
+                coincideEstado
+            );
+        },
+    );
+});
 
     totalEspecialidades = computed(
         () => this.especialidadesFiltradas().length,
@@ -150,6 +183,8 @@ export class EspecialidadesList implements OnInit {
 
     clearSearch(): void {
         this.search.set('');
+        this.descripcionFiltro.set('');
+        this.estadoFiltro.set('TODOS');
     }
 
     toggleEstado(

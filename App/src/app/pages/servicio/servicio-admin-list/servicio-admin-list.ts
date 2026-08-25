@@ -54,12 +54,13 @@ export class ServicioAdminList implements OnInit {
     signal<number | null>(null);
 
   displayedColumns: string[] = [
-    'nombre',
-    'categoria',
-    'duracion',
-    'precio',
-    'estado',
-    'acciones',
+  'nombre',
+  'categoria',
+  'duracion',
+  'modalidad',
+  'precio',
+  'estado',
+  'acciones',
   ];
 
   serviciosFiltrados = computed(() => {
