@@ -52,12 +52,34 @@ export class CitaService {
         );
     }
 
+    misSolicitudes() {
+        return this.http.get<
+            ApiResponse<Cita[]>
+        >(
+            `${this.apiUrl}/mis-solicitudes`,
+        );
+    }
+
     aceptar(id: number) {
         return this.http.patch<
             ApiResponse<Cita>
         >(
             `${this.apiUrl}/${id}/aceptar`,
             {},
+        );
+    }
+
+    rechazar(
+        id: number,
+        comentarioProfesional: string,
+    ) {
+        return this.http.patch<
+            ApiResponse<Cita>
+        >(
+            `${this.apiUrl}/${id}/rechazar`,
+            {
+                comentarioProfesional,
+            },
         );
     }
 }

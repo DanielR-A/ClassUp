@@ -516,4 +516,130 @@ export const citaService = {
         });
     },
 
+
+
+    async rechazar(
+    citaId: number,
+    usuarioId: number,
+    comentarioProfesional: string,
+) {
+    const cita = await prisma.cita.findUnique({
+        where: {
+            id: citaId,
+        },
+
+        include: {
+            profesional: {
+                include: {
+                    usuario: true,
+                },
+            },
+        },
+    });
+
+    if (!cita) {
+        throw AppError.notFound(
+            "La cita indicada no existe",
+        );
+    }
+
+    /*
+     * Verifica que la cita pertenezca
+     * al profesional autenticado.
+     */
+    if (
+        cita.profesional.usuario.id !== usuarioId
+    ) {
+        throw AppError.badRequest(
+            "No tiene permiso para gestionar esta cita",
+        );
+    }
+
+    /*
+     * Solo las citas pendientes
+     * pueden rechazarse.
+     */
+    if (cita.estado !== "PENDIENTE") {
+        throw AppError.badRequest(
+            "Solo se pueden rechazar citas pendientes",
+        );
+    }
+
+    /*
+     * El motivo del rechazo es obligatorio.
+     */
+    if (
+        !comentarioProfesional ||
+        comentarioProfesional.trim().length < 3
+    ) {
+        throw AppError.badRequest(
+            "Debe indicar el motivo del rechazo",
+        );
+    }
+
+    return prisma.$transaction(async (tx) => {
+        const citaActualizada =
+            await tx.cita.update({
+                where: {
+                    id: citaId,
+                },
+
+                data: {
+                    estado: "RECHAZADA",
+
+                    comentarioProfesional:
+                        comentarioProfesional.trim(),
+                },
+
+                include: {
+                    cliente: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                            telefono: true,
+                        },
+                    },
+
+                    profesional: {
+                        include: {
+                            usuario: {
+                                select: {
+                                    id: true,
+                                    nombre: true,
+                                    apellidos: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+
+                    servicio: true,
+                },
+            });
+
+        await tx.historialEstadoCita.create({
+            data: {
+                citaId: citaId,
+
+                estadoAnterior:
+                    "PENDIENTE",
+
+                estadoNuevo:
+                    "RECHAZADA",
+
+                comentario:
+                    comentarioProfesional.trim(),
+
+                cambiadoPorId:
+                    usuarioId,
+            },
+        });
+
+        return citaActualizada;
+    });
+},
+
+
 };

@@ -1,0 +1,402 @@
+:host {
+    display: block;
+}
+
+/* ========================================
+   ENCABEZADO
+======================================== */
+
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.page-header .eyebrow {
+    color: var(--mat-sys-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+}
+
+.page-header p {
+    max-width: 720px;
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   FILTROS
+======================================== */
+
+.filters {
+    display: grid;
+    grid-template-columns:
+        minmax(260px, 1.5fr)
+        minmax(180px, 0.8fr)
+        minmax(180px, 0.8fr)
+        auto;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+.filters mat-form-field {
+    width: 100%;
+}
+
+.primary-button {
+    min-height: 56px;
+    border-radius: 999px;
+    padding-inline: 22px;
+}
+
+
+/* ========================================
+   RESUMEN
+======================================== */
+
+.result-summary {
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+
+/* ========================================
+   ESTADOS DE CARGA / ERROR
+======================================== */
+
+.state {
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 24px;
+    background: var(--mat-sys-surface-container-low);
+}
+
+.state mat-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 42px;
+}
+
+.state p {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.state.error {
+    color: var(--mat-sys-error);
+}
+
+
+/* ========================================
+   GRID DE CITAS
+======================================== */
+
+.citas-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(340px, 1fr)
+    );
+    gap: 22px;
+}
+
+
+/* ========================================
+   TARJETA
+======================================== */
+
+.cita-card {
+    border-radius: 24px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    overflow: hidden;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.cita-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--mat-sys-level2);
+}
+
+.cita-card mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 24px;
+}
+
+
+/* ========================================
+   CABECERA DE TARJETA
+======================================== */
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.category,
+.status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.category {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+}
+
+.status {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+}
+
+
+/* ========================================
+   ICONO PRINCIPAL
+======================================== */
+
+.cita-icon {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+}
+
+.cita-icon mat-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+}
+
+
+/* ========================================
+   TÍTULO
+======================================== */
+
+.cita-card h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.25;
+}
+
+
+/* ========================================
+   INFORMACIÓN DE PERSONAS
+======================================== */
+
+.people-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.person-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--mat-sys-surface-container);
+}
+
+.person-row mat-icon {
+    color: var(--mat-sys-primary);
+}
+
+.person-row div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.person-row span {
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.person-row strong {
+    font-size: 0.95rem;
+}
+
+
+/* ========================================
+   FECHA Y HORA
+======================================== */
+
+.appointment-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--mat-sys-surface-container-high);
+    font-weight: 600;
+}
+
+.appointment-date mat-icon {
+    color: var(--mat-sys-primary);
+}
+
+
+/* ========================================
+   META
+======================================== */
+
+.cita-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.cita-meta > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.cita-meta span {
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.cita-meta strong {
+    font-size: 1rem;
+}
+
+
+/* ========================================
+   COMENTARIO DEL CLIENTE
+======================================== */
+
+.client-comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--mat-sys-surface-container-low);
+    border-left: 4px solid var(--mat-sys-primary);
+}
+
+.client-comment mat-icon {
+    color: var(--mat-sys-primary);
+}
+
+.client-comment div {
+    flex: 1;
+}
+
+.client-comment span {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.client-comment p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   ACCIONES
+======================================== */
+
+.cita-card mat-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px 24px;
+}
+
+.accept-button {
+    min-height: 44px;
+    border-radius: 999px;
+    padding-inline: 20px;
+}
+
+.action-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 980px) {
+    .filters {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 680px) {
+    .filters {
+        grid-template-columns: 1fr;
+    }
+
+    .citas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cita-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .primary-button {
+        width: 100%;
+    }
+}

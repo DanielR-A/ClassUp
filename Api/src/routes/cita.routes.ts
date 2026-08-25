@@ -3,6 +3,11 @@ import { Router } from "express";
 import { CitaController } from "../controllers/cita.controller";
 import { asyncHandler } from "../middlewares/async-handler.middleware";
 import { authenticateToken } from "../middlewares/auth.middleware";
+import { validateRequest } from "../middlewares/validate-request.middleware";
+
+import {
+    rechazarCitaSchema,
+} from "../dtos/cita.dto";
 
 export class CitaRoutes {
     static get routes(): Router {
@@ -27,6 +32,14 @@ export class CitaRoutes {
             "/:id/aceptar",
             authenticateToken,
             asyncHandler(controller.aceptar),
+        );
+
+        // PATCH http://localhost:3000/cita/1/rechazar
+        router.patch(
+            "/:id/rechazar",
+            authenticateToken,
+            validateRequest(rechazarCitaSchema),
+            asyncHandler(controller.rechazar),
         );
 
         // GET http://localhost:3000/cita/1
