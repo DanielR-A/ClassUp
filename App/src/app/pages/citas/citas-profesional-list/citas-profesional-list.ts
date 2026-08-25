@@ -1,9 +1,9 @@
 import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -22,446 +22,510 @@ import { CitaService } from '../../../core/services/cita.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
-    selector: 'app-citas-profesional-list',
-    standalone: true,
-    imports: [
-        FormsModule,
-        RouterLink,
-        MatButtonModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatSelectModule,
-    ],
-    templateUrl: './citas-profesional-list.html',
-    styleUrl: './citas-profesional-list.css',
+  selector: 'app-citas-profesional-list',
+  standalone: true,
+  imports: [
+    FormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+  ],
+  templateUrl: './citas-profesional-list.html',
+  styleUrl: './citas-profesional-list.css',
 })
 export class CitasProfesionalList implements OnInit {
 
-    private readonly citaService =
-        inject(CitaService);
+  private readonly citaService =
+    inject(CitaService);
 
-    private readonly notificationService =
-        inject(NotificationService);
+  private readonly notificationService =
+    inject(NotificationService);
 
-    citas = signal<Cita[]>([]);
+  citas = signal<Cita[]>([]);
 
-    search = signal('');
+  search = signal('');
 
-    estadoSeleccionado =
-        signal<string | null>(null);
+  estadoSeleccionado =
+    signal<string | null>(null);
 
-    modalidadSeleccionada =
-        signal<string | null>(null);
+  modalidadSeleccionada =
+    signal<string | null>(null);
 
-    loading = signal(false);
+  loading = signal(false);
 
-    error = signal<string | null>(null);
+  error = signal<string | null>(null);
 
-    /*
-     * Guarda el ID de la cita sobre la cual
-     * se está realizando una acción.
-     */
-    citaActualizando =
-        signal<number | null>(null);
+  /*
+   * Guarda el ID de la cita sobre la cual
+   * se está realizando una acción.
+   */
+  citaActualizando =
+    signal<number | null>(null);
 
-    readonly estados = [
-        {
-            value: 'PENDIENTE',
-            label: 'Pendiente',
-        },
-        {
-            value: 'ACEPTADA',
-            label: 'Aceptada',
-        },
-        {
-            value: 'RECHAZADA',
-            label: 'Rechazada',
-        },
-        {
-            value: 'CANCELADA',
-            label: 'Cancelada',
-        },
-        {
-            value: 'COMPLETADA',
-            label: 'Completada',
-        },
-    ];
+  readonly estados = [
+    {
+      value: 'PENDIENTE',
+      label: 'Pendiente',
+    },
+    {
+      value: 'ACEPTADA',
+      label: 'Aceptada',
+    },
+    {
+      value: 'RECHAZADA',
+      label: 'Rechazada',
+    },
+    {
+      value: 'CANCELADA',
+      label: 'Cancelada',
+    },
+    {
+      value: 'COMPLETADA',
+      label: 'Completada',
+    },
+  ];
 
-    readonly modalidades = [
-        {
-            value: 'VIRTUAL',
-            label: 'Virtual',
-        },
-        {
-            value: 'PRESENCIAL',
-            label: 'Presencial',
-        },
-    ];
+  readonly modalidades = [
+    {
+      value: 'VIRTUAL',
+      label: 'Virtual',
+    },
+    {
+      value: 'PRESENCIAL',
+      label: 'Presencial',
+    },
+  ];
 
-    citasFiltradas = computed(() => {
-        const texto = this.search()
-            .trim()
-            .toLowerCase();
+  citasFiltradas = computed(() => {
+    const texto = this.search()
+      .trim()
+      .toLowerCase();
 
-        const estado =
-            this.estadoSeleccionado();
+    const estado =
+      this.estadoSeleccionado();
 
-        const modalidad =
-            this.modalidadSeleccionada();
+    const modalidad =
+      this.modalidadSeleccionada();
 
-        return this.citas().filter((cita) => {
+    return this.citas().filter((cita) => {
 
-            const cliente =
-                this.getNombreCliente(cita)
-                    .toLowerCase();
+      const cliente =
+        this.getNombreCliente(cita)
+          .toLowerCase();
 
-            const servicio =
-                cita.servicio?.nombre
-                    ?.toLowerCase() ?? '';
+      const servicio =
+        cita.servicio?.nombre
+          ?.toLowerCase() ?? '';
 
-            const coincideTexto =
-                !texto ||
-                cliente.includes(texto) ||
-                servicio.includes(texto);
+      const coincideTexto =
+        !texto ||
+        cliente.includes(texto) ||
+        servicio.includes(texto);
 
-            const coincideEstado =
-                !estado ||
-                cita.estado === estado;
+      const coincideEstado =
+        !estado ||
+        cita.estado === estado;
 
-            const coincideModalidad =
-                !modalidad ||
-                cita.modalidad === modalidad;
+      const coincideModalidad =
+        !modalidad ||
+        cita.modalidad === modalidad;
 
-            return (
-                coincideTexto &&
-                coincideEstado &&
-                coincideModalidad
-            );
-        });
+      return (
+        coincideTexto &&
+        coincideEstado &&
+        coincideModalidad
+      );
     });
+  });
 
-    totalCitas = computed(
-        () => this.citasFiltradas().length,
-    );
+  totalCitas = computed(
+    () => this.citasFiltradas().length,
+  );
 
-    ngOnInit(): void {
-        this.loadSolicitudes();
-    }
+  ngOnInit(): void {
+    this.loadSolicitudes();
+  }
 
-    loadSolicitudes(): void {
-        this.loading.set(true);
-        this.error.set(null);
+  loadSolicitudes(): void {
+    this.loading.set(true);
+    this.error.set(null);
 
-        this.citaService
-            .misSolicitudes()
-            .subscribe({
-                next: (response) => {
-                    this.citas.set(
-                        response.data ?? [],
-                    );
+    this.citaService
+      .misSolicitudes()
+      .subscribe({
+        next: (response) => {
+          this.citas.set(
+            response.data ?? [],
+          );
 
-                    this.loading.set(false);
-                },
+          this.loading.set(false);
+        },
 
-                error: (error) => {
-                    console.error(
-                        'Error cargando solicitudes:',
-                        error,
-                    );
+        error: (error) => {
+          console.error(
+            'Error cargando solicitudes:',
+            error,
+          );
 
-                    this.error.set(
-                        error?.error?.message ??
-                        'No se pudieron cargar las solicitudes.',
-                    );
+          this.error.set(
+            error?.error?.message ??
+            'No se pudieron cargar las solicitudes.',
+          );
 
-                    this.loading.set(false);
-                },
-            });
-    }
+          this.loading.set(false);
+        },
+      });
+  }
 
-    clearFilters(): void {
-        this.search.set('');
-        this.estadoSeleccionado.set(null);
-        this.modalidadSeleccionada.set(null);
-    }
+  clearFilters(): void {
+    this.search.set('');
+    this.estadoSeleccionado.set(null);
+    this.modalidadSeleccionada.set(null);
+  }
 
-    aceptarCita(cita: Cita): void {
-        if (
-            cita.estado !== 'PENDIENTE' ||
-            this.estaActualizando(cita.id)
-        ) {
-            return;
-        }
-
-        this.citaActualizando.set(
-            cita.id,
-        );
-
-        this.error.set(null);
-
-        this.citaService
-            .aceptar(cita.id)
-            .subscribe({
-                next: (response) => {
-                    const citaActualizada =
-                        response.data;
-
-                    this.citas.update(
-                        (citas) =>
-                            citas.map((item) =>
-                                item.id === cita.id
-                                    ? {
-                                          ...item,
-                                          ...citaActualizada,
-                                      }
-                                    : item,
-                            ),
-                    );
-
-                    this.notificationService.success(
-                        'Cita aceptada correctamente',
-                    );
-
-                    this.citaActualizando.set(
-                        null,
-                    );
-                },
-
-                error: (error) => {
-                    console.error(
-                        'Error aceptando cita:',
-                        error,
-                    );
-
-                    this.notificationService.error(
-                        error?.error?.message ??
-                        'No se pudo aceptar la cita',
-                    );
-
-                    this.citaActualizando.set(
-                        null,
-                    );
-                },
-            });
-    }
-
-    rechazarCita(cita: Cita): void {
+  aceptarCita(cita: Cita): void {
     if (
-        cita.estado !== 'PENDIENTE' ||
-        this.estaActualizando(cita.id)
+      cita.estado !== 'PENDIENTE' ||
+      this.estaActualizando(cita.id)
     ) {
-        return;
-    }
-
-    const comentarioProfesional =
-        window.prompt(
-            'Indique el motivo del rechazo:',
-        );
-
-    if (
-        !comentarioProfesional ||
-        comentarioProfesional.trim().length < 3
-    ) {
-        this.notificationService.error(
-            'Debe indicar un motivo válido para rechazar la cita',
-        );
-
-        return;
+      return;
     }
 
     this.citaActualizando.set(
-        cita.id,
+      cita.id,
     );
 
     this.error.set(null);
 
     this.citaService
-        .rechazar(
-            cita.id,
-            comentarioProfesional.trim(),
-        )
-        .subscribe({
-            next: (response) => {
-                const citaActualizada =
-                    response.data;
+      .aceptar(cita.id)
+      .subscribe({
+        next: (response) => {
+          const citaActualizada =
+            response.data;
 
-                this.citas.update(
-                    (citas) =>
-                        citas.map((item) =>
-                            item.id === cita.id
-                                ? {
-                                      ...item,
-                                      ...citaActualizada,
-                                  }
-                                : item,
-                        ),
-                );
+          this.citas.update(
+            (citas) =>
+              citas.map((item) =>
+                item.id === cita.id
+                  ? {
+                    ...item,
+                    ...citaActualizada,
+                  }
+                  : item,
+              ),
+          );
 
-                this.notificationService.success(
-                    'Cita rechazada correctamente',
-                );
+          this.notificationService.success(
+            'Cita aceptada correctamente',
+          );
 
-                this.citaActualizando.set(
-                    null,
-                );
-            },
+          this.citaActualizando.set(
+            null,
+          );
+        },
 
-            error: (error) => {
-                console.error(
-                    'Error rechazando cita:',
-                    error,
-                );
+        error: (error) => {
+          console.error(
+            'Error aceptando cita:',
+            error,
+          );
 
-                this.notificationService.error(
-                    error?.error?.message ??
-                    'No se pudo rechazar la cita',
-                );
+          this.notificationService.error(
+            error?.error?.message ??
+            'No se pudo aceptar la cita',
+          );
 
-                this.citaActualizando.set(
-                    null,
-                );
-            },
-        });
-}
+          this.citaActualizando.set(
+            null,
+          );
+        },
+      });
+  }
 
-    estaActualizando(
-        citaId: number,
-    ): boolean {
-        return (
-            this.citaActualizando() ===
-            citaId
-        );
+  rechazarCita(cita: Cita): void {
+    if (
+      cita.estado !== 'PENDIENTE' ||
+      this.estaActualizando(cita.id)
+    ) {
+      return;
     }
 
-    puedeAceptar(cita: Cita): boolean {
-        return (
-            cita.estado === 'PENDIENTE'
-        );
+    const comentarioProfesional =
+      window.prompt(
+        'Indique el motivo del rechazo:',
+      );
+
+    if (
+      !comentarioProfesional ||
+      comentarioProfesional.trim().length < 3
+    ) {
+      this.notificationService.error(
+        'Debe indicar un motivo válido para rechazar la cita',
+      );
+
+      return;
     }
-    puedeRechazar(cita: Cita): boolean {
-    return (
-        cita.estado === 'PENDIENTE'
+
+    this.citaActualizando.set(
+      cita.id,
     );
-}
 
-    getNombreCliente(
-        cita: Cita,
-    ): string {
-        const nombre =
-            cita.cliente?.nombre ?? '';
+    this.error.set(null);
 
-        const apellidos =
-            cita.cliente?.apellidos ?? '';
+    this.citaService
+      .rechazar(
+        cita.id,
+        comentarioProfesional.trim(),
+      )
+      .subscribe({
+        next: (response) => {
+          const citaActualizada =
+            response.data;
 
-        return (
-            `${nombre} ${apellidos}`.trim() ||
-            'Cliente'
-        );
+          this.citas.update(
+            (citas) =>
+              citas.map((item) =>
+                item.id === cita.id
+                  ? {
+                    ...item,
+                    ...citaActualizada,
+                  }
+                  : item,
+              ),
+          );
+
+          this.notificationService.success(
+            'Cita rechazada correctamente',
+          );
+
+          this.citaActualizando.set(
+            null,
+          );
+        },
+
+        error: (error) => {
+          console.error(
+            'Error rechazando cita:',
+            error,
+          );
+
+          this.notificationService.error(
+            error?.error?.message ??
+            'No se pudo rechazar la cita',
+          );
+
+          this.citaActualizando.set(
+            null,
+          );
+        },
+      });
+  }
+
+  completarCita(cita: Cita): void {
+    if (
+      cita.estado !== 'ACEPTADA' ||
+      this.estaActualizando(cita.id)
+    ) {
+      return;
     }
 
-    getEstadoLabel(
-        estado: string,
-    ): string {
-        switch (estado) {
-            case 'PENDIENTE':
-                return 'Pendiente';
+    this.citaActualizando.set(
+      cita.id,
+    );
 
-            case 'ACEPTADA':
-                return 'Aceptada';
+    this.error.set(null);
 
-            case 'RECHAZADA':
-                return 'Rechazada';
+    this.citaService
+      .completar(cita.id)
+      .subscribe({
+        next: (response) => {
+          const citaActualizada =
+            response.data;
 
-            case 'CANCELADA':
-                return 'Cancelada';
+          this.citas.update(
+            (citas) =>
+              citas.map((item) =>
+                item.id === cita.id
+                  ? {
+                    ...item,
+                    ...citaActualizada,
+                  }
+                  : item,
+              ),
+          );
 
-            case 'COMPLETADA':
-                return 'Completada';
+          this.notificationService.success(
+            'Cita completada correctamente',
+          );
 
-            default:
-                return estado;
-        }
+          this.citaActualizando.set(
+            null,
+          );
+        },
+
+        error: (error) => {
+          console.error(
+            'Error completando cita:',
+            error,
+          );
+
+          this.notificationService.error(
+            error?.error?.message ??
+            'No se pudo completar la cita',
+          );
+
+          this.citaActualizando.set(
+            null,
+          );
+        },
+      });
+  }
+
+  estaActualizando(
+    citaId: number,
+  ): boolean {
+    return (
+      this.citaActualizando() ===
+      citaId
+    );
+  }
+
+  puedeCompletar(cita: Cita): boolean {
+    return cita.estado === 'ACEPTADA';
+  }
+
+  puedeAceptar(cita: Cita): boolean {
+    return (
+      cita.estado === 'PENDIENTE'
+    );
+  }
+  puedeRechazar(cita: Cita): boolean {
+    return (
+      cita.estado === 'PENDIENTE'
+    );
+  }
+
+  getNombreCliente(
+    cita: Cita,
+  ): string {
+    const nombre =
+      cita.cliente?.nombre ?? '';
+
+    const apellidos =
+      cita.cliente?.apellidos ?? '';
+
+    return (
+      `${nombre} ${apellidos}`.trim() ||
+      'Cliente'
+    );
+  }
+
+  getEstadoLabel(
+    estado: string,
+  ): string {
+    switch (estado) {
+      case 'PENDIENTE':
+        return 'Pendiente';
+
+      case 'ACEPTADA':
+        return 'Aceptada';
+
+      case 'RECHAZADA':
+        return 'Rechazada';
+
+      case 'CANCELADA':
+        return 'Cancelada';
+
+      case 'COMPLETADA':
+        return 'Completada';
+
+      default:
+        return estado;
     }
+  }
 
-    getEstadoIcon(
-        estado: string,
-    ): string {
-        switch (estado) {
-            case 'PENDIENTE':
-                return 'schedule';
+  getEstadoIcon(
+    estado: string,
+  ): string {
+    switch (estado) {
+      case 'PENDIENTE':
+        return 'schedule';
 
-            case 'ACEPTADA':
-                return 'check_circle';
+      case 'ACEPTADA':
+        return 'check_circle';
 
-            case 'RECHAZADA':
-                return 'cancel';
+      case 'RECHAZADA':
+        return 'cancel';
 
-            case 'CANCELADA':
-                return 'block';
+      case 'CANCELADA':
+        return 'block';
 
-            case 'COMPLETADA':
-                return 'task_alt';
+      case 'COMPLETADA':
+        return 'task_alt';
 
-            default:
-                return 'event';
-        }
+      default:
+        return 'event';
     }
+  }
 
-    getModalidadLabel(
-        modalidad: string,
-    ): string {
-        switch (modalidad) {
-            case 'VIRTUAL':
-                return 'Virtual';
+  getModalidadLabel(
+    modalidad: string,
+  ): string {
+    switch (modalidad) {
+      case 'VIRTUAL':
+        return 'Virtual';
 
-            case 'PRESENCIAL':
-                return 'Presencial';
+      case 'PRESENCIAL':
+        return 'Presencial';
 
-            default:
-                return modalidad;
-        }
+      default:
+        return modalidad;
     }
+  }
 
-    formatearFecha(
-        fecha: string | Date,
-    ): string {
-        const date =
-            new Date(fecha);
+  formatearFecha(
+    fecha: string | Date,
+  ): string {
+    const date =
+      new Date(fecha);
 
-        return new Intl.DateTimeFormat(
-            'es-CR',
-            {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            },
-        ).format(date);
-    }
+    return new Intl.DateTimeFormat(
+      'es-CR',
+      {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      },
+    ).format(date);
+  }
 
-    getHorario(cita: Cita): string {
-        return `${this.formatearHora(
-            cita.horaInicio,
-        )} - ${this.formatearHora(
-            cita.horaFinalizacion,
-        )}`;
-    }
+  getHorario(cita: Cita): string {
+    return `${this.formatearHora(
+      cita.horaInicio,
+    )} - ${this.formatearHora(
+      cita.horaFinalizacion,
+    )}`;
+  }
 
-    private formatearHora(
-        hora: string | Date,
-    ): string {
-        const date =
-            new Date(hora);
+  private formatearHora(
+    hora: string | Date,
+  ): string {
+    const date =
+      new Date(hora);
 
-        return new Intl.DateTimeFormat(
-            'es-CR',
-            {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            },
-        ).format(date);
-    }
+    return new Intl.DateTimeFormat(
+      'es-CR',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      },
+    ).format(date);
+  }
 }

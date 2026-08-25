@@ -19,12 +19,7 @@
     <mat-form-field appearance="outline">
         <mat-label>Buscar solicitud</mat-label>
 
-        <input
-            matInput
-            [ngModel]="search()"
-            (ngModelChange)="search.set($event)"
-            placeholder="Cliente o servicio"
-        />
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Cliente o servicio" />
 
         <mat-icon matSuffix>
             search
@@ -35,21 +30,18 @@
     <mat-form-field appearance="outline">
         <mat-label>Estado</mat-label>
 
-        <mat-select
-            [ngModel]="estadoSeleccionado()"
-            (ngModelChange)="estadoSeleccionado.set($event)"
-        >
+        <mat-select [ngModel]="estadoSeleccionado()" (ngModelChange)="estadoSeleccionado.set($event)">
             <mat-option [value]="null">
                 Todos
             </mat-option>
 
             @for (
-                estado of estados;
-                track estado.value
+            estado of estados;
+            track estado.value
             ) {
-                <mat-option [value]="estado.value">
-                    {{ estado.label }}
-                </mat-option>
+            <mat-option [value]="estado.value">
+                {{ estado.label }}
+            </mat-option>
             }
         </mat-select>
     </mat-form-field>
@@ -58,32 +50,24 @@
     <mat-form-field appearance="outline">
         <mat-label>Modalidad</mat-label>
 
-        <mat-select
-            [ngModel]="modalidadSeleccionada()"
-            (ngModelChange)="modalidadSeleccionada.set($event)"
-        >
+        <mat-select [ngModel]="modalidadSeleccionada()" (ngModelChange)="modalidadSeleccionada.set($event)">
             <mat-option [value]="null">
                 Todas
             </mat-option>
 
             @for (
-                modalidad of modalidades;
-                track modalidad.value
+            modalidad of modalidades;
+            track modalidad.value
             ) {
-                <mat-option [value]="modalidad.value">
-                    {{ modalidad.label }}
-                </mat-option>
+            <mat-option [value]="modalidad.value">
+                {{ modalidad.label }}
+            </mat-option>
             }
         </mat-select>
     </mat-form-field>
 
 
-    <button
-        mat-stroked-button
-        class="primary-button"
-        type="button"
-        (click)="clearFilters()"
-    >
+    <button mat-stroked-button class="primary-button" type="button" (click)="clearFilters()">
         <mat-icon>
             filter_alt_off
         </mat-icon>
@@ -98,343 +82,327 @@
     {{ totalCitas() }}
 
     {{
-        totalCitas() === 1
-            ? 'solicitud encontrada'
-            : 'solicitudes encontradas'
+    totalCitas() === 1
+    ? 'solicitud encontrada'
+    : 'solicitudes encontradas'
     }}
 </div>
 
 
 @if (loading()) {
 
-    <div class="state">
-        <mat-spinner diameter="42"></mat-spinner>
+<div class="state">
+    <mat-spinner diameter="42"></mat-spinner>
 
-        <p>
-            Cargando solicitudes...
-        </p>
-    </div>
+    <p>
+        Cargando solicitudes...
+    </p>
+</div>
 
 } @else if (error()) {
 
-    <div class="state error">
+<div class="state error">
+    <mat-icon>
+        error
+    </mat-icon>
+
+    <p>
+        {{ error() }}
+    </p>
+
+    <button mat-stroked-button type="button" (click)="loadSolicitudes()">
         <mat-icon>
-            error
+            refresh
         </mat-icon>
 
-        <p>
-            {{ error() }}
-        </p>
-
-        <button
-            mat-stroked-button
-            type="button"
-            (click)="loadSolicitudes()"
-        >
-            <mat-icon>
-                refresh
-            </mat-icon>
-
-            Intentar nuevamente
-        </button>
-    </div>
+        Intentar nuevamente
+    </button>
+</div>
 
 } @else if (citasFiltradas().length === 0) {
 
-    <div class="state">
-        <mat-icon>
-            event_busy
-        </mat-icon>
+<div class="state">
+    <mat-icon>
+        event_busy
+    </mat-icon>
 
-        <p>
-            No hay solicitudes con los filtros seleccionados.
-        </p>
-    </div>
+    <p>
+        No hay solicitudes con los filtros seleccionados.
+    </p>
+</div>
 
 } @else {
 
-    <section class="citas-grid">
+<section class="citas-grid">
 
-        @for (
-            cita of citasFiltradas();
-            track cita.id
-        ) {
+    @for (
+    cita of citasFiltradas();
+    track cita.id
+    ) {
 
-            <mat-card class="cita-card">
+    <mat-card class="cita-card">
 
-                <mat-card-content>
+        <mat-card-content>
 
-                    <!-- ESTADO Y MODALIDAD -->
-                    <div class="card-header">
+            <!-- ESTADO Y MODALIDAD -->
+            <div class="card-header">
 
-                        <span class="category">
-                            {{
-                                getEstadoLabel(
-                                    cita.estado
-                                )
-                            }}
-                        </span>
+                <span class="category">
+                    {{
+                    getEstadoLabel(
+                    cita.estado
+                    )
+                    }}
+                </span>
 
-                        <span class="status">
-                            {{
-                                getModalidadLabel(
-                                    cita.modalidad
-                                )
-                            }}
-                        </span>
+                <span class="status">
+                    {{
+                    getModalidadLabel(
+                    cita.modalidad
+                    )
+                    }}
+                </span>
 
-                    </div>
-
-
-                    <!-- ICONO -->
-                    <div class="cita-icon">
-
-                        <mat-icon>
-                            {{
-                                getEstadoIcon(
-                                    cita.estado
-                                )
-                            }}
-                        </mat-icon>
-
-                    </div>
+            </div>
 
 
-                    <!-- SERVICIO -->
-                    <h2>
-                        {{
-                            cita.servicio?.nombre ||
-                            'Servicio no registrado'
-                        }}
-                    </h2>
-
-
-                    <!-- CLIENTE -->
-                    <div class="people-info">
-
-                        <div class="person-row">
-
-                            <mat-icon>
-                                person
-                            </mat-icon>
-
-                            <div>
-                                <span>
-                                    Cliente
-                                </span>
-
-                                <strong>
-                                    {{
-                                        getNombreCliente(
-                                            cita
-                                        )
-                                    }}
-                                </strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- FECHA Y HORA -->
-                    <div class="appointment-date">
-
-                        <mat-icon>
-                            calendar_month
-                        </mat-icon>
-
-                        <span>
-                            {{
-                                formatearFecha(
-                                    cita.fechaCita
-                                )
-                            }}
-
-                            ·
-
-                            {{
-                                getHorario(
-                                    cita
-                                )
-                            }}
-                        </span>
-
-                    </div>
-
-
-                    <!-- INFORMACIÓN ADICIONAL -->
-                    <div class="cita-meta">
-
-                        <div>
-                            <span>
-                                Monto
-                            </span>
-
-                            <strong>
-                                ₡{{ cita.montoEstimado }}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>
-                                Modalidad
-                            </span>
-
-                            <strong>
-                                {{
-                                    getModalidadLabel(
-                                        cita.modalidad
-                                    )
-                                }}
-                            </strong>
-                        </div>
-
-                    </div>
-
-
-                    <!-- COMENTARIO DEL CLIENTE -->
-                    @if (cita.comentarioCliente) {
-
-                        <div class="client-comment">
-
-                            <mat-icon>
-                                chat
-                            </mat-icon>
-
-                            <div>
-                                <span>
-                                    Comentario del cliente
-                                </span>
-
-                                <p>
-                                    {{
-                                        cita.comentarioCliente
-                                    }}
-                                </p>
-                            </div>
-
-                        </div>
-
-                    }
-
-                </mat-card-content>
-
-
-                <mat-card-actions>
-
-<!-- ACCIONES PARA CITAS PENDIENTES -->
-@if (cita.estado === 'PENDIENTE') {
-
-    <div class="pending-actions">
-
-        <!-- ACEPTAR -->
-        <button
-            mat-flat-button
-            type="button"
-            class="accept-button"
-            [disabled]="estaActualizando(cita.id)"
-            (click)="aceptarCita(cita)"
-        >
-
-            @if (estaActualizando(cita.id)) {
-
-                <mat-spinner
-                    diameter="20"
-                ></mat-spinner>
-
-                Procesando...
-
-            } @else {
+            <!-- ICONO -->
+            <div class="cita-icon">
 
                 <mat-icon>
-                    check_circle
+                    {{
+                    getEstadoIcon(
+                    cita.estado
+                    )
+                    }}
                 </mat-icon>
 
-                Aceptar
+            </div>
+
+
+            <!-- SERVICIO -->
+            <h2>
+                {{
+                cita.servicio?.nombre ||
+                'Servicio no registrado'
+                }}
+            </h2>
+
+
+            <!-- CLIENTE -->
+            <div class="people-info">
+
+                <div class="person-row">
+
+                    <mat-icon>
+                        person
+                    </mat-icon>
+
+                    <div>
+                        <span>
+                            Cliente
+                        </span>
+
+                        <strong>
+                            {{
+                            getNombreCliente(
+                            cita
+                            )
+                            }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FECHA Y HORA -->
+            <div class="appointment-date">
+
+                <mat-icon>
+                    calendar_month
+                </mat-icon>
+
+                <span>
+                    {{
+                    formatearFecha(
+                    cita.fechaCita
+                    )
+                    }}
+
+                    ·
+
+                    {{
+                    getHorario(
+                    cita
+                    )
+                    }}
+                </span>
+
+            </div>
+
+
+            <!-- INFORMACIÓN ADICIONAL -->
+            <div class="cita-meta">
+
+                <div>
+                    <span>
+                        Monto
+                    </span>
+
+                    <strong>
+                        ₡{{ cita.montoEstimado }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>
+                        Modalidad
+                    </span>
+
+                    <strong>
+                        {{
+                        getModalidadLabel(
+                        cita.modalidad
+                        )
+                        }}
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <!-- COMENTARIO DEL CLIENTE -->
+            @if (cita.comentarioCliente) {
+
+            <div class="client-comment">
+
+                <mat-icon>
+                    chat
+                </mat-icon>
+
+                <div>
+                    <span>
+                        Comentario del cliente
+                    </span>
+
+                    <p>
+                        {{
+                        cita.comentarioCliente
+                        }}
+                    </p>
+                </div>
+
+            </div>
 
             }
 
-        </button>
+        </mat-card-content>
 
+<mat-card-actions>
 
-        <!-- RECHAZAR -->
+    <!-- PENDIENTE -->
+    @if (cita.estado === 'PENDIENTE') {
+
+        <div class="pending-actions">
+
+            <button
+                mat-flat-button
+                type="button"
+                class="accept-button"
+                [disabled]="estaActualizando(cita.id)"
+                (click)="aceptarCita(cita)"
+            >
+                @if (estaActualizando(cita.id)) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    Procesando...
+                } @else {
+                    <mat-icon>check_circle</mat-icon>
+                    Aceptar
+                }
+            </button>
+
+            <button
+                mat-stroked-button
+                type="button"
+                class="reject-button"
+                [disabled]="estaActualizando(cita.id)"
+                (click)="rechazarCita(cita)"
+            >
+                <mat-icon>cancel</mat-icon>
+                Rechazar
+            </button>
+
+        </div>
+    }
+
+    <!-- ACEPTADA -->
+    @if (cita.estado === 'ACEPTADA') {
+
         <button
-            mat-stroked-button
+            mat-flat-button
             type="button"
-            class="reject-button"
+            class="complete-button"
             [disabled]="estaActualizando(cita.id)"
-            (click)="rechazarCita(cita)"
+            (click)="completarCita(cita)"
         >
-
-            <mat-icon>
-                cancel
-            </mat-icon>
-
-            Rechazar
-
+            @if (estaActualizando(cita.id)) {
+                <mat-spinner diameter="20"></mat-spinner>
+                Procesando...
+            } @else {
+                <mat-icon>task_alt</mat-icon>
+                Completar cita
+            }
         </button>
+    }
 
-    </div>
+    <!-- RECHAZADA -->
+    @if (cita.estado === 'RECHAZADA') {
+        <span class="action-info">
+            <mat-icon>cancel</mat-icon>
+            Solicitud rechazada
+        </span>
+    }
 
-}
+    <!-- COMPLETADA -->
+    @if (cita.estado === 'COMPLETADA') {
+        <span class="action-info">
+            <mat-icon>task_alt</mat-icon>
+            Cita completada
+        </span>
+    }
+
+    <!-- CANCELADA -->
+    @if (cita.estado === 'CANCELADA') {
+        <span class="action-info">
+            <mat-icon>block</mat-icon>
+            Cita cancelada
+        </span>
+    }
+
+    <!-- DETALLE -->
+    <a
+        mat-stroked-button
+        [routerLink]="[
+            '/profesional/solicitudes',
+            cita.id
+        ]"
+    >
+        <mat-icon>history</mat-icon>
+        Ver detalle
+    </a>
+
+</mat-card-actions>
 
 
-                    <!-- MENSAJE CUANDO YA NO ESTÁ PENDIENTE -->
-                    @if (cita.estado === 'ACEPTADA') {
 
-                        <span class="action-info">
-                            <mat-icon>
-                                check_circle
-                            </mat-icon>
 
-                            Solicitud aceptada
-                        </span>
 
-                    }
+    </mat-card>
 
-                    @if (cita.estado === 'RECHAZADA') {
+    }
 
-                        <span class="action-info">
-                            <mat-icon>
-                                cancel
-                            </mat-icon>
-
-                            Solicitud rechazada
-                        </span>
-
-                    }
-
-                    @if (cita.estado === 'COMPLETADA') {
-
-                        <span class="action-info">
-                            <mat-icon>
-                                task_alt
-                            </mat-icon>
-
-                            Cita completada
-                        </span>
-
-                    }
-
-                    @if (cita.estado === 'CANCELADA') {
-
-                        <span class="action-info">
-                            <mat-icon>
-                                block
-                            </mat-icon>
-
-                            Cita cancelada
-                        </span>
-
-                    }
-
-                </mat-card-actions>
-
-            </mat-card>
-
-        }
-
-    </section>
+</section>
 
 }

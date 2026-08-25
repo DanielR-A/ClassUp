@@ -27,6 +27,12 @@ export class CitaRoutes {
             asyncHandler(controller.misSolicitudes),
         );
 
+        router.get(
+            "/mis-solicitudes/:id",
+            authenticateToken,
+            asyncHandler(controller.detalleProfesional),
+        );
+
         // PATCH http://localhost:3000/cita/1/aceptar
         router.patch(
             "/:id/aceptar",

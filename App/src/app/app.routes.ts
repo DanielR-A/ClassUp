@@ -21,6 +21,7 @@ import { ProfesionalDetail } from './pages/profesionales/profesional-detail/prof
 import { ProfesionalCreatePage } from './pages/profesionales/profesional-create-page/profesional-create-page';
 import { ProfesionalEditPage } from './pages/profesionales/profesional-edit-page/profesional-edit-page';
 import { CitasProfesionalList } from './pages/citas/citas-profesional-list/citas-profesional-list';
+import { CitaProfesionalDetail } from './pages/citas/cita-profesional-detail/cita-profesional-detail';
 
 // Categorías y especialidades
 import { CategoriasList } from './pages/categorias/categorias-list/categorias-list';
@@ -121,6 +122,16 @@ export const routes: Routes = [
                 component: ProfesionalDetail,
                 title: 'Detalle del profesional',
             },
+
+{
+    path: 'profesional/solicitudes/:id',
+    component: CitaProfesionalDetail,
+    title: 'Detalle de solicitud',
+    canActivate: [authGuard, roleGuard],
+    data: {
+        roles: [Role.PROFESIONAL],
+    },
+},
 
             // =====================
             // ADMIN - SERVICIOS

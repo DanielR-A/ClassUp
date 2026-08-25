@@ -777,5 +777,76 @@ async completar(
     });
 },
 
+async obtenerDetalleProfesional(
+    citaId: number,
+    usuarioId: number,
+) {
+    const profesional =
+        await prisma.perfilProfesional.findUnique({
+            where: {
+                usuarioId,
+            },
+        });
+
+    if (!profesional) {
+        throw AppError.notFound(
+            "El usuario autenticado no tiene un perfil profesional",
+        );
+    }
+
+    const cita = await prisma.cita.findFirst({
+        where: {
+            id: citaId,
+            profesionalId: profesional.id,
+        },
+
+        include: {
+            cliente: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    apellidos: true,
+                    email: true,
+                    telefono: true,
+                },
+            },
+
+            profesional: {
+                include: {
+                    usuario: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                        },
+                    },
+                },
+            },
+
+            servicio: {
+                include: {
+                    categoria: true,
+                    especialidades: true,
+                },
+            },
+
+            historial: {
+                orderBy: {
+                    createdAt: "asc",
+                },
+            },
+        },
+    });
+
+    if (!cita) {
+        throw AppError.notFound(
+            "La cita indicada no existe o no pertenece al profesional autenticado",
+        );
+    }
+
+    return cita;
+},
+
 
 };
