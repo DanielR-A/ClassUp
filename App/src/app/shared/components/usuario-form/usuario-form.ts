@@ -17,7 +17,7 @@ import {
   maxLength,
   pattern,
   validate,
-  email,
+  
 } from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';

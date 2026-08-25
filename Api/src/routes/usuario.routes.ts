@@ -3,13 +3,14 @@ import { Router } from "express";
 import { UsuarioController } from "../controllers/usuario.controller";
 import { asyncHandler } from "../middlewares/async-handler.middleware";
 import { validateRequest } from "../middlewares/validate-request.middleware";
+import { authenticateToken } from "../middlewares/auth.middleware";
 
 import {
     cambiarEstadoUsuarioSchema,
+    createUsuarioSchema,
     loginUserSchema,
     registerUserSchema,
 } from "../dtos/usuario.dto";
-import { authenticateToken } from "../middlewares/auth.middleware";
 
 export class UsuarioRoutes {
     static get routes(): Router {
@@ -20,6 +21,13 @@ export class UsuarioRoutes {
         router.get(
             "/",
             asyncHandler(controller.listar),
+        );
+
+        // POST http://localhost:3000/usuario
+        router.post(
+            "/",
+            validateRequest(createUsuarioSchema),
+            asyncHandler(controller.crear),
         );
 
         // POST http://localhost:3000/usuario/register
@@ -43,17 +51,17 @@ export class UsuarioRoutes {
             asyncHandler(controller.perfil),
         );
 
-        // GET http://localhost:3000/usuario/1
-        router.get(
-            "/:id",
-            asyncHandler(controller.obtenerPorId),
-        );
-
         // PATCH http://localhost:3000/usuario/1/estado
         router.patch(
             "/:id/estado",
             validateRequest(cambiarEstadoUsuarioSchema),
             asyncHandler(controller.cambiarEstado),
+        );
+
+        // GET http://localhost:3000/usuario/1
+        router.get(
+            "/:id",
+            asyncHandler(controller.obtenerPorId),
         );
 
         return router;

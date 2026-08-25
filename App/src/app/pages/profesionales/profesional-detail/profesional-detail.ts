@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
+import { environment } from '../../../../environments/environment.development';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -187,27 +187,30 @@ export class ProfesionalDetail implements OnInit {
             : `${annosExperiencia} años de experiencia`;
     }
 
+
+
+
+
+
+
+
     getImagenPerfil(
-        profesional: PerfilProfesional,
-    ): string {
-        const imagen =
-            profesional.imagenPerfil?.trim();
+    profesional: PerfilProfesional,
+): string {
+    const imagen =
+        profesional.imagenPerfil?.trim();
 
-        if (
-            !imagen ||
-            imagen === 'profile-not-found.jpg'
-        ) {
-            return '/profile-not-found.jpg';
-        }
-
-        if (
-            imagen.startsWith('http://') ||
-            imagen.startsWith('https://') ||
-            imagen.startsWith('/')
-        ) {
-            return imagen;
-        }
-
-        return `/${imagen}`;
+    if (!imagen) {
+        return `${environment.apiUrl}/images/profile-not-found.jpg`;
     }
+
+    if (
+        imagen.startsWith('http://') ||
+        imagen.startsWith('https://')
+    ) {
+        return imagen;
+    }
+
+    return `${environment.apiUrl}/images/${imagen}`;
+}
 }

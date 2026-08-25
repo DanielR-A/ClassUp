@@ -52,6 +52,31 @@ export class UsuarioController {
     };
 
 
+
+
+
+
+crear = async (
+    request: Request,
+    response: Response,
+    next: NextFunction,
+) => {
+    const usuario =
+        await usuarioService.crear(request.body);
+
+    return sendSuccess(
+        response,
+        usuario,
+        "Usuario creado correctamente",
+        StatusCodes.CREATED
+    );
+};
+
+
+
+
+
+
     cambiarEstado = async (
         request: Request,
         response: Response,
@@ -85,6 +110,8 @@ export class UsuarioController {
             data: usuario,
         });
     };
+
+    
 
     registrar = async (
         request: Request,

@@ -1,0 +1,3 @@
+{"level":"warn","message":"El usuario indicado ya tiene un perfil profesional","method":"POST","name":"BadRequestError","path":"/perfilProfesional","statusCode":400,"timestamp":"2026-08-25 01:19:19.505"}
+{"level":"warn","message":"El usuario indicado ya tiene un perfil profesional","method":"POST","name":"BadRequestError","path":"/perfilProfesional","statusCode":400,"timestamp":"2026-08-25 01:19:34.990"}
+{"level":"warn","message":"El usuario indicado ya tiene un perfil profesional","method":"POST","name":"BadRequestError","path":"/perfilProfesional","statusCode":400,"timestamp":"2026-08-25 01:19:52.266"}

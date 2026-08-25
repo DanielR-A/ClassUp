@@ -132,16 +132,28 @@ export class ProfesionalForm {
      * Solo muestra usuarios con rol PROFESIONAL.
      * En edición conserva visible al usuario actualmente asociado.
      */
-    usuariosProfesionales = computed(() => {
-        const usuarioActualId =
-            this.profesional()?.usuarioId;
+ usuariosProfesionales = computed(() => {
+    const usuarioActualId =
+        this.profesional()?.usuarioId;
 
-        return this.usuarios().filter(
-            (usuario) =>
-                usuario.role === 'PROFESIONAL' ||
-                usuario.id === usuarioActualId,
-        );
-    });
+    return this.usuarios().filter(
+        (usuario) => {
+            // En edición debemos conservar visible
+            // el usuario asociado al perfil actual.
+            if (usuario.id === usuarioActualId) {
+                return true;
+            }
+
+            // En creación solamente mostramos
+            // profesionales activos y sin perfil.
+            return (
+                usuario.role === 'PROFESIONAL' &&
+                usuario.estado === true &&
+                !usuario.perfilProfesional
+            );
+        },
+    );
+});
 
     /*
      * Estado principal del formulario.

@@ -171,6 +171,73 @@ export const usuarioService = {
         });
     },
 
+
+
+
+
+async crear(data: {
+    nombre: string;
+    apellidos: string;
+    email: string;
+    password: string;
+    telefono?: string;
+    cedula?: string;
+    role?: Role;
+}) {
+    const usuarioExiste =
+        await prisma.usuario.findUnique({
+            where: {
+                email: data.email,
+            },
+        });
+
+    if (usuarioExiste) {
+        throw new Error(
+            "El correo ya está registrado"
+        );
+    }
+
+    const hashedPassword =
+        await bcrypt.hash(
+            data.password,
+            10
+        );
+
+    const usuario =
+        await prisma.usuario.create({
+            data: {
+                nombre: data.nombre,
+                apellidos: data.apellidos,
+                email: data.email,
+                password: hashedPassword,
+                telefono: data.telefono,
+                cedula: data.cedula,
+                role:
+                    data.role ??
+                    Role.USER,
+                estado: true,
+            },
+            select: {
+                id: true,
+                nombre: true,
+                apellidos: true,
+                email: true,
+                telefono: true,
+                cedula: true,
+                role: true,
+                estado: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+
+    return usuario;
+},
+
+
+
+
+
         async registrar(data: {
         email: string;
         password: string;

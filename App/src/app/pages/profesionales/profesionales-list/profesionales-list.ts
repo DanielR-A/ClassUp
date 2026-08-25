@@ -8,7 +8,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
+import { environment } from '../../../../environments/environment.development';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -245,6 +245,32 @@ export class ProfesionalesList implements OnInit {
             'Profesional sin usuario'
         );
     }
+
+
+
+getImagenPerfil(
+    profesional: PerfilProfesional,
+): string {
+    const imagen =
+        profesional.imagenPerfil?.trim();
+
+    if (!imagen) {
+        return `${environment.apiUrl}/images/profile-not-found.jpg`;
+    }
+
+    if (
+        imagen.startsWith('http://') ||
+        imagen.startsWith('https://')
+    ) {
+        return imagen;
+    }
+
+    return `${environment.apiUrl}/images/${imagen}`;
+}
+
+
+
+
 
     getUbicacion(
         profesional: PerfilProfesional,

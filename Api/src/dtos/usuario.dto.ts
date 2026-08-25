@@ -1,4 +1,4 @@
-import { email, z } from "zod";
+import { z } from "zod";
 import { Role } from "../../generated/prisma/enums";
 
 export const createUsuarioSchema = z.object({

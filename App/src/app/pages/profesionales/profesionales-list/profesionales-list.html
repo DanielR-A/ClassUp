@@ -110,22 +110,27 @@
     ) {
     <mat-card class="professional-card">
         <div class="professional-card-header">
-            <div class="profile-image-wrapper">
-                <img class="profile-image" [src]="
-                                profesional.imagenPerfil ||
-                                'profile-not-found.jpg'
-                            " [alt]="
-                                'Fotografía de ' +
-                                getNombreCompleto(profesional)
-                            " />
+        <div class="profile-image-wrapper">
+    <img
+        class="profile-image"
+        [src]="getImagenPerfil(profesional)"
+        [alt]="
+            'Fotografía de ' +
+            getNombreCompleto(profesional)
+        "
+    />
 
-                <span class="availability-indicator" [class.available]="profesional.disponible"
-                    [class.unavailable]="!profesional.disponible" [attr.title]="
-                                profesional.disponible
-                                    ? 'Disponible'
-                                    : 'No disponible'
-                            "></span>
-            </div>
+    <span
+        class="availability-indicator"
+        [class.available]="profesional.disponible"
+        [class.unavailable]="!profesional.disponible"
+        [attr.title]="
+            profesional.disponible
+                ? 'Disponible'
+                : 'No disponible'
+        "
+    ></span>
+</div>
 
             <div class="professional-main-info">
                 <div class="professional-title-row">
