@@ -301,4 +301,33 @@ detalleProfesional = async (
 };
 
 
+misCitasCliente = async (
+    request: AuthRequest,
+    response: Response,
+    next: NextFunction,
+) => {
+    const usuarioId = request.user?.id;
+
+    if (!usuarioId) {
+        return response
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({
+                success: false,
+                message: "Usuario no autenticado",
+            });
+    }
+
+    const resultado =
+        await citaService.misCitasCliente(
+            usuarioId,
+        );
+
+    return response
+        .status(StatusCodes.OK)
+        .json({
+            success: true,
+            data: resultado,
+        });
+};
+
 }

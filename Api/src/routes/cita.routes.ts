@@ -27,6 +27,13 @@ export class CitaRoutes {
             asyncHandler(controller.misSolicitudes),
         );
 
+        // GET http://localhost:3000/cita/mis-citas
+        router.get(
+            "/mis-citas",
+            authenticateToken,
+            asyncHandler(controller.misCitasCliente),
+        );
+
         router.get(
             "/mis-solicitudes/:id",
             authenticateToken,
