@@ -8,6 +8,7 @@ import { authenticateToken } from "../middlewares/auth.middleware";
 import {
     cambiarEstadoUsuarioSchema,
     createUsuarioSchema,
+    updateUsuarioSchema,
     loginUserSchema,
     registerUserSchema,
 } from "../dtos/usuario.dto";
@@ -58,11 +59,19 @@ export class UsuarioRoutes {
             asyncHandler(controller.cambiarEstado),
         );
 
+        // PUT http://localhost:3000/usuario/1
+        router.put(
+            "/:id",
+            validateRequest(updateUsuarioSchema),
+            asyncHandler(controller.actualizar),
+        );
+
         // GET http://localhost:3000/usuario/1
         router.get(
             "/:id",
             asyncHandler(controller.obtenerPorId),
         );
+
 
         return router;
     }

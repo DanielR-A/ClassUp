@@ -236,6 +236,103 @@ async crear(data: {
 
 
 
+async actualizar(
+    id: number,
+    data: {
+        nombre?: string;
+        apellidos?: string;
+        email?: string;
+        password?: string;
+        telefono?: string;
+        cedula?: string;
+        role?: Role;
+    },
+) {
+    const usuarioActual =
+        await prisma.usuario.findUnique({
+            where: {
+                id,
+            },
+        });
+
+    if (!usuarioActual) {
+        throw new Error(
+            "Usuario no encontrado"
+        );
+    }
+
+    // Si cambia el correo, verifica que no pertenezca
+    // a otro usuario.
+    if (
+        data.email &&
+        data.email !== usuarioActual.email
+    ) {
+        const usuarioConCorreo =
+            await prisma.usuario.findUnique({
+                where: {
+                    email: data.email,
+                },
+            });
+
+        if (usuarioConCorreo) {
+            throw new Error(
+                "El correo ya está registrado"
+            );
+        }
+    }
+
+    // Solo cifra una nueva contraseña
+    // cuando realmente se envía una.
+    let hashedPassword:
+        string | undefined;
+
+    if (
+        data.password &&
+        data.password.trim()
+    ) {
+        hashedPassword =
+            await bcrypt.hash(
+                data.password,
+                10
+            );
+    }
+
+    return await prisma.usuario.update({
+        where: {
+            id,
+        },
+
+        data: {
+            nombre: data.nombre,
+            apellidos: data.apellidos,
+            email: data.email,
+
+            password:
+                hashedPassword,
+
+            telefono: data.telefono,
+            cedula: data.cedula,
+            role: data.role,
+        },
+
+        select: {
+            id: true,
+            nombre: true,
+            apellidos: true,
+            email: true,
+            telefono: true,
+            cedula: true,
+            role: true,
+            estado: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+},
+
+
+
+
 
 
         async registrar(data: {

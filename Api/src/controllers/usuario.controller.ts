@@ -74,6 +74,39 @@ crear = async (
 
 
 
+actualizar = async (
+    request: Request,
+    response: Response,
+    next: NextFunction,
+) => {
+    const rawId = Array.isArray(request.params.id)
+        ? request.params.id[0]
+        : request.params.id;
+
+    const id = parseInt(rawId ?? "", 10);
+
+    if (isNaN(id)) {
+        return response
+            .status(StatusCodes.BAD_REQUEST)
+            .json({
+                success: false,
+                message: "ID inválido",
+            });
+    }
+
+    const usuario =
+        await usuarioService.actualizar(
+            id,
+            request.body,
+        );
+
+    return sendSuccess(
+        response,
+        usuario,
+        "Usuario actualizado correctamente"
+    );
+};
+
 
 
 
