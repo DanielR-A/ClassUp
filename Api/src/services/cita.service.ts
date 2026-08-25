@@ -323,4 +323,116 @@ export const citaService = {
             return cita;
         });
     },
+
+
+
+
+async aceptar(
+    citaId: number,
+    usuarioId: number,
+) {
+    const cita = await prisma.cita.findUnique({
+        where: {
+            id: citaId,
+        },
+
+        include: {
+            profesional: {
+                include: {
+                    usuario: true,
+                },
+            },
+        },
+    });
+
+    if (!cita) {
+        throw AppError.notFound(
+            "La cita indicada no existe",
+        );
+    }
+
+    /*
+     * Verifica que la cita pertenezca
+     * al profesional autenticado.
+     */
+    if (
+        cita.profesional.usuario.id !== usuarioId
+    ) {
+        throw AppError.badRequest(
+            "No tiene permiso para gestionar esta cita",
+        );
+    }
+
+    /*
+     * Solo las citas PENDIENTES
+     * pueden aceptarse.
+     */
+    if (cita.estado !== "PENDIENTE") {
+        throw AppError.badRequest(
+            "Solo se pueden aceptar citas pendientes",
+        );
+    }
+
+    return prisma.$transaction(async (tx) => {
+
+        const citaActualizada =
+            await tx.cita.update({
+                where: {
+                    id: citaId,
+                },
+
+                data: {
+                    estado: "ACEPTADA",
+                },
+
+                include: {
+                    cliente: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            apellidos: true,
+                            email: true,
+                            telefono: true,
+                        },
+                    },
+
+                    profesional: {
+                        include: {
+                            usuario: {
+                                select: {
+                                    id: true,
+                                    nombre: true,
+                                    apellidos: true,
+                                    email: true,
+                                },
+                            },
+                        },
+                    },
+
+                    servicio: true,
+                },
+            });
+
+        await tx.historialEstadoCita.create({
+            data: {
+                citaId: citaId,
+
+                estadoAnterior:
+                    "PENDIENTE",
+
+                estadoNuevo:
+                    "ACEPTADA",
+
+                comentario:
+                    "Cita aceptada por el profesional",
+
+                cambiadoPorId:
+                    usuarioId,
+            },
+        });
+
+        return citaActualizada;
+    });
+},
+
 };

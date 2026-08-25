@@ -5,7 +5,7 @@ import {
 } from "express";
 
 import { StatusCodes } from "http-status-codes";
-
+import { AuthRequest } from "../middlewares/auth.middleware";
 import { citaService } from "../services/cita.service";
 
 export class CitaController {
@@ -77,4 +77,52 @@ export class CitaController {
                 data: cita,
             });
     };
+
+
+
+aceptar = async (
+    request: AuthRequest,
+    response: Response,
+    next: NextFunction,
+) => {
+    const rawId = Array.isArray(request.params.id)
+        ? request.params.id[0]
+        : request.params.id;
+
+    const citaId = parseInt(rawId ?? "", 10);
+
+    if (isNaN(citaId)) {
+        return response
+            .status(StatusCodes.BAD_REQUEST)
+            .json({
+                success: false,
+                message: "ID de cita inválido",
+            });
+    }
+
+    const usuarioId = request.user?.id;
+
+    if (!usuarioId) {
+        return response
+            .status(StatusCodes.UNAUTHORIZED)
+            .json({
+                success: false,
+                message: "Usuario no autenticado",
+            });
+    }
+
+    const cita = await citaService.aceptar(
+        citaId,
+        usuarioId,
+    );
+
+    return response
+        .status(StatusCodes.OK)
+        .json({
+            success: true,
+            message: "Cita aceptada correctamente",
+            data: cita,
+        });
+};
+
 }
