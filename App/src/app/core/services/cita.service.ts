@@ -60,6 +60,14 @@ export class CitaService {
         );
     }
 
+    misCitasCliente() {
+        return this.http.get<
+            ApiResponse<Cita[]>
+        >(
+            `${this.apiUrl}/mis-citas`,
+        );
+    }
+
     aceptar(id: number) {
         return this.http.patch<
             ApiResponse<Cita>
@@ -83,21 +91,21 @@ export class CitaService {
         );
     }
 
-    
 
-completar(id: number) {
-    return this.http.patch<
-        ApiResponse<Cita>
-    >(
-        `${this.apiUrl}/${id}/completar`,
-        {},
-    );
-}
-    
-obtenerMiSolicitudPorId(id: number) {
-    return this.http.get<ApiResponse<Cita>>(
-        `${this.apiUrl}/mis-solicitudes/${id}`,
-    );
-}
+
+    completar(id: number) {
+        return this.http.patch<
+            ApiResponse<Cita>
+        >(
+            `${this.apiUrl}/${id}/completar`,
+            {},
+        );
+    }
+
+    obtenerMiSolicitudPorId(id: number) {
+        return this.http.get<ApiResponse<Cita>>(
+            `${this.apiUrl}/mis-solicitudes/${id}`,
+        );
+    }
 
 }

@@ -31,6 +31,7 @@ import { EspecialidadesList } from './pages/especialidades/especialidades-list/e
 import { CitasList } from './pages/citas/citas-list/citas-list';
 import { CitaDetail } from './pages/citas/cita-detail/cita-detail';
 import { CitaCreatePage } from './pages/citas/cita-create-page/cita-create-page';
+import { CitasClienteList } from './pages/citas/citas-cliente-list/citas-cliente-list';
 
 // Reseñas
 import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
@@ -123,15 +124,15 @@ export const routes: Routes = [
                 title: 'Detalle del profesional',
             },
 
-{
-    path: 'profesional/solicitudes/:id',
-    component: CitaProfesionalDetail,
-    title: 'Detalle de solicitud',
-    canActivate: [authGuard, roleGuard],
-    data: {
-        roles: [Role.PROFESIONAL],
-    },
-},
+            {
+                path: 'profesional/solicitudes/:id',
+                component: CitaProfesionalDetail,
+                title: 'Detalle de solicitud',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.PROFESIONAL],
+                },
+            },
 
             // =====================
             // ADMIN - SERVICIOS
@@ -311,6 +312,16 @@ export const routes: Routes = [
                 canActivate: [authGuard, roleGuard],
                 data: {
                     roles: [Role.ADMIN],
+                },
+            },
+
+            {
+                path: 'mis-citas',
+                component: CitasClienteList,
+                title: 'Mis citas',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.USER],
                 },
             },
 
