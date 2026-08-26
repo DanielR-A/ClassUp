@@ -22,3 +22,18 @@
 {"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:34.892"}
 {"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:46.228"}
 {"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:57.538"}
+{"level":"warn","message":"Esta cita ya tiene una reseña registrada","method":"POST","name":"BadRequestError","path":"/resena","statusCode":400,"timestamp":"2026-08-25 23:02:49.829"}
+{"level":"warn","message":"Esta cita ya tiene una reseña registrada","method":"POST","name":"BadRequestError","path":"/resena","statusCode":400,"timestamp":"2026-08-25 23:04:14.775"}
+{"level":"warn","message":"La modalidad seleccionada no está disponible para este servicio","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:17:38.716"}
+{"level":"warn","message":"La cita no puede completarse antes de la fecha y hora programadas","method":"PATCH","name":"BadRequestError","path":"/cita/17/completar","statusCode":400,"timestamp":"2026-08-25 23:23:51.548"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:32:26.500"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:32:40.092"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:32:50.004"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:33:07.998"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:34:40.905"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:44:24.222"}
+{"level":"warn","message":"El profesional ya tiene una cita que coincide con el horario seleccionado","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:44:34.064"}
+{"level":"warn","message":"El profesional ya tiene una cita que coincide con el horario seleccionado","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 23:44:39.242"}
+{"level":"warn","message":"Una o más especialidades no existen o están inactivas","method":"PUT","name":"BadRequestError","path":"/perfilProfesional/7","statusCode":400,"timestamp":"2026-08-25 23:51:16.758"}
+{"level":"warn","message":"Una o más especialidades no existen o están inactivas","method":"PUT","name":"BadRequestError","path":"/perfilProfesional/7","statusCode":400,"timestamp":"2026-08-25 23:51:32.274"}
+{"level":"warn","message":"Una o más especialidades no existen o están inactivas","method":"PUT","name":"BadRequestError","path":"/perfilProfesional/7","statusCode":400,"timestamp":"2026-08-25 23:52:07.171"}

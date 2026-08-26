@@ -14,41 +14,107 @@ import {
 export class PerfilProfesionalRoutes {
     static get routes(): Router {
         const router = Router();
+
         const controller =
             new PerfilProfesionalController();
 
-        // GET http://localhost:3000/perfilProfesional
+        /*
+         * =========================================
+         * LISTAR PERFILES PROFESIONALES
+         * =========================================
+         *
+         * GET
+         * http://localhost:3000/perfilProfesional
+         */
         router.get(
             "/",
-            asyncHandler(controller.listar),
+            asyncHandler(
+                controller.listar,
+            ),
         );
 
-        // GET http://localhost:3000/perfilProfesional/1
+
+        /*
+         * =========================================
+         * LISTAR IMÁGENES DISPONIBLES
+         * =========================================
+         *
+         * IMPORTANTE:
+         * Esta ruta debe estar ANTES de /:id.
+         *
+         * GET
+         * http://localhost:3000/perfilProfesional/imagenes
+         */
+        router.get(
+            "/imagenes",
+            asyncHandler(
+                controller.listarImagenes,
+            ),
+        );
+
+
+        /*
+         * =========================================
+         * OBTENER PERFIL POR ID
+         * =========================================
+         *
+         * GET
+         * http://localhost:3000/perfilProfesional/1
+         */
         router.get(
             "/:id",
-            asyncHandler(controller.obtenerPorId),
+            asyncHandler(
+                controller.obtenerPorId,
+            ),
         );
 
-        // POST http://localhost:3000/perfilProfesional
+
+        /*
+         * =========================================
+         * CREAR PERFIL PROFESIONAL
+         * =========================================
+         *
+         * POST
+         * http://localhost:3000/perfilProfesional
+         */
         router.post(
             "/",
             validateRequest(
                 createPerfilProfesionalSchema,
             ),
-            asyncHandler(controller.crear),
+            asyncHandler(
+                controller.crear,
+            ),
         );
 
-        // PUT http://localhost:3000/perfilProfesional/1
+
+        /*
+         * =========================================
+         * ACTUALIZAR PERFIL PROFESIONAL
+         * =========================================
+         *
+         * PUT
+         * http://localhost:3000/perfilProfesional/1
+         */
         router.put(
             "/:id",
             validateRequest(
                 updatePerfilProfesionalSchema,
             ),
-            asyncHandler(controller.actualizar),
+            asyncHandler(
+                controller.actualizar,
+            ),
         );
 
-        // PATCH
-        // http://localhost:3000/perfilProfesional/1/disponibilidad
+
+        /*
+         * =========================================
+         * CAMBIAR DISPONIBILIDAD
+         * =========================================
+         *
+         * PATCH
+         * http://localhost:3000/perfilProfesional/1/disponibilidad
+         */
         router.patch(
             "/:id/disponibilidad",
             validateRequest(

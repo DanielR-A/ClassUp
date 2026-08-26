@@ -166,12 +166,13 @@ export const citaService = {
 
 
 
-
-
 async crear(data: CreateCitaDto) {
     /*
-     * 1. Validar cliente.
+     * =====================================================
+     * 1. VALIDAR CLIENTE
+     * =====================================================
      */
+
     const cliente =
         await prisma.usuario.findUnique({
             where: {
@@ -191,9 +192,13 @@ async crear(data: CreateCitaDto) {
         );
     }
 
+
     /*
-     * 2. Validar profesional.
+     * =====================================================
+     * 2. VALIDAR PROFESIONAL
+     * =====================================================
      */
+
     const profesional =
         await prisma.perfilProfesional.findUnique({
             where: {
@@ -223,9 +228,13 @@ async crear(data: CreateCitaDto) {
         );
     }
 
+
     /*
-     * 3. Validar servicio.
+     * =====================================================
+     * 3. VALIDAR SERVICIO
+     * =====================================================
      */
+
     const servicio =
         await prisma.servicio.findUnique({
             where: {
@@ -246,8 +255,8 @@ async crear(data: CreateCitaDto) {
     }
 
     /*
-     * El servicio debe pertenecer
-     * al profesional seleccionado.
+     * El servicio debe pertenecer al
+     * profesional seleccionado.
      */
     if (
         servicio.profesionalId !==
@@ -258,12 +267,17 @@ async crear(data: CreateCitaDto) {
         );
     }
 
+
     /*
-     * 4. Validar modalidad.
+     * =====================================================
+     * 4. VALIDAR MODALIDAD
+     * =====================================================
      *
-     * Si el servicio es MIXTA,
-     * permite VIRTUAL o PRESENCIAL.
+     * MIXTA permite:
+     * - VIRTUAL
+     * - PRESENCIAL
      */
+
     if (
         servicio.modalidad !== "MIXTA" &&
         servicio.modalidad !== data.modalidad
@@ -273,16 +287,29 @@ async crear(data: CreateCitaDto) {
         );
     }
 
+
     /*
-     * 5. Construir fecha y hora
-     * real de inicio de la cita.
+     * =====================================================
+     * 5. CONSTRUIR FECHA/HORA REAL DE INICIO
+     * =====================================================
      */
+
     const fechaCita =
         new Date(data.fechaCita);
 
     const horaInicio =
         new Date(data.horaInicio);
 
+    /*
+     * inicioCita representa:
+     *
+     * fecha seleccionada
+     * +
+     * hora seleccionada
+     *
+     * Se utiliza para validar que la cita
+     * realmente esté en el futuro.
+     */
     const inicioCita =
         new Date(fechaCita);
 
@@ -293,11 +320,15 @@ async crear(data: CreateCitaDto) {
         0,
     );
 
+
     /*
-     * La cita debe programarse
-     * para una fecha/hora futura.
+     * =====================================================
+     * 6. VALIDAR FECHA FUTURA
+     * =====================================================
      */
-    const ahora = new Date();
+
+    const ahora =
+        new Date();
 
     if (inicioCita <= ahora) {
         throw AppError.badRequest(
@@ -305,57 +336,130 @@ async crear(data: CreateCitaDto) {
         );
     }
 
-    /*
-     * 6. Calcular automáticamente
-     * la hora de finalización usando
-     * la duración real del servicio.
-     */
-    const finCita =
-        new Date(inicioCita);
 
-    finCita.setMinutes(
-        finCita.getMinutes() +
+    /*
+     * =====================================================
+     * 7. CALCULAR HORA FINAL
+     * =====================================================
+     *
+     * IMPORTANTE:
+     *
+     * horaInicio y horaFinalizacion son
+     * @db.Time en Prisma.
+     *
+     * Por eso utilizamos valores de hora
+     * independientes de fechaCita para
+     * las comparaciones de disponibilidad.
+     */
+
+    const horaInicioComparacion =
+        new Date(data.horaInicio);
+
+    const horaFinalComparacion =
+        new Date(
+            horaInicioComparacion,
+        );
+
+    horaFinalComparacion.setMinutes(
+        horaFinalComparacion.getMinutes() +
         servicio.duracionMinutos,
     );
 
+
     /*
-     * 7. Validar traslapes.
+     * Evitar que una cita termine
+     * al día siguiente.
      *
-     * Una cita bloquea el horario cuando
-     * está PENDIENTE o ACEPTADA.
+     * Ejemplo:
+     * Inicio 23:30
+     * duración 120 minutos
+     * → terminaría 01:30 del día siguiente.
+     */
+    if (
+        horaFinalComparacion.getDate() !==
+        horaInicioComparacion.getDate()
+    ) {
+        throw AppError.badRequest(
+            "La duración del servicio hace que la cita termine al día siguiente",
+        );
+    }
+
+
+    /*
+     * =====================================================
+     * 8. DEFINIR RANGO DEL DÍA
+     * =====================================================
+     */
+
+    const inicioDia =
+        new Date(
+            fechaCita.getFullYear(),
+            fechaCita.getMonth(),
+            fechaCita.getDate(),
+            0,
+            0,
+            0,
+            0,
+        );
+
+    const finDia =
+        new Date(
+            fechaCita.getFullYear(),
+            fechaCita.getMonth(),
+            fechaCita.getDate(),
+            23,
+            59,
+            59,
+            999,
+        );
+
+
+    /*
+     * =====================================================
+     * 9. VALIDAR TRASLAPES
+     * =====================================================
+     *
+     * Bloquean horario:
+     *
+     * - PENDIENTE
+     * - ACEPTADA
+     *
+     * RECHAZADA, CANCELADA y COMPLETADA
+     * no bloquean nuevas solicitudes.
+     *
      *
      * Existe traslape cuando:
      *
-     * nuevaInicio < existenteFin
-     * &&
-     * nuevaFin > existenteInicio
+     * existenteInicio < nuevaFinal
+     *
+     * Y
+     *
+     * existenteFinal > nuevaInicio
+     *
+     *
+     * Ejemplo:
+     *
+     * Existente:
+     * 08:00 ---------- 09:00
+     *
+     * Nueva:
+     *       08:30 ---------- 09:30
+     *
+     * → CONFLICTO
      */
-    const citasDelDia =
-        await prisma.cita.findMany({
+
+    const citaEnConflicto =
+        await prisma.cita.findFirst({
             where: {
                 profesionalId:
                     data.profesionalId,
 
                 fechaCita: {
-                    gte: new Date(
-                        fechaCita.getFullYear(),
-                        fechaCita.getMonth(),
-                        fechaCita.getDate(),
-                        0,
-                        0,
-                        0,
-                        0,
-                    ),
+                    gte:
+                        inicioDia,
 
-                    lte: new Date(
-                        fechaCita.getFullYear(),
-                        fechaCita.getMonth(),
-                        fechaCita.getDate(),
-                        23,
-                        59,
-                        59,
-                        999,
-                    ),
+                    lte:
+                        finDia,
                 },
 
                 estado: {
@@ -364,48 +468,55 @@ async crear(data: CreateCitaDto) {
                         "ACEPTADA",
                     ],
                 },
+
+                /*
+                 * existenteInicio <
+                 * nuevaFinal
+                 */
+                horaInicio: {
+                    lt:
+                        horaFinalComparacion,
+                },
+
+                /*
+                 * existenteFinal >
+                 * nuevaInicio
+                 */
+                horaFinalizacion: {
+                    gt:
+                        horaInicioComparacion,
+                },
             },
 
             select: {
                 id: true,
+                fechaCita: true,
                 horaInicio: true,
                 horaFinalizacion: true,
+                estado: true,
             },
         });
 
-    const existeTraslape =
-        citasDelDia.some((cita) => {
-            const inicioExistente =
-                new Date(cita.horaInicio);
 
-            const finExistente =
-                new Date(
-                    cita.horaFinalizacion,
-                );
-
-            return (
-                inicioCita < finExistente &&
-                finCita > inicioExistente
-            );
-        });
-
-    if (existeTraslape) {
+    if (citaEnConflicto) {
         throw AppError.badRequest(
             "El profesional ya tiene una cita que coincide con el horario seleccionado",
         );
     }
 
+
     /*
-     * 8. Crear cita.
+     * =====================================================
+     * 10. CREAR CITA
+     * =====================================================
      *
-     * IMPORTANTE:
-     * - Estado siempre PENDIENTE.
-     * - Hora final calculada por el API.
-     * - Monto tomado del servicio.
+     * El API controla:
      *
-     * No confiamos en esos valores
-     * enviados por el frontend.
+     * - hora final
+     * - monto
+     * - estado inicial
      */
+
     return prisma.$transaction(
         async (tx) => {
 
@@ -424,15 +535,23 @@ async crear(data: CreateCitaDto) {
                         fechaCita:
                             fechaCita,
 
+                        /*
+                         * Guardamos los valores
+                         * compatibles con @db.Time.
+                         */
                         horaInicio:
-                            inicioCita,
+                            horaInicioComparacion,
 
                         horaFinalizacion:
-                            finCita,
+                            horaFinalComparacion,
 
                         modalidad:
                             data.modalidad,
 
+                        /*
+                         * El cliente nunca decide
+                         * el estado inicial.
+                         */
                         estado:
                             "PENDIENTE",
 
@@ -442,8 +561,9 @@ async crear(data: CreateCitaDto) {
                         /*
                          * Precio histórico.
                          *
-                         * Se toma del servicio
-                         * al momento de crear.
+                         * Se copia del servicio
+                         * en el momento de solicitar
+                         * la cita.
                          */
                         montoEstimado:
                             servicio.precio,
@@ -456,6 +576,7 @@ async crear(data: CreateCitaDto) {
                                 nombre: true,
                                 apellidos: true,
                                 email: true,
+                                telefono: true,
                             },
                         },
 
@@ -473,13 +594,18 @@ async crear(data: CreateCitaDto) {
                         },
 
                         servicio: true,
+
+                        resena: true,
                     },
                 });
 
+
             /*
-             * 9. Registrar estado inicial
-             * en el historial.
+             * =================================================
+             * 11. HISTORIAL DE ESTADO
+             * =================================================
              */
+
             await tx
                 .historialEstadoCita
                 .create({
@@ -501,13 +627,11 @@ async crear(data: CreateCitaDto) {
                     },
                 });
 
+
             return cita;
         },
     );
 },
-
-
-
 
 
 
