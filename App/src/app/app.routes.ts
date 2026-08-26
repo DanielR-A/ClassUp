@@ -49,6 +49,12 @@ import { roleGuard } from './core/guards/role.guard';
 
 import { Role } from './core/models/usuario.model';
 
+//reportes
+import {
+    Reportes,
+} from './pages/reportes/reportes/reportes';
+
+
 export const routes: Routes = [
     {
         path: '',
@@ -426,6 +432,24 @@ export const routes: Routes = [
                     ],
                 },
             },
+            // =====================
+            // REPORTES
+            // =====================
+            {
+                path: 'admin/reportes',
+                component: Reportes,
+                title: 'Reportes',
+                canActivate: [
+                    authGuard,
+                    roleGuard,
+                ],
+                data: {
+                    roles: [
+                        Role.ADMIN,
+                    ],
+                },
+            },
+
         ],
     },
 

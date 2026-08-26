@@ -26,6 +26,7 @@ export interface MenuItem {
   path: string;
   icon: string;
   roles?: Role[];
+  soloInvitado?: boolean;
 }
 
 @Component({
@@ -107,11 +108,11 @@ export class Header {
    * Elementos del menú principal permitidos
    * para el usuario actual.
    */
-  readonly publicMenuVisible = computed(() =>
+ readonly menuVisible = computed(() =>
     this.publicMenu().filter((item) =>
-      this.puedeMostrar(item)
+        this.puedeMostrar(item)
     )
-  );
+);
 
   /*
    * Elementos administrativos de mantenimiento
@@ -157,13 +158,39 @@ export class Header {
    * AuthService verifica si el usuario posee
    * alguno de los roles permitidos.
    */
-  puedeMostrar(item: MenuItem): boolean {
-    if (!item.roles?.length) {
-      return true;
+puedeMostrar(item: MenuItem): boolean {
+
+    /*
+     * Opciones visibles únicamente
+     * cuando NO existe una sesión.
+     *
+     * Ejemplo:
+     * Crear cuenta.
+     */
+    if (
+        item.soloInvitado &&
+        this.autenticado()
+    ) {
+        return false;
     }
 
-    return this.authService.tieneRol(item.roles);
-  }
+    /*
+     * Si no tiene roles definidos,
+     * la opción es pública.
+     */
+    if (!item.roles?.length) {
+        return true;
+    }
+
+    /*
+     * Si tiene roles definidos,
+     * solo se muestra si el usuario
+     * posee alguno de esos roles.
+     */
+    return this.authService.tieneRol(
+        item.roles,
+    );
+}
 
   cerrarSesion(): void {
     this.authService.logout();

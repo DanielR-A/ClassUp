@@ -48,6 +48,7 @@ export class MainLayout {
             label: 'Crear cuenta',
             path: '/registro',
             icon: 'person_add',
+            soloInvitado: true,
         },
         {
             label: 'Mi Agenda',
@@ -140,7 +141,16 @@ export class MainLayout {
             label: 'Reseñas',
             path: '/admin/resenas',
             icon: 'reviews',
+             roles: [Role.ADMIN],
+            // soloInvitado: true,
+        },
+
+        {
+            label: 'Reportes',
+            path: '/admin/reportes',
+            icon: 'analytics',
             roles: [Role.ADMIN],
         },
+
     ];
 }

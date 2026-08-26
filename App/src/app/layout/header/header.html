@@ -23,7 +23,7 @@
             aria-label="Navegación principal"
         >
             @for (
-                item of publicMenuVisible();
+                item of menuVisible();
                 track item.path
             ) {
                 <a
@@ -286,7 +286,7 @@
 <mat-menu #mobileMenu="matMenu">
 
     @for (
-        item of publicMenuVisible();
+        item of menuVisible();
         track item.path
     ) {
         <a

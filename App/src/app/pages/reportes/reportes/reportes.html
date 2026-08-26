@@ -1,1 +1,607 @@
-<p>reportes works!</p>
+<section class="reports-page">
+
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+    <header class="reports-header">
+
+        <div>
+            <span class="eyebrow">
+                Reportes
+            </span>
+
+            <h1>
+                Panel de reportes
+            </h1>
+
+            <p>
+                Consulte el comportamiento de las citas,
+                profesionales y calificaciones utilizando
+                datos reales del sistema.
+            </p>
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+
+    <section class="filters-card">
+
+        <div class="filters-grid">
+
+            <!-- FECHA DESDE -->
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Fecha desde
+                </mat-label>
+
+                <input
+                    matInput
+                    type="date"
+                    [ngModel]="fechaDesde()"
+                    (ngModelChange)="
+                        fechaDesde.set($event)
+                    "
+                />
+
+                <mat-icon matSuffix>
+                    calendar_month
+                </mat-icon>
+
+            </mat-form-field>
+
+
+            <!-- FECHA HASTA -->
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Fecha hasta
+                </mat-label>
+
+                <input
+                    matInput
+                    type="date"
+                    [ngModel]="fechaHasta()"
+                    (ngModelChange)="
+                        fechaHasta.set($event)
+                    "
+                />
+
+                <mat-icon matSuffix>
+                    calendar_month
+                </mat-icon>
+
+            </mat-form-field>
+
+
+            <!-- PROFESIONAL -->
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Profesional
+                </mat-label>
+
+                <mat-select
+                    [ngModel]="
+                        profesionalSeleccionado()
+                    "
+                    (ngModelChange)="
+                        profesionalSeleccionado.set(
+                            $event
+                        )
+                    "
+                >
+
+                    <mat-option [value]="null">
+                        Todos
+                    </mat-option>
+
+                    @for (
+                        profesional of profesionales();
+                        track profesional.id
+                    ) {
+
+                        <mat-option
+                            [value]="profesional.id"
+                        >
+                            {{
+                                getNombreProfesional(
+                                    profesional
+                                )
+                            }}
+                        </mat-option>
+
+                    }
+
+                </mat-select>
+
+            </mat-form-field>
+
+
+            <!-- CATEGORÍA -->
+            <mat-form-field appearance="outline">
+
+                <mat-label>
+                    Categoría
+                </mat-label>
+
+                <mat-select
+                    [ngModel]="
+                        categoriaSeleccionada()
+                    "
+                    (ngModelChange)="
+                        categoriaSeleccionada.set(
+                            $event
+                        )
+                    "
+                >
+
+                    <mat-option [value]="null">
+                        Todas
+                    </mat-option>
+
+                    @for (
+                        categoria of categorias();
+                        track categoria.id
+                    ) {
+
+                        <mat-option
+                            [value]="categoria.id"
+                        >
+                            {{ categoria.nombre }}
+                        </mat-option>
+
+                    }
+
+                </mat-select>
+
+            </mat-form-field>
+
+        </div>
+
+
+        <div class="filter-actions">
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="clearFilters()"
+            >
+                <mat-icon>
+                    filter_alt_off
+                </mat-icon>
+
+                Limpiar
+            </button>
+
+
+            <button
+                mat-flat-button
+                type="button"
+                (click)="aplicarFiltros()"
+            >
+                <mat-icon>
+                    filter_alt
+                </mat-icon>
+
+                Aplicar filtros
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         LOADING
+    ====================================================== -->
+
+    @if (loading()) {
+
+        <div class="state">
+
+            <mat-spinner
+                diameter="44"
+            ></mat-spinner>
+
+            <p>
+                Cargando reportes...
+            </p>
+
+        </div>
+
+    }
+
+
+    <!-- =====================================================
+         ERROR
+    ====================================================== -->
+
+    @else if (error()) {
+
+        <div class="state error">
+
+            <mat-icon>
+                error
+            </mat-icon>
+
+            <p>
+                {{ error() }}
+            </p>
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="cargarDatos()"
+            >
+                <mat-icon>
+                    refresh
+                </mat-icon>
+
+                Intentar nuevamente
+            </button>
+
+        </div>
+
+    }
+
+
+    @else {
+
+        <!-- =================================================
+             TARJETAS DE RESUMEN
+        ================================================== -->
+
+        <section class="summary-grid">
+
+            <mat-card class="summary-card">
+
+                <mat-card-content>
+
+                    <div class="summary-icon">
+                        <mat-icon>
+                            event
+                        </mat-icon>
+                    </div>
+
+                    <div>
+                        <span>
+                            Total de citas
+                        </span>
+
+                        <strong>
+                            {{ totalCitas() }}
+                        </strong>
+                    </div>
+
+                </mat-card-content>
+
+            </mat-card>
+
+
+            <mat-card class="summary-card">
+
+                <mat-card-content>
+
+                    <div class="summary-icon">
+                        <mat-icon>
+                            task_alt
+                        </mat-icon>
+                    </div>
+
+                    <div>
+                        <span>
+                            Citas completadas
+                        </span>
+
+                        <strong>
+                            {{ totalCompletadas() }}
+                        </strong>
+                    </div>
+
+                </mat-card-content>
+
+            </mat-card>
+
+
+            <mat-card class="summary-card">
+
+                <mat-card-content>
+
+                    <div class="summary-icon">
+                        <mat-icon>
+                            reviews
+                        </mat-icon>
+                    </div>
+
+                    <div>
+                        <span>
+                            Reseñas registradas
+                        </span>
+
+                        <strong>
+                            {{ totalResenas() }}
+                        </strong>
+                    </div>
+
+                </mat-card-content>
+
+            </mat-card>
+
+
+            <mat-card class="summary-card">
+
+                <mat-card-content>
+
+                    <div class="summary-icon">
+                        <mat-icon>
+                            star
+                        </mat-icon>
+                    </div>
+
+                    <div>
+                        <span>
+                            Promedio general
+                        </span>
+
+                        <strong>
+                            {{
+                                promedioGeneral()
+                                    .toFixed(1)
+                            }}
+                        </strong>
+                    </div>
+
+                </mat-card-content>
+
+            </mat-card>
+
+        </section>
+
+
+        <!-- =================================================
+             GRÁFICOS
+        ================================================== -->
+
+        <section class="charts-grid">
+
+            <!-- CITAS POR ESTADO -->
+            <mat-card class="chart-card">
+
+                <mat-card-header>
+
+                    <mat-card-title>
+                        Citas por estado
+                    </mat-card-title>
+
+                    <mat-card-subtitle>
+                        Distribución actual según los
+                        filtros seleccionados.
+                    </mat-card-subtitle>
+
+                </mat-card-header>
+
+
+                <mat-card-content>
+
+                    @if (
+                        totalCitas() > 0
+                    ) {
+
+                        <apx-chart
+                            [chart]="
+                                chartCitasEstado()
+                                    .chart!
+                            "
+                            [series]="
+                                chartCitasEstado()
+                                    .series!
+                            "
+                            [labels]="
+                                chartCitasEstado()
+                                    .labels!
+                            "
+                            [legend]="
+                                chartCitasEstado()
+                                    .legend!
+                            "
+                            [dataLabels]="
+                                chartCitasEstado()
+                                    .dataLabels!
+                            "
+                            [responsive]="
+                                chartCitasEstado()
+                                    .responsive!
+                            "
+                            [noData]="
+                                chartCitasEstado()
+                                    .noData!
+                            "
+                        ></apx-chart>
+
+                    } @else {
+
+                        <div class="chart-empty">
+
+                            <mat-icon>
+                                pie_chart
+                            </mat-icon>
+
+                            <p>
+                                No hay citas para los
+                                filtros seleccionados.
+                            </p>
+
+                        </div>
+
+                    }
+
+                </mat-card-content>
+
+            </mat-card>
+
+
+            <!-- CITAS COMPLETADAS POR PROFESIONAL -->
+            <mat-card class="chart-card">
+
+                <mat-card-header>
+
+                    <mat-card-title>
+                        Citas completadas por profesional
+                    </mat-card-title>
+
+                    <mat-card-subtitle>
+                        Cantidad real de citas completadas
+                        por cada profesional.
+                    </mat-card-subtitle>
+
+                </mat-card-header>
+
+
+                <mat-card-content>
+
+                    @if (
+                        citasPorProfesional()
+                            .length > 0
+                    ) {
+
+                        <apx-chart
+                            [chart]="
+                                chartCitasProfesional()
+                                    .chart!
+                            "
+                            [series]="
+                                chartCitasProfesional()
+                                    .series!
+                            "
+                            [xaxis]="
+                                chartCitasProfesional()
+                                    .xaxis!
+                            "
+                            [plotOptions]="
+                                chartCitasProfesional()
+                                    .plotOptions!
+                            "
+                            [dataLabels]="
+                                chartCitasProfesional()
+                                    .dataLabels!
+                            "
+                            [yaxis]="
+                                chartCitasProfesional()
+                                    .yaxis!
+                            "
+                            [noData]="
+                                chartCitasProfesional()
+                                    .noData!
+                            "
+                        ></apx-chart>
+
+                    } @else {
+
+                        <div class="chart-empty">
+
+                            <mat-icon>
+                                bar_chart
+                            </mat-icon>
+
+                            <p>
+                                No existen citas completadas.
+                            </p>
+
+                        </div>
+
+                    }
+
+                </mat-card-content>
+
+            </mat-card>
+
+
+            <!-- CALIFICACIONES -->
+            <mat-card class="chart-card full-chart">
+
+                <mat-card-header>
+
+                    <mat-card-title>
+                        Calificaciones por profesional
+                    </mat-card-title>
+
+                    <mat-card-subtitle>
+                        Promedio real calculado con las
+                        reseñas persistidas.
+                    </mat-card-subtitle>
+
+                </mat-card-header>
+
+
+                <mat-card-content>
+
+                    @if (
+                        calificaciones().length > 0
+                    ) {
+
+                        <apx-chart
+                            [chart]="
+                                chartCalificaciones()
+                                    .chart!
+                            "
+                            [series]="
+                                chartCalificaciones()
+                                    .series!
+                            "
+                            [xaxis]="
+                                chartCalificaciones()
+                                    .xaxis!
+                            "
+                            [yaxis]="
+                                chartCalificaciones()
+                                    .yaxis!
+                            "
+                            [plotOptions]="
+                                chartCalificaciones()
+                                    .plotOptions!
+                            "
+                            [dataLabels]="
+                                chartCalificaciones()
+                                    .dataLabels!
+                            "
+                            [tooltip]="
+                                chartCalificaciones()
+                                    .tooltip!
+                            "
+                            [noData]="
+                                chartCalificaciones()
+                                    .noData!
+                            "
+                        ></apx-chart>
+
+                    } @else {
+
+                        <div class="chart-empty">
+
+                            <mat-icon>
+                                star_outline
+                            </mat-icon>
+
+                            <p>
+                                No existen reseñas registradas.
+                            </p>
+
+                        </div>
+
+                    }
+
+                </mat-card-content>
+
+            </mat-card>
+
+        </section>
+
+    }
+
+</section>
