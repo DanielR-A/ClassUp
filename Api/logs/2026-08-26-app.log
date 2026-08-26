@@ -1,0 +1,3 @@
+{"level":"warn","message":"Una o más especialidades no existen o están inactivas","method":"PUT","name":"BadRequestError","path":"/perfilProfesional/6","statusCode":400,"timestamp":"2026-08-26 01:31:10.958"}
+{"level":"warn","message":"El profesional ya tiene una cita que coincide con el horario seleccionado","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-26 01:36:44.289"}
+{"level":"warn","message":"La modalidad seleccionada no está disponible para este servicio","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-26 03:18:29.853"}

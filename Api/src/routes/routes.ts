@@ -8,7 +8,7 @@ import { ServicioRoutes } from "./servicio.routes";
 import { CitaRoutes } from "./cita.routes";
 import { HistorialEstadoCitaRoutes } from "./historial-estado-cita.routes";
 import { ResenaRoutes } from "./resena.routes";
-
+import { ReporteRoutes } from "./reporte.routes";
 import { ImageRoutes } from "./image.routes";
 
 export class AppRoutes {
@@ -25,7 +25,8 @@ export class AppRoutes {
         router.use("/historialEstadoCita", HistorialEstadoCitaRoutes.routes);
         router.use("/resena", ResenaRoutes.routes);
         router.use("/images", ImageRoutes.routes);
-        
+        router.use("/reporte", ReporteRoutes.routes);
+
         return router;
     }
 }

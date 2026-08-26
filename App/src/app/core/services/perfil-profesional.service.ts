@@ -36,6 +36,41 @@ export class PerfilProfesionalService {
         );
     }
 
+    /*
+ * Obtiene el perfil profesional
+ * del usuario autenticado.
+ */
+    obtenerMiPerfil() {
+        return this.http.get<
+            ApiResponse<PerfilProfesional | null>
+        >(
+            `${this.apiUrl}/mi-perfil`,
+        );
+    }
+
+
+    /*
+     * Crea o actualiza el perfil
+     * del profesional autenticado.
+     *
+     * El usuarioId NO se obtiene
+     * desde la URL.
+     * El API lo obtiene del token JWT.
+     */
+    guardarMiPerfil(
+        data: PerfilProfesionalCreateDto,
+    ) {
+        return this.http.put<
+            ApiResponse<PerfilProfesional>
+        >(
+            `${this.apiUrl}/mi-perfil`,
+            data,
+        );
+    }
+
+
+
+    
     crear(
         data: PerfilProfesionalCreateDto,
     ) {
@@ -90,4 +125,8 @@ export class PerfilProfesionalService {
             `${this.apiUrl}/imagenes`,
         );
     }
+
+
+
+
 }
