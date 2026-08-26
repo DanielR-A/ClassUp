@@ -67,6 +67,17 @@ export class MainLayout {
             ],
         },
 
+        {
+            label: 'Agenda',
+            path: '/agenda',
+            icon: 'calendar_view_week',
+            roles: [
+                Role.USER,
+                Role.PROFESIONAL,
+                Role.ADMIN,
+            ],
+        },
+
     ];
 
     /*

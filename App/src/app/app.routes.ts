@@ -33,6 +33,7 @@ import { CitaDetail } from './pages/citas/cita-detail/cita-detail';
 import { CitaCreatePage } from './pages/citas/cita-create-page/cita-create-page';
 import { CitasClienteList } from './pages/citas/citas-cliente-list/citas-cliente-list';
 import { CitaClienteDetail } from './pages/citas/cita-cliente-detail/cita-cliente-detail';
+import { Agenda } from './pages/citas/agenda/agenda';
 
 // Reseñas
 import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
@@ -333,6 +334,24 @@ export const routes: Routes = [
                 canActivate: [authGuard, roleGuard],
                 data: {
                     roles: [Role.USER],
+                },
+            },
+
+
+            {
+                path: 'agenda',
+                component: Agenda,
+                title: 'Agenda',
+                canActivate: [
+                    authGuard,
+                    roleGuard,
+                ],
+                data: {
+                    roles: [
+                        Role.USER,
+                        Role.PROFESIONAL,
+                        Role.ADMIN,
+                    ],
                 },
             },
 

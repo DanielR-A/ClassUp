@@ -1,0 +1,384 @@
+<section class="agenda-page">
+
+    <!-- ENCABEZADO -->
+    <section class="page-header">
+        <div>
+            <span class="eyebrow">
+                Agenda
+            </span>
+
+            <h1>
+                Agenda semanal
+            </h1>
+
+            <p>
+                Consulte sus citas organizadas por fecha y hora.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- CONTROLES DE NAVEGACIÓN -->
+    <section class="agenda-toolbar">
+
+        <div class="period-navigation">
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="semanaAnterior()"
+            >
+                <mat-icon>
+                    chevron_left
+                </mat-icon>
+
+                Anterior
+            </button>
+
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="irHoy()"
+            >
+                <mat-icon>
+                    today
+                </mat-icon>
+
+                Hoy
+            </button>
+
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="semanaSiguiente()"
+            >
+                Siguiente
+
+                <mat-icon>
+                    chevron_right
+                </mat-icon>
+            </button>
+
+        </div>
+
+
+        <div class="period-title">
+            <mat-icon>
+                calendar_month
+            </mat-icon>
+
+            <strong>
+                {{ formatearPeriodo() }}
+            </strong>
+        </div>
+
+
+        <div class="agenda-filters">
+
+            @if (esAdmin()) {
+
+    <mat-form-field appearance="outline">
+
+        <mat-label>
+            Profesional
+        </mat-label>
+
+        <mat-select
+            [value]="profesionalSeleccionado()"
+            (selectionChange)="
+                profesionalSeleccionado.set(
+                    $event.value
+                )
+            "
+        >
+            <mat-option [value]="null">
+                Todos
+            </mat-option>
+
+            @for (
+                profesional of profesionalesDisponibles();
+                track profesional.id
+            ) {
+
+                <mat-option
+                    [value]="profesional.id"
+                >
+                    {{ profesional.nombre }}
+                </mat-option>
+
+            }
+
+        </mat-select>
+
+    </mat-form-field>
+
+}
+
+
+
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="limpiarFiltros()"
+            >
+                <mat-icon>
+                    filter_alt_off
+                </mat-icon>
+
+                Limpiar
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- LOADING -->
+    @if (loading()) {
+
+        <div class="state">
+            <mat-spinner
+                diameter="42"
+            ></mat-spinner>
+
+            <p>
+                Cargando agenda...
+            </p>
+        </div>
+
+    } @else if (error()) {
+
+        <!-- ERROR -->
+        <div class="state error">
+            <mat-icon>
+                error
+            </mat-icon>
+
+            <p>
+                {{ error() }}
+            </p>
+
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="loadAgenda()"
+            >
+                <mat-icon>
+                    refresh
+                </mat-icon>
+
+                Intentar nuevamente
+            </button>
+        </div>
+
+    } @else {
+
+        <!-- AGENDA SEMANAL -->
+        <section class="calendar-wrapper">
+
+            <div class="calendar-grid">
+
+                <!-- ESQUINA SUPERIOR -->
+                <div class="time-header">
+                    Hora
+                </div>
+
+
+                <!-- ENCABEZADOS DE DÍAS -->
+                @for (
+                    dia of diasSemana();
+                    track dia.getTime()
+                ) {
+
+                    <div class="day-header">
+
+                        <span class="day-name">
+                            {{ formatearDia(dia) }}
+                        </span>
+
+                        <strong class="day-number">
+                            {{
+                                formatearNumeroDia(
+                                    dia
+                                )
+                            }}
+                        </strong>
+
+                    </div>
+
+                }
+
+
+                <!-- FILAS DE HORAS -->
+                @for (
+                    hora of horas;
+                    track hora
+                ) {
+
+                    <!-- COLUMNA DE HORA -->
+                    <div class="time-cell">
+                        {{
+                            formatearHoraNumero(
+                                hora
+                            )
+                        }}
+                    </div>
+
+
+                    <!-- CADA DÍA -->
+                    @for (
+                        dia of diasSemana();
+                        track dia.getTime()
+                    ) {
+
+                        <div class="agenda-cell">
+
+                            @if (
+                                tieneCitas(
+                                    dia,
+                                    hora
+                                )
+                            ) {
+
+                                @for (
+                                    cita of getCitasHora(
+                                        dia,
+                                        hora
+                                    );
+                                    track cita.id
+                                ) {
+
+                                    <button
+                                        type="button"
+                                        class="appointment-card"
+                                        [class.estado-pendiente]="
+                                            cita.estado === 'PENDIENTE'
+                                        "
+                                        [class.estado-aceptada]="
+                                            cita.estado === 'ACEPTADA'
+                                        "
+                                        [class.estado-rechazada]="
+                                            cita.estado === 'RECHAZADA'
+                                        "
+                                        [class.estado-cancelada]="
+                                            cita.estado === 'CANCELADA'
+                                        "
+                                        [class.estado-completada]="
+                                            cita.estado === 'COMPLETADA'
+                                        "
+                                        (click)="
+                                            abrirDetalle(
+                                                cita
+                                            )
+                                        "
+                                    >
+
+                                        <div class="appointment-time">
+                                            <mat-icon>
+                                                schedule
+                                            </mat-icon>
+
+                                            <span>
+                                                {{
+                                                    formatearHorario(
+                                                        cita
+                                                    )
+                                                }}
+                                            </span>
+                                        </div>
+
+
+                                        <strong class="appointment-service">
+                                            {{
+                                                getNombreServicio(
+                                                    cita
+                                                )
+                                            }}
+                                        </strong>
+
+
+                                        <div class="appointment-person">
+                                            <mat-icon>
+                                                person
+                                            </mat-icon>
+
+                                            <span>
+                                                {{
+                                                    getNombrePersona(
+                                                        cita
+                                                    )
+                                                }}
+                                            </span>
+                                        </div>
+
+
+                                        <div class="appointment-status">
+
+                                            <span>
+                                                {{
+                                                    getEstadoLabel(
+                                                        cita.estado
+                                                    )
+                                                }}
+                                            </span>
+
+                                        </div>
+
+                                    </button>
+
+                                }
+
+                            } @else {
+
+                                <!-- ESPACIO SIN CITA -->
+                                <div class="available-slot">
+
+                                    <mat-icon>
+                                        event_available
+                                    </mat-icon>
+
+                                    <span>
+                                        Disponible
+                                    </span>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                    }
+
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- ESTADO VACÍO DE TODA LA SEMANA -->
+        @if (citasFiltradas().length === 0) {
+
+            <div class="empty-week">
+                <mat-icon>
+                    event_busy
+                </mat-icon>
+
+                <h3>
+                    No hay citas para mostrar
+                </h3>
+
+                <p>
+                    No existen citas que coincidan
+                    con los filtros seleccionados.
+                </p>
+            </div>
+
+        }
+
+    }
+
+</section>
