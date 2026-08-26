@@ -18,3 +18,7 @@
 {"level":"warn","message":"El usuario autenticado no tiene un perfil profesional","method":"GET","name":"NotFoundError","path":"/cita/mis-solicitudes","statusCode":404,"timestamp":"2026-08-25 14:42:30.779"}
 {"level":"warn","message":"El usuario autenticado no tiene un perfil profesional","method":"GET","name":"NotFoundError","path":"/cita/mis-solicitudes","statusCode":404,"timestamp":"2026-08-25 14:42:31.531"}
 {"level":"warn","message":"El usuario autenticado no tiene un perfil profesional","method":"GET","name":"NotFoundError","path":"/cita/mis-solicitudes","statusCode":404,"timestamp":"2026-08-25 14:42:31.999"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:28.883"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:34.892"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:46.228"}
+{"level":"warn","message":"La fecha y hora de la cita deben ser futuras","method":"POST","name":"BadRequestError","path":"/cita","statusCode":400,"timestamp":"2026-08-25 21:45:57.538"}
