@@ -110,6 +110,5 @@ Ejecutar Api - Backend
 npm run dev
 
 Ejecutar Front APP
-para que abra el navegador de una vez
+para que abra el navegador de una vez se abre
 ng server -o 
-
