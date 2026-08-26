@@ -21,19 +21,27 @@ export class PerfilProfesionalService {
         `${environment.apiUrl}/perfilProfesional`;
 
     listar() {
-        return this.http.get<ApiResponse<PerfilProfesional[]>>(
+        return this.http.get<
+            ApiResponse<PerfilProfesional[]>
+        >(
             this.apiUrl,
         );
     }
 
     obtenerPorId(id: number) {
-        return this.http.get<ApiResponse<PerfilProfesional>>(
+        return this.http.get<
+            ApiResponse<PerfilProfesional>
+        >(
             `${this.apiUrl}/${id}`,
         );
     }
 
-    crear(data: PerfilProfesionalCreateDto) {
-        return this.http.post<ApiResponse<PerfilProfesional>>(
+    crear(
+        data: PerfilProfesionalCreateDto,
+    ) {
+        return this.http.post<
+            ApiResponse<PerfilProfesional>
+        >(
             this.apiUrl,
             data,
         );
@@ -43,7 +51,9 @@ export class PerfilProfesionalService {
         id: number,
         data: PerfilProfesionalUpdateDto,
     ) {
-        return this.http.put<ApiResponse<PerfilProfesional>>(
+        return this.http.put<
+            ApiResponse<PerfilProfesional>
+        >(
             `${this.apiUrl}/${id}`,
             data,
         );
@@ -53,9 +63,31 @@ export class PerfilProfesionalService {
         id: number,
         data: CambiarDisponibilidadPerfilDto,
     ) {
-        return this.http.patch<ApiResponse<PerfilProfesional>>(
+        return this.http.patch<
+            ApiResponse<PerfilProfesional>
+        >(
             `${this.apiUrl}/${id}/disponibilidad`,
             data,
+        );
+    }
+
+    /*
+     * Obtiene los nombres de las imágenes
+     * disponibles en Api/assets/uploads.
+     *
+     * Ejemplo:
+     *
+     * [
+     *   "ana-mora.jpg",
+     *   "pedro-alvarez.jpg",
+     *   "profile-not-found.jpg"
+     * ]
+     */
+    listarImagenes() {
+        return this.http.get<
+            ApiResponse<string[]>
+        >(
+            `${this.apiUrl}/imagenes`,
         );
     }
 }

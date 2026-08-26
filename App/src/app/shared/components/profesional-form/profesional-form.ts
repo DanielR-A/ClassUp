@@ -2,12 +2,15 @@ import {
     Component,
     computed,
     effect,
+    inject,
     input,
     output,
     signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { Especialidad } from '../../../core/models/especialidad.model';
+import { Usuario } from '../../../core/models/usuario.model';
+import { ImageService } from '../../../core/services/image.service';
 import {
     FormField,
     form,
@@ -37,8 +40,7 @@ import {
     PerfilProfesionalUpdateDto,
 } from '../../../core/models/perfil-profesional.model';
 
-import { Especialidad } from '../../../core/models/especialidad.model';
-import { Usuario } from '../../../core/models/usuario.model';
+
 
 interface ProfesionalFormModel {
     usuarioId: number | null;
@@ -60,7 +62,7 @@ interface ProfesionalFormModel {
     standalone: true,
     imports: [
         CommonModule,
-         FormsModule,   // <-- 
+        FormsModule,   // <-- 
         FormField,
         MatButtonModule,
         MatCardModule,
@@ -76,6 +78,9 @@ interface ProfesionalFormModel {
     styleUrl: './profesional-form.css',
 })
 export class ProfesionalForm {
+
+    private readonly imageService =
+        inject(ImageService);
     /*
      * Profesional que se editará.
      * Cuando es null, el formulario funciona en modo creación.
@@ -92,6 +97,24 @@ export class ProfesionalForm {
      * Indica si el componente padre está guardando.
      */
     saving = input<boolean>(false);
+
+    /*
+     * Imagen seleccionada desde el equipo.
+     */
+    selectedImageFile =
+        signal<File | null>(null);
+
+    /*
+     * Vista previa de la imagen.
+     */
+    imagePreview =
+        signal<string | null>(null);
+
+    /*
+     * Indica si la imagen se está subiendo.
+     */
+    uploadingImage =
+        signal(false);
 
     /*
      * Eventos enviados al componente padre.
@@ -111,49 +134,49 @@ export class ProfesionalForm {
         label: string;
         icon: string;
     }[] = [
-        {
-            value: 'VIRTUAL',
-            label: 'Virtual',
-            icon: 'videocam',
-        },
-        {
-            value: 'PRESENCIAL',
-            label: 'Presencial',
-            icon: 'location_on',
-        },
-        {
-            value: 'MIXTA',
-            label: 'Mixta',
-            icon: 'sync_alt',
-        },
-    ];
+            {
+                value: 'VIRTUAL',
+                label: 'Virtual',
+                icon: 'videocam',
+            },
+            {
+                value: 'PRESENCIAL',
+                label: 'Presencial',
+                icon: 'location_on',
+            },
+            {
+                value: 'MIXTA',
+                label: 'Mixta',
+                icon: 'sync_alt',
+            },
+        ];
 
     /*
      * Solo muestra usuarios con rol PROFESIONAL.
      * En edición conserva visible al usuario actualmente asociado.
      */
- usuariosProfesionales = computed(() => {
-    const usuarioActualId =
-        this.profesional()?.usuarioId;
+    usuariosProfesionales = computed(() => {
+        const usuarioActualId =
+            this.profesional()?.usuarioId;
 
-    return this.usuarios().filter(
-        (usuario) => {
-            // En edición debemos conservar visible
-            // el usuario asociado al perfil actual.
-            if (usuario.id === usuarioActualId) {
-                return true;
-            }
+        return this.usuarios().filter(
+            (usuario) => {
+                // En edición debemos conservar visible
+                // el usuario asociado al perfil actual.
+                if (usuario.id === usuarioActualId) {
+                    return true;
+                }
 
-            // En creación solamente mostramos
-            // profesionales activos y sin perfil.
-            return (
-                usuario.role === 'PROFESIONAL' &&
-                usuario.estado === true &&
-                !usuario.perfilProfesional
-            );
-        },
-    );
-});
+                // En creación solamente mostramos
+                // profesionales activos y sin perfil.
+                return (
+                    usuario.role === 'PROFESIONAL' &&
+                    usuario.estado === true &&
+                    !usuario.perfilProfesional
+                );
+            },
+        );
+    });
 
     /*
      * Estado principal del formulario.
@@ -446,7 +469,7 @@ export class ProfesionalForm {
                     'La tarifa base es obligatoria',
             });
 
-           
+
 
             validate(path.tarifaBase, (ctx) => {
                 const tarifa = Number(ctx.value());
@@ -551,24 +574,24 @@ export class ProfesionalForm {
     );
 
 
-//MASK
-// computed() crea un valor calculado en Angular Signals.
-//Cada vez que cambie this.profesional(), 
-// este código se vuelve a ejecutar automáticamente.
+    //MASK
+    // computed() crea un valor calculado en Angular Signals.
+    //Cada vez que cambie this.profesional(), 
+    // este código se vuelve a ejecutar automáticamente.
     codigoProfesional = computed(() => {
-    const profesionalActual = this.profesional();
+        const profesionalActual = this.profesional();
 
-    //Cuando estás creando un profesional todavía no existe un ID,
-    //  porque aún no se ha guardado en la base de datos.
-    if (!profesionalActual?.id) {
-        return 'Se generará al registrar';
-    }
+        //Cuando estás creando un profesional todavía no existe un ID,
+        //  porque aún no se ha guardado en la base de datos.
+        if (!profesionalActual?.id) {
+            return 'Se generará al registrar';
+        }
 
-    return `PRO-${profesionalActual.id
-        .toString()
-        //Completa con ceros a la izquierda hasta tener 5 dígitos.
-        .padStart(5, '0')}`;
-});
+        return `PRO-${profesionalActual.id
+            .toString()
+            //Completa con ceros a la izquierda hasta tener 5 dígitos.
+            .padStart(5, '0')}`;
+    });
 
 
 
@@ -584,7 +607,9 @@ export class ProfesionalForm {
      * Deshabilita el envío mientras el padre guarda.
      */
     isSubmitting = computed(
-        () => this.saving(),
+        () =>
+        this.saving() ||
+        this.uploadingImage(),
     );
 
     constructor() {
@@ -649,6 +674,37 @@ export class ProfesionalForm {
                                 especialidad.id,
                         ) ?? [],
             });
+
+
+            this.selectedImageFile.set(null);
+
+this.imagePreview.set(
+    this.imageService.getImageUrl(
+        'profile-not-found.jpg',
+    ),
+);
+
+            /*
+ * Mostrar la imagen actual cuando
+ * estamos editando.
+ */
+if (
+    profesionalActual.imagenPerfil
+) {
+    this.imagePreview.set(
+        this.imageService.getImageUrl(
+            profesionalActual.imagenPerfil,
+        ),
+    );
+} else {
+    this.imagePreview.set(
+        this.imageService.getImageUrl(
+            'profile-not-found.jpg',
+        ),
+    );
+}
+
+this.selectedImageFile.set(null);
         });
     }
 
@@ -686,15 +742,15 @@ export class ProfesionalForm {
 
                 especialidadIds: checked
                     ? Array.from(
-                          new Set([
-                              ...value.especialidadIds,
-                              id,
-                          ]),
-                      )
+                        new Set([
+                            ...value.especialidadIds,
+                            id,
+                        ]),
+                    )
                     : value.especialidadIds.filter(
-                          (especialidadId) =>
-                              especialidadId !== id,
-                      ),
+                        (especialidadId) =>
+                            especialidadId !== id,
+                    ),
             }),
         );
 
@@ -713,22 +769,179 @@ export class ProfesionalForm {
             .especialidadIds.includes(id);
     }
 
+
+    /*
+ * Selecciona una nueva imagen
+ * desde el equipo.
+ */
+onImageSelected(
+    event: Event,
+): void {
+    const input =
+        event.target as HTMLInputElement;
+
+    const file =
+        input.files?.[0];
+
+    if (!file) {
+        return;
+    }
+
+    /*
+     * Formatos permitidos.
+     */
+    const tiposPermitidos = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+    ];
+
+    if (
+        !tiposPermitidos.includes(
+            file.type,
+        )
+    ) {
+        alert(
+            'La imagen debe ser JPG, JPEG, PNG o WEBP',
+        );
+
+        input.value = '';
+
+        return;
+    }
+
+    /*
+     * Tamaño máximo:
+     * 5 MB.
+     */
+    const maxSize =
+        5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+        alert(
+            'La imagen no puede superar los 5 MB',
+        );
+
+        input.value = '';
+
+        return;
+    }
+
+    /*
+     * Guardar temporalmente el archivo.
+     */
+    this.selectedImageFile.set(
+        file,
+    );
+
+    /*
+     * Crear vista previa antes
+     * de guardar.
+     */
+    const previewUrl =
+        URL.createObjectURL(
+            file,
+        );
+
+    this.imagePreview.set(
+        previewUrl,
+    );
+}
+
     /*
      * Ejecutado por el botón Guardar.
      */
-    submit(): void {
-        if (this.isSubmitting()) {
-            return;
-        }
-
-        this.marcarCamposComoTocados();
-
-        if (this.formularioInvalido()) {
-            return;
-        }
-
-        this.emitirGuardar();
+   submit(): void {
+    if (this.isSubmitting()) {
+        return;
     }
+
+    this.marcarCamposComoTocados();
+
+    if (this.formularioInvalido()) {
+        return;
+    }
+
+    const file =
+        this.selectedImageFile();
+
+    /*
+     * Si seleccionó una imagen nueva,
+     * primero la subimos.
+     */
+    if (file) {
+        this.subirImagenYGuardar(
+            file,
+        );
+
+        return;
+    }
+
+    /*
+     * Si no seleccionó imagen nueva,
+     * conserva la actual.
+     */
+    this.emitirGuardar();
+}
+
+/*
+ * Sube la imagen y luego
+ * guarda el profesional.
+ */
+private subirImagenYGuardar(
+    file: File,
+): void {
+    this.uploadingImage.set(true);
+
+    this.imageService
+        .upload(file)
+        .subscribe({
+            next: (response) => {
+                /*
+                 * Guardamos solamente el
+                 * nombre retornado por el API.
+                 */
+                this.profesionalModel.update(
+                    (value) => ({
+                        ...value,
+
+                        imagenPerfil:
+                            response.fileName,
+                    }),
+                );
+
+                this.selectedImageFile.set(
+                    null,
+                );
+
+                /*
+                 * Ahora sí guardar el perfil.
+                 */
+                this.emitirGuardar();
+            },
+
+            error: (error) => {
+                console.error(
+                    'Error subiendo imagen:',
+                    error,
+                );
+
+                alert(
+                    'No se pudo subir la imagen',
+                );
+
+                this.uploadingImage.set(
+                    false,
+                );
+            },
+
+            complete: () => {
+                this.uploadingImage.set(
+                    false,
+                );
+            },
+        });
+}
 
     /*
      * Envía el evento de cancelación.

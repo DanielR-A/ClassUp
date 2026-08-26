@@ -9,7 +9,7 @@ import { CitaRoutes } from "./cita.routes";
 import { HistorialEstadoCitaRoutes } from "./historial-estado-cita.routes";
 import { ResenaRoutes } from "./resena.routes";
 
-// import { ImageRoutes } from './image.routes copy';
+import { ImageRoutes } from "./image.routes";
 
 export class AppRoutes {
     static get routes(): Router {
@@ -24,7 +24,8 @@ export class AppRoutes {
         router.use("/cita", CitaRoutes.routes);
         router.use("/historialEstadoCita", HistorialEstadoCitaRoutes.routes);
         router.use("/resena", ResenaRoutes.routes);
-
+        router.use("/images", ImageRoutes.routes);
+        
         return router;
     }
 }

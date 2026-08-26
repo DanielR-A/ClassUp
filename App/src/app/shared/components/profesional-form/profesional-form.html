@@ -317,34 +317,157 @@
                 </div>
 
                 <div class="form-grid two-columns">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Imagen de perfil</mat-label>
+                    <!-- =========================================
+     IMAGEN DE PERFIL
+========================================= -->
 
-                        <input matInput type="text" placeholder="profile-not-found.jpg" [formField]="
-                                profesionalForm.imagenPerfil
-                            " />
+<div class="profile-image-field">
 
-                        <mat-icon matSuffix>image</mat-icon>
+    <span class="profile-image-label">
+        Imagen de perfil
+    </span>
 
-                        @if (
-                        profesionalForm
-                        .imagenPerfil()
-                        .touched() &&
-                        profesionalForm
-                        .imagenPerfil()
-                        .invalid()
-                        ) {
-                        <mat-error>
-                            {{
-                            profesionalForm
-                            .imagenPerfil()
-                            .errors()[0]
-                            .message
-                            }}
-                        </mat-error>
-                        }
-                    </mat-form-field>
 
+    <!-- VISTA PREVIA -->
+    <div class="profile-image-preview">
+
+        @if (imagePreview()) {
+
+            <img
+                [src]="imagePreview()"
+                alt="Vista previa del perfil profesional"
+            />
+
+        } @else {
+
+            <div class="profile-image-placeholder">
+                <mat-icon>
+                    account_circle
+                </mat-icon>
+
+                <span>
+                    Sin imagen
+                </span>
+            </div>
+
+        }
+
+    </div>
+
+
+    <!-- NOMBRE DEL ARCHIVO ACTUAL -->
+    <div class="current-image">
+
+        <mat-icon>
+            image
+        </mat-icon>
+
+        <div>
+            <span>
+                Imagen actual
+            </span>
+
+            <strong>
+                {{
+                    profesionalModel()
+                        .imagenPerfil ||
+                    'profile-not-found.jpg'
+                }}
+            </strong>
+        </div>
+
+    </div>
+
+
+    <!-- INPUT REAL -->
+    <input
+        #imageInput
+        type="file"
+        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+        hidden
+        (change)="onImageSelected($event)"
+    />
+
+
+    <!-- BOTÓN PARA SELECCIONAR -->
+    <button
+        mat-stroked-button
+        type="button"
+        class="select-image-button"
+        [disabled]="isSubmitting()"
+        (click)="imageInput.click()"
+    >
+        <mat-icon>
+            upload
+        </mat-icon>
+
+        @if (selectedImageFile()) {
+            Cambiar imagen seleccionada
+        } @else {
+            Seleccionar imagen
+        }
+    </button>
+
+
+    <!-- ARCHIVO NUEVO -->
+    @if (selectedImageFile(); as archivo) {
+
+        <div class="selected-image-info">
+
+            <mat-icon>
+                check_circle
+            </mat-icon>
+
+            <div>
+                <span>
+                    Nueva imagen
+                </span>
+
+                <strong>
+                    {{ archivo.name }}
+                </strong>
+
+                <small>
+                    {{
+                        (
+                            archivo.size /
+                            1024 /
+                            1024
+                        ).toFixed(2)
+                    }}
+                    MB
+                </small>
+            </div>
+
+        </div>
+
+    }
+
+
+    <p class="image-help">
+        Formatos permitidos:
+        JPG, JPEG, PNG y WEBP.
+        Tamaño máximo: 5 MB.
+    </p>
+
+
+    @if (uploadingImage()) {
+
+        <div class="image-uploading">
+
+            <mat-spinner
+                diameter="20"
+            ></mat-spinner>
+
+            <span>
+                Subiendo imagen...
+            </span>
+
+        </div>
+
+    }
+
+</div>
 
 
 
