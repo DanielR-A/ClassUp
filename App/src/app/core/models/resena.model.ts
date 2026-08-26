@@ -15,29 +15,48 @@ export interface Resena {
     profesional?: PerfilProfesional;
 
     puntuacion: number;
+
     comentario?: string | null;
 
     createdAt: string;
     updatedAt: string;
 }
 
+/*
+ * Modelo utilizado internamente
+ * por el formulario.
+ *
+ * La cita se identifica automáticamente
+ * cuando el cliente inicia la reseña
+ * desde una cita completada.
+ */
 export interface ResenaFormModel {
     citaId: number | null;
-    clienteId: number | null;
-    profesionalId: number | null;
+
     puntuacion: number;
+
     comentario: string;
 }
 
+/*
+ * Datos enviados al API.
+ *
+ * clienteId y profesionalId NO se envían.
+ *
+ * El API los obtiene de:
+ * - usuario autenticado
+ * - cita seleccionada
+ */
 export interface ResenaCreateDto {
     citaId: number;
-    clienteId: number;
-    profesionalId: number;
+
     puntuacion: number;
+
     comentario?: string | null;
 }
 
 export interface ResenaUpdateDto {
     puntuacion?: number;
+
     comentario?: string | null;
 }

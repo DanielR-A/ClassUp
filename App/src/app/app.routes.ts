@@ -37,6 +37,7 @@ import { Agenda } from './pages/citas/agenda/agenda';
 
 // Reseñas
 import { ResenasList } from './pages/resenas/resenas-list/resenas-list';
+import { ResenaCreatePage } from './pages/resenas/resena-create-page/resena-create-page';
 
 // Autenticación
 import { Login } from './pages/usuarios/login/login';
@@ -356,44 +357,44 @@ export const routes: Routes = [
             },
 
 
-// =====================
-// CLIENTE - CITAS
-// =====================
+            // =====================
+            // CLIENTE - CITAS
+            // =====================
 
-{
-    path: 'solicitar-cita',
-    component: CitaCreatePage,
-    title: 'Solicitar cita',
-    canActivate: [
-        authGuard,
-        roleGuard,
-    ],
-    data: {
-        roles: [
-            Role.USER,
-        ],
-    },
-},
+            {
+                path: 'solicitar-cita',
+                component: CitaCreatePage,
+                title: 'Solicitar cita',
+                canActivate: [
+                    authGuard,
+                    roleGuard,
+                ],
+                data: {
+                    roles: [
+                        Role.USER,
+                    ],
+                },
+            },
 
-{
-    path: 'mis-citas',
-    component: CitasClienteList,
-    title: 'Mis citas',
-    canActivate: [authGuard, roleGuard],
-    data: {
-        roles: [Role.USER],
-    },
-},
+            {
+                path: 'mis-citas',
+                component: CitasClienteList,
+                title: 'Mis citas',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.USER],
+                },
+            },
 
-{
-    path: 'mis-citas/:id',
-    component: CitaClienteDetail,
-    title: 'Detalle de mi cita',
-    canActivate: [authGuard, roleGuard],
-    data: {
-        roles: [Role.USER],
-    },
-},
+            {
+                path: 'mis-citas/:id',
+                component: CitaClienteDetail,
+                title: 'Detalle de mi cita',
+                canActivate: [authGuard, roleGuard],
+                data: {
+                    roles: [Role.USER],
+                },
+            },
 
 
 
@@ -408,6 +409,21 @@ export const routes: Routes = [
                 canActivate: [authGuard, roleGuard],
                 data: {
                     roles: [Role.ADMIN],
+                },
+            },
+
+            {
+                path: 'mis-citas/:id/resena',
+                component: ResenaCreatePage,
+                title: 'Calificar cita',
+                canActivate: [
+                    authGuard,
+                    roleGuard,
+                ],
+                data: {
+                    roles: [
+                        Role.USER,
+                    ],
                 },
             },
         ],

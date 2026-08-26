@@ -14,25 +14,32 @@ import {
     providedIn: 'root',
 })
 export class ResenaService {
-    private readonly http = inject(HttpClient);
+    private readonly http =
+        inject(HttpClient);
 
     private readonly apiUrl =
         `${environment.apiUrl}/resena`;
 
     listar() {
-        return this.http.get<ApiResponse<Resena[]>>(
+        return this.http.get<
+            ApiResponse<Resena[]>
+        >(
             this.apiUrl,
         );
     }
 
     obtenerPorId(id: number) {
-        return this.http.get<ApiResponse<Resena>>(
+        return this.http.get<
+            ApiResponse<Resena>
+        >(
             `${this.apiUrl}/${id}`,
         );
     }
 
     crear(data: ResenaCreateDto) {
-        return this.http.post<ApiResponse<Resena>>(
+        return this.http.post<
+            ApiResponse<Resena>
+        >(
             this.apiUrl,
             data,
         );
@@ -42,7 +49,9 @@ export class ResenaService {
         id: number,
         data: ResenaUpdateDto,
     ) {
-        return this.http.put<ApiResponse<Resena>>(
+        return this.http.put<
+            ApiResponse<Resena>
+        >(
             `${this.apiUrl}/${id}`,
             data,
         );

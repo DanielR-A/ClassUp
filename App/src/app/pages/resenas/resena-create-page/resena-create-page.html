@@ -1,0 +1,457 @@
+<section class="page-container">
+
+    <header class="page-header">
+        <span class="eyebrow">
+            Reseña
+        </span>
+
+        <h1>
+            Calificar cita
+        </h1>
+
+        <p>
+            Comparta su experiencia con el profesional
+            después de completar la cita.
+        </p>
+    </header>
+
+
+    @if (loading()) {
+
+        <div class="state">
+            <mat-spinner
+                diameter="42"
+            ></mat-spinner>
+
+            <p>
+                Cargando información de la cita...
+            </p>
+        </div>
+
+    } @else if (error()) {
+
+        <div class="state error">
+
+            <mat-icon>
+                error
+            </mat-icon>
+
+            <p>
+                {{ error() }}
+            </p>
+
+            <div class="state-actions">
+
+                <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="loadCita()"
+                >
+                    <mat-icon>
+                        refresh
+                    </mat-icon>
+
+                    Intentar nuevamente
+                </button>
+
+
+                <a
+                    mat-stroked-button
+                    routerLink="/mis-citas"
+                >
+                    <mat-icon>
+                        arrow_back
+                    </mat-icon>
+
+                    Volver a mis citas
+                </a>
+
+            </div>
+
+        </div>
+
+    } @else if (cita(); as citaActual) {
+
+        <section class="review-layout">
+
+            <!-- =========================================
+                 INFORMACIÓN DE LA CITA
+            ========================================== -->
+
+            <mat-card class="info-card">
+
+                <mat-card-header>
+
+                    <div class="card-heading">
+
+                        <div class="card-icon">
+                            <mat-icon>
+                                event_available
+                            </mat-icon>
+                        </div>
+
+                        <div>
+                            <mat-card-title>
+                                Cita completada
+                            </mat-card-title>
+
+                            <mat-card-subtitle>
+                                La reseña se asociará automáticamente
+                                a esta cita.
+                            </mat-card-subtitle>
+                        </div>
+
+                    </div>
+
+                </mat-card-header>
+
+
+                <mat-card-content>
+
+                    <div class="appointment-info">
+
+                        <div class="info-item">
+
+                            <mat-icon>
+                                menu_book
+                            </mat-icon>
+
+                            <div>
+                                <span>
+                                    Servicio
+                                </span>
+
+                                <strong>
+                                    {{
+                                        getNombreServicio()
+                                    }}
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <mat-icon>
+                                school
+                            </mat-icon>
+
+                            <div>
+                                <span>
+                                    Profesional
+                                </span>
+
+                                <strong>
+                                    {{
+                                        getNombreProfesional()
+                                    }}
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <mat-icon>
+                                calendar_month
+                            </mat-icon>
+
+                            <div>
+                                <span>
+                                    Fecha
+                                </span>
+
+                                <strong>
+                                    {{
+                                        formatearFecha(
+                                            citaActual.fechaCita
+                                        )
+                                    }}
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <mat-icon>
+                                task_alt
+                            </mat-icon>
+
+                            <div>
+                                <span>
+                                    Estado
+                                </span>
+
+                                <strong>
+                                    Completada
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </mat-card-content>
+
+            </mat-card>
+
+
+            <!-- =========================================
+                 FORMULARIO DE RESEÑA
+            ========================================== -->
+
+            <mat-card class="review-card">
+
+                <mat-card-header>
+
+                    <mat-card-title>
+                        Su experiencia
+                    </mat-card-title>
+
+                    <mat-card-subtitle>
+                        Seleccione una puntuación entre
+                        1 y 5 estrellas.
+                    </mat-card-subtitle>
+
+                </mat-card-header>
+
+
+                <mat-card-content>
+
+                    <!-- =================================
+                         PUNTUACIÓN
+                    ================================== -->
+
+                    <section class="rating-section">
+
+                        <span class="field-label">
+                            Puntuación *
+                        </span>
+
+                        <div
+                            class="stars"
+                            role="radiogroup"
+                            aria-label="Puntuación de la reseña"
+                        >
+
+                            @for (
+                                estrella of estrellas;
+                                track estrella
+                            ) {
+
+                                <button
+                                    type="button"
+                                    class="star-button"
+                                    [class.selected]="
+                                        estrella <= puntuacion()
+                                    "
+                                    [attr.aria-label]="
+                                        estrella + ' estrellas'
+                                    "
+                                    [attr.aria-checked]="
+                                        puntuacion() === estrella
+                                    "
+                                    role="radio"
+                                    (click)="
+                                        seleccionarPuntuacion(
+                                            estrella
+                                        )
+                                    "
+                                >
+                                    <mat-icon>
+                                        {{
+                                            estrella <= puntuacion()
+                                                ? 'star'
+                                                : 'star_border'
+                                        }}
+                                    </mat-icon>
+                                </button>
+
+                            }
+
+                        </div>
+
+
+                        <div class="rating-summary">
+
+                            @if (puntuacion() > 0) {
+
+                                <strong>
+                                    {{
+                                        puntuacion()
+                                    }}
+                                    / 5
+                                </strong>
+
+                                <span>
+                                    @switch (puntuacion()) {
+
+                                        @case (1) {
+                                            Muy mala
+                                        }
+
+                                        @case (2) {
+                                            Mala
+                                        }
+
+                                        @case (3) {
+                                            Regular
+                                        }
+
+                                        @case (4) {
+                                            Muy buena
+                                        }
+
+                                        @case (5) {
+                                            Excelente
+                                        }
+
+                                    }
+                                </span>
+
+                            } @else {
+
+                                <span>
+                                    Seleccione una puntuación
+                                </span>
+
+                            }
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================
+                         COMENTARIO
+                    ================================== -->
+
+                    <section class="comment-section">
+
+                        <mat-form-field
+                            appearance="outline"
+                            class="full-width"
+                        >
+
+                            <mat-label>
+                                Comentario
+                            </mat-label>
+
+                            <textarea
+                                matInput
+                                rows="6"
+                                maxlength="500"
+                                placeholder="Cuéntenos cómo fue su experiencia..."
+                                [ngModel]="comentario()"
+                                (ngModelChange)="
+                                    comentario.set($event)
+                                "
+                            ></textarea>
+
+                            <mat-hint>
+                                Opcional
+                            </mat-hint>
+
+                            <mat-hint align="end">
+                                {{
+                                    comentario().length
+                                }}/500
+                            </mat-hint>
+
+                        </mat-form-field>
+
+                    </section>
+
+
+                    <!-- =================================
+                         RESUMEN
+                    ================================== -->
+
+                    <section class="review-summary">
+
+                        <mat-icon>
+                            info
+                        </mat-icon>
+
+                        <div>
+                            <strong>
+                                Antes de publicar
+                            </strong>
+
+                            <p>
+                                La reseña quedará vinculada
+                                automáticamente con esta cita,
+                                el profesional y el servicio.
+                            </p>
+                        </div>
+
+                    </section>
+
+                </mat-card-content>
+
+
+                <mat-card-actions>
+
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="cancel-button"
+                        [disabled]="saving()"
+                        (click)="cancelar()"
+                    >
+                        <mat-icon>
+                            close
+                        </mat-icon>
+
+                        Cancelar
+                    </button>
+
+
+                    <button
+                        mat-flat-button
+                        type="button"
+                        class="save-button"
+                        [disabled]="
+                            saving() ||
+                            puntuacion() === 0
+                        "
+                        (click)="guardar()"
+                    >
+
+                        @if (saving()) {
+
+                            <mat-spinner
+                                diameter="20"
+                            ></mat-spinner>
+
+                            <span>
+                                Publicando...
+                            </span>
+
+                        } @else {
+
+                            <mat-icon>
+                                rate_review
+                            </mat-icon>
+
+                            <span>
+                                Publicar reseña
+                            </span>
+
+                        }
+
+                    </button>
+
+                </mat-card-actions>
+
+            </mat-card>
+
+        </section>
+
+    }
+
+</section>

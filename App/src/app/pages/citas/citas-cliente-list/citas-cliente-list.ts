@@ -154,6 +154,8 @@ export class CitasClienteList implements OnInit {
         this.loadCitas();
     }
 
+    
+
     /*
      * Obtiene únicamente las citas
      * del cliente autenticado.

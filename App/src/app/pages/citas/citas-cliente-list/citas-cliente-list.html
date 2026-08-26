@@ -330,9 +330,9 @@
 
             <!-- DETALLE -->
             <a mat-stroked-button [routerLink]="[
-                            '/mis-citas',
-                            cita.id
-                        ]">
+            '/mis-citas',
+            cita.id
+        ]">
                 <mat-icon>
                     visibility
                 </mat-icon>
@@ -340,40 +340,74 @@
                 Ver detalle
             </a>
 
-           @if (puedeCancelar(cita)) {
 
-    <button
-        mat-stroked-button
-        type="button"
-        class="cancel-button"
-        [disabled]="estaActualizando(cita.id)"
-        (click)="cancelarCita(cita)"
-    >
+            <!-- CANCELAR -->
+            @if (puedeCancelar(cita)) {
 
-        @if (estaActualizando(cita.id)) {
+            <button mat-stroked-button type="button" class="cancel-button" [disabled]="estaActualizando(cita.id)"
+                (click)="cancelarCita(cita)">
 
-            <mat-spinner
-                diameter="20"
-            ></mat-spinner>
+                @if (estaActualizando(cita.id)) {
 
-            Procesando...
+                <mat-spinner diameter="20"></mat-spinner>
 
-        } @else {
+                Procesando...
 
-            <mat-icon>
-                cancel
-            </mat-icon>
+                } @else {
 
-            Cancelar cita
+                <mat-icon>
+                    cancel
+                </mat-icon>
 
-        }
+                Cancelar cita
 
-    </button>
+                }
 
-}
+            </button>
+
+            }
+
+
+            <!-- CALIFICAR CITA -->
+            @if (
+            cita.estado === 'COMPLETADA' &&
+            !cita.resena
+            ) {
+
+            <a mat-flat-button class="review-button" [routerLink]="[
+                '/mis-citas',
+                cita.id,
+                'resena'
+            ]">
+                <mat-icon>
+                    star
+                </mat-icon>
+
+                Calificar cita
+            </a>
+
+            }
+
+
+            <!-- RESEÑA YA REGISTRADA -->
+            @if (
+            cita.estado === 'COMPLETADA' &&
+            cita.resena
+            ) {
+
+            <span class="action-info review-registered">
+
+                <mat-icon>
+                    verified
+                </mat-icon>
+
+                Reseña registrada
+
+            </span>
+
+            }
 
         </mat-card-actions>
-
     </mat-card>
 
     }
