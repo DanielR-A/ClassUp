@@ -1,13 +1,12 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     signal,
 } from '@angular/core';
 
-import {
-    Router,
-} from '@angular/router';
+import { Router } from '@angular/router';
 
 import {
     finalize,
@@ -64,39 +63,135 @@ export class CitaCreatePage {
         inject(AuthService);
 
     /*
-     * Sesión actual.
+     * =====================================================
+     * SESIÓN
+     * =====================================================
      */
+
     readonly usuarioAutenticado =
         this.authService.usuario;
 
     readonly rol =
         this.authService.rol;
 
-    readonly esCliente = computed(
-        () =>
-            this.rol() ===
-            Role.USER,
-    );
+    readonly sesionInicializada =
+        this.authService.sesionInicializada;
 
-    readonly esAdmin = computed(
-        () =>
-            this.rol() ===
-            Role.ADMIN,
-    );
-
-    /*
-     * Cuando el formulario es utilizado
-     * por un cliente, este será el único
-     * cliente permitido.
-     */
-    readonly clienteAutenticadoId =
+    readonly esCliente =
         computed(
             () =>
-                this.esCliente()
-                    ? this.usuarioAutenticado()?.id ??
-                    null
-                    : null,
+                this.rol() ===
+                Role.USER,
         );
+
+    readonly esAdmin =
+        computed(
+            () =>
+                this.rol() ===
+                Role.ADMIN,
+        );
+
+    /*
+     * Para USER devuelve el ID del usuario
+     * autenticado.
+     *
+     * Para ADMIN devuelve null porque
+     * el administrador selecciona cliente.
+     */
+    readonly clienteAutenticadoId =
+        computed<number | null>(() => {
+
+            if (!this.esCliente()) {
+                return null;
+            }
+
+            const usuario =
+                this.usuarioAutenticado();
+
+            return (
+                usuario?.id ??
+                null
+            );
+        });
+
+    /*
+     * Evita cargar dos veces los datos
+     * cuando cambian los signals de sesión.
+     */
+    private readonly datosCargados =
+        signal(false);
+
+    /*
+     * Esperamos a que AuthService termine
+     * de restaurar la sesión antes de
+     * preparar el formulario.
+     */
+    private readonly cargarDatosEffect =
+        effect(() => {
+
+            const sesionInicializada =
+                this.sesionInicializada();
+
+            if (!sesionInicializada) {
+                return;
+            }
+
+            if (this.datosCargados()) {
+                return;
+            }
+
+            const rol =
+                this.rol();
+
+            const usuario =
+                this.usuarioAutenticado();
+
+            /*
+             * Si es cliente necesitamos
+             * obligatoriamente su perfil.
+             */
+            if (
+                rol === Role.USER &&
+                !usuario
+            ) {
+                this.loading.set(false);
+
+                this.error.set(
+                    'No se pudo identificar al cliente autenticado.',
+                );
+
+                return;
+            }
+
+            /*
+             * Solo ADMIN y USER pueden
+             * utilizar esta página.
+             */
+            if (
+                rol !== Role.USER &&
+                rol !== Role.ADMIN
+            ) {
+                this.loading.set(false);
+
+                this.error.set(
+                    'El usuario actual no puede registrar citas.',
+                );
+
+                return;
+            }
+
+            this.datosCargados.set(
+                true,
+            );
+
+            this.cargarDatosFormulario();
+        });
+
+    /*
+     * =====================================================
+     * DATOS
+     * =====================================================
+     */
 
     clientes =
         signal<Usuario[]>([]);
@@ -116,30 +211,23 @@ export class CitaCreatePage {
     error =
         signal<string | null>(null);
 
-    constructor() {
-        this.cargarDatosFormulario();
-    }
+    /*
+     * =====================================================
+     * CARGA PRINCIPAL
+     * =====================================================
+     */
 
     cargarDatosFormulario(): void {
+
         this.loading.set(true);
         this.error.set(null);
 
-        /*
-         * Para ADMIN necesitamos consultar
-         * los usuarios porque puede crear
-         * citas para distintos clientes.
-         */
         if (this.esAdmin()) {
             this.cargarDatosAdministrador();
 
             return;
         }
 
-        /*
-         * Para USER no consultamos todos
-         * los usuarios. Utilizamos solamente
-         * el usuario autenticado.
-         */
         if (this.esCliente()) {
             this.cargarDatosCliente();
 
@@ -154,19 +242,25 @@ export class CitaCreatePage {
     }
 
     /*
-     * Carga del formulario administrativo.
+     * =====================================================
+     * ADMIN
+     * =====================================================
      */
+
     private cargarDatosAdministrador(): void {
+
         forkJoin({
             usuarios:
-                this.usuarioService.listar(),
+                this.usuarioService
+                    .listar(),
 
             profesionales:
                 this.perfilProfesionalService
                     .listar(),
 
             servicios:
-                this.servicioService.listar(),
+                this.servicioService
+                    .listar(),
         })
             .pipe(
                 finalize(() => {
@@ -180,24 +274,16 @@ export class CitaCreatePage {
                     servicios,
                 }) => {
 
-                    /*
-                     * Solamente usuarios cliente
-                     * y activos.
-                     */
                     const clientes =
                         this.obtenerLista<Usuario>(
                             usuarios.data,
                         ).filter(
                             (usuario) =>
                                 usuario.role ===
-                                Role.USER &&
+                                    Role.USER &&
                                 usuario.estado,
                         );
 
-                    /*
-                     * Solamente profesionales
-                     * disponibles y activos.
-                     */
                     const profesionalesDisponibles =
                         this.obtenerLista<PerfilProfesional>(
                             profesionales.data,
@@ -206,12 +292,9 @@ export class CitaCreatePage {
                                 profesional.disponible &&
                                 profesional.usuario
                                     ?.estado !==
-                                false,
+                                    false,
                         );
 
-                    /*
-                     * Solamente servicios activos.
-                     */
                     const serviciosActivos =
                         this.obtenerLista<Servicio>(
                             servicios.data,
@@ -248,13 +331,13 @@ export class CitaCreatePage {
     }
 
     /*
-     * Carga del formulario para el CLIENTE.
-     *
-     * No solicita la lista completa de usuarios.
-     * El cliente se obtiene directamente
-     * de AuthService.
+     * =====================================================
+     * CLIENTE
+     * =====================================================
      */
+
     private cargarDatosCliente(): void {
+
         const usuario =
             this.usuarioAutenticado();
 
@@ -269,8 +352,8 @@ export class CitaCreatePage {
         }
 
         /*
-         * El formulario solamente conocerá
-         * al cliente autenticado.
+         * Para el cliente solamente existe
+         * una opción válida: él mismo.
          */
         this.clientes.set([
             usuario,
@@ -282,7 +365,8 @@ export class CitaCreatePage {
                     .listar(),
 
             servicios:
-                this.servicioService.listar(),
+                this.servicioService
+                    .listar(),
         })
             .pipe(
                 finalize(() => {
@@ -303,7 +387,7 @@ export class CitaCreatePage {
                                 profesional.disponible &&
                                 profesional.usuario
                                     ?.estado !==
-                                false,
+                                    false,
                         );
 
                     const serviciosActivos =
@@ -337,22 +421,27 @@ export class CitaCreatePage {
             });
     }
 
+    /*
+     * =====================================================
+     * GUARDAR
+     * =====================================================
+     */
+
     guardar(
         data:
             | CitaCreateDto
             | CitaUpdateDto,
     ): void {
 
+        /*
+         * Evita doble envío.
+         */
         if (this.saving()) {
             return;
         }
 
         this.error.set(null);
 
-        /*
-         * El componente está en modo creación,
-         * por lo que convertimos el DTO recibido.
-         */
         const dataCrear =
             data as CitaCreateDto;
 
@@ -361,13 +450,14 @@ export class CitaCreatePage {
 
         /*
          * CLIENTE:
-         * nunca confiamos en un clienteId
-         * seleccionado manualmente.
+         * reemplazamos siempre clienteId
+         * con el usuario autenticado.
          *
-         * Siempre utilizamos el usuario
-         * autenticado.
+         * Aunque el formulario enviara otro
+         * ID, aquí no lo aceptaríamos.
          */
         if (this.esCliente()) {
+
             const usuario =
                 this.usuarioAutenticado();
 
@@ -381,11 +471,22 @@ export class CitaCreatePage {
 
             cita = {
                 ...dataCrear,
+
                 clienteId:
                     usuario.id,
             };
 
         } else if (this.esAdmin()) {
+
+            if (
+                !dataCrear.clienteId
+            ) {
+                this.error.set(
+                    'Debe seleccionar un cliente.',
+                );
+
+                return;
+            }
 
             cita =
                 dataCrear;
@@ -415,16 +516,18 @@ export class CitaCreatePage {
             )
             .subscribe({
                 next: (response) => {
+
                     console.log(
                         'Cita registrada:',
                         response.data,
                     );
 
                     /*
-                     * Cada rol vuelve a su
-                     * pantalla correspondiente.
+                     * Cliente vuelve a su
+                     * historial.
                      */
                     if (this.esCliente()) {
+
                         void this.router.navigate([
                             '/mis-citas',
                         ]);
@@ -432,12 +535,17 @@ export class CitaCreatePage {
                         return;
                     }
 
+                    /*
+                     * Admin vuelve al listado
+                     * administrativo.
+                     */
                     void this.router.navigate([
                         '/admin/citas',
                     ]);
                 },
 
                 error: (error) => {
+
                     console.error(
                         'Error registrando cita:',
                         error,
@@ -451,8 +559,16 @@ export class CitaCreatePage {
             });
     }
 
+    /*
+     * =====================================================
+     * CANCELAR
+     * =====================================================
+     */
+
     cancelar(): void {
+
         if (this.esCliente()) {
+
             void this.router.navigate([
                 '/mis-citas',
             ]);
@@ -465,13 +581,19 @@ export class CitaCreatePage {
         ]);
     }
 
+    /*
+     * =====================================================
+     * UTILIDADES
+     * =====================================================
+     */
+
     private obtenerLista<T>(
         data:
             | T[]
             | {
-                data: T[];
-                meta?: unknown;
-            }
+                  data: T[];
+                  meta?: unknown;
+              }
             | null
             | undefined,
     ): T[] {
@@ -483,7 +605,7 @@ export class CitaCreatePage {
         if (
             data &&
             typeof data ===
-            'object' &&
+                'object' &&
             'data' in data &&
             Array.isArray(data.data)
         ) {

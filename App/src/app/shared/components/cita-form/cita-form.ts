@@ -437,18 +437,20 @@ export class CitaForm {
      * Limpia el formulario para crear una cita.
      */
     private resetForm(): void {
-        this.citaModel.set({
-            clienteId: null,
-            profesionalId: null,
-            servicioId: null,
-            fechaCita: '',
-            horaInicio: '',
-            horaFinalizacion: '',
-            modalidad: 'VIRTUAL',
-            comentarioCliente: '',
-            montoEstimado: 0,
-        });
-    }
+    this.citaModel.set({
+        clienteId:
+            this.clienteFijoId() ?? null,
+
+        profesionalId: null,
+        servicioId: null,
+        fechaCita: '',
+        horaInicio: '',
+        horaFinalizacion: '',
+        modalidad: 'VIRTUAL',
+        comentarioCliente: '',
+        montoEstimado: 0,
+    });
+}
 
     /*
      * Se ejecuta cuando se selecciona un servicio.
@@ -654,18 +656,85 @@ private calcularHoraFinalizacion(): void {
      * Ejecutado por el botón Guardar.
      */
     submit(): void {
-        if (this.isSubmitting()) {
-            return;
-        }
-
-        this.marcarCamposComoTocados();
-
-        if (this.formularioInvalido()) {
-            return;
-        }
-
-        this.emitirGuardar();
+    if (this.isSubmitting()) {
+        return;
     }
+
+    this.marcarCamposComoTocados();
+
+    console.log(
+        'clienteId:',
+        this.citaModel().clienteId,
+        'invalid:',
+        this.citaForm.clienteId().invalid(),
+        'errors:',
+        this.citaForm.clienteId().errors(),
+    );
+
+    console.log(
+        'profesionalId:',
+        this.citaModel().profesionalId,
+        'invalid:',
+        this.citaForm.profesionalId().invalid(),
+        'errors:',
+        this.citaForm.profesionalId().errors(),
+    );
+
+    console.log(
+        'servicioId:',
+        this.citaModel().servicioId,
+        'invalid:',
+        this.citaForm.servicioId().invalid(),
+        'errors:',
+        this.citaForm.servicioId().errors(),
+    );
+
+    console.log(
+        'fechaCita:',
+        this.citaModel().fechaCita,
+        'invalid:',
+        this.citaForm.fechaCita().invalid(),
+        'errors:',
+        this.citaForm.fechaCita().errors(),
+    );
+
+    console.log(
+        'horaInicio:',
+        this.citaModel().horaInicio,
+        'invalid:',
+        this.citaForm.horaInicio().invalid(),
+        'errors:',
+        this.citaForm.horaInicio().errors(),
+    );
+
+    console.log(
+        'modalidad:',
+        this.citaModel().modalidad,
+        'invalid:',
+        this.citaForm.modalidad().invalid(),
+        'errors:',
+        this.citaForm.modalidad().errors(),
+    );
+
+    console.log(
+        'comentarioCliente:',
+        this.citaModel().comentarioCliente,
+        'invalid:',
+        this.citaForm.comentarioCliente().invalid(),
+        'errors:',
+        this.citaForm.comentarioCliente().errors(),
+    );
+
+    if (this.formularioInvalido()) {
+        console.warn(
+            'El formulario está inválido. No se enviará la cita.',
+        );
+
+        return;
+    }
+
+    this.emitirGuardar();
+}
 
     /*
      * Marca los campos para mostrar errores.
@@ -883,7 +952,6 @@ private readonly clienteFijoEffect =
 
         this.citaModel.update(
             (value) => {
-
                 if (
                     value.clienteId ===
                     clienteId
@@ -898,7 +966,6 @@ private readonly clienteFijoEffect =
             },
         );
     });
-
 
 
 
