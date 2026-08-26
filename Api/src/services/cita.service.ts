@@ -163,166 +163,355 @@ export const citaService = {
         });
     },
 
-    async crear(data: CreateCitaDto) {
-        const cliente =
-            await prisma.usuario.findUnique({
-                where: {
-                    id: data.clienteId,
+
+
+
+
+
+async crear(data: CreateCitaDto) {
+    /*
+     * 1. Validar cliente.
+     */
+    const cliente =
+        await prisma.usuario.findUnique({
+            where: {
+                id: data.clienteId,
+            },
+        });
+
+    if (!cliente) {
+        throw AppError.badRequest(
+            "El cliente indicado no existe",
+        );
+    }
+
+    if (!cliente.estado) {
+        throw AppError.badRequest(
+            "El cliente indicado está inactivo",
+        );
+    }
+
+    /*
+     * 2. Validar profesional.
+     */
+    const profesional =
+        await prisma.perfilProfesional.findUnique({
+            where: {
+                id: data.profesionalId,
+            },
+
+            include: {
+                usuario: true,
+            },
+        });
+
+    if (!profesional) {
+        throw AppError.badRequest(
+            "El profesional indicado no existe",
+        );
+    }
+
+    if (!profesional.disponible) {
+        throw AppError.badRequest(
+            "El profesional no está disponible para nuevas citas",
+        );
+    }
+
+    if (!profesional.usuario.estado) {
+        throw AppError.badRequest(
+            "El usuario del profesional está inactivo",
+        );
+    }
+
+    /*
+     * 3. Validar servicio.
+     */
+    const servicio =
+        await prisma.servicio.findUnique({
+            where: {
+                id: data.servicioId,
+            },
+        });
+
+    if (!servicio) {
+        throw AppError.badRequest(
+            "El servicio indicado no existe",
+        );
+    }
+
+    if (!servicio.estado) {
+        throw AppError.badRequest(
+            "El servicio indicado está inactivo",
+        );
+    }
+
+    /*
+     * El servicio debe pertenecer
+     * al profesional seleccionado.
+     */
+    if (
+        servicio.profesionalId !==
+        data.profesionalId
+    ) {
+        throw AppError.badRequest(
+            "El servicio no pertenece al profesional indicado",
+        );
+    }
+
+    /*
+     * 4. Validar modalidad.
+     *
+     * Si el servicio es MIXTA,
+     * permite VIRTUAL o PRESENCIAL.
+     */
+    if (
+        servicio.modalidad !== "MIXTA" &&
+        servicio.modalidad !== data.modalidad
+    ) {
+        throw AppError.badRequest(
+            "La modalidad seleccionada no está disponible para este servicio",
+        );
+    }
+
+    /*
+     * 5. Construir fecha y hora
+     * real de inicio de la cita.
+     */
+    const fechaCita =
+        new Date(data.fechaCita);
+
+    const horaInicio =
+        new Date(data.horaInicio);
+
+    const inicioCita =
+        new Date(fechaCita);
+
+    inicioCita.setHours(
+        horaInicio.getHours(),
+        horaInicio.getMinutes(),
+        horaInicio.getSeconds(),
+        0,
+    );
+
+    /*
+     * La cita debe programarse
+     * para una fecha/hora futura.
+     */
+    const ahora = new Date();
+
+    if (inicioCita <= ahora) {
+        throw AppError.badRequest(
+            "La fecha y hora de la cita deben ser futuras",
+        );
+    }
+
+    /*
+     * 6. Calcular automáticamente
+     * la hora de finalización usando
+     * la duración real del servicio.
+     */
+    const finCita =
+        new Date(inicioCita);
+
+    finCita.setMinutes(
+        finCita.getMinutes() +
+        servicio.duracionMinutos,
+    );
+
+    /*
+     * 7. Validar traslapes.
+     *
+     * Una cita bloquea el horario cuando
+     * está PENDIENTE o ACEPTADA.
+     *
+     * Existe traslape cuando:
+     *
+     * nuevaInicio < existenteFin
+     * &&
+     * nuevaFin > existenteInicio
+     */
+    const citasDelDia =
+        await prisma.cita.findMany({
+            where: {
+                profesionalId:
+                    data.profesionalId,
+
+                fechaCita: {
+                    gte: new Date(
+                        fechaCita.getFullYear(),
+                        fechaCita.getMonth(),
+                        fechaCita.getDate(),
+                        0,
+                        0,
+                        0,
+                        0,
+                    ),
+
+                    lte: new Date(
+                        fechaCita.getFullYear(),
+                        fechaCita.getMonth(),
+                        fechaCita.getDate(),
+                        23,
+                        59,
+                        59,
+                        999,
+                    ),
                 },
-            });
 
-        if (!cliente) {
-            throw AppError.badRequest(
-                "El cliente indicado no existe",
-            );
-        }
-
-        if (!cliente.estado) {
-            throw AppError.badRequest(
-                "El cliente indicado está inactivo",
-            );
-        }
-
-        const profesional =
-            await prisma.perfilProfesional.findUnique({
-                where: {
-                    id: data.profesionalId,
-                },
-
-                include: {
-                    usuario: true,
-                },
-            });
-
-        if (!profesional) {
-            throw AppError.badRequest(
-                "El profesional indicado no existe",
-            );
-        }
-
-        if (!profesional.disponible) {
-            throw AppError.badRequest(
-                "El profesional no está disponible para nuevas citas",
-            );
-        }
-
-        if (!profesional.usuario.estado) {
-            throw AppError.badRequest(
-                "El usuario del profesional está inactivo",
-            );
-        }
-
-        const servicio =
-            await prisma.servicio.findUnique({
-                where: {
-                    id: data.servicioId,
-                },
-            });
-
-        if (!servicio) {
-            throw AppError.badRequest(
-                "El servicio indicado no existe",
-            );
-        }
-
-        if (!servicio.estado) {
-            throw AppError.badRequest(
-                "El servicio indicado está inactivo",
-            );
-        }
-
-        if (
-            servicio.profesionalId !==
-            data.profesionalId
-        ) {
-            throw AppError.badRequest(
-                "El servicio no pertenece al profesional indicado",
-            );
-        }
-
-        if (
-            servicio.modalidad !== "MIXTA" &&
-            servicio.modalidad !== data.modalidad
-        ) {
-            throw AppError.badRequest(
-                "La modalidad seleccionada no está disponible para este servicio",
-            );
-        }
-
-        return prisma.$transaction(async (tx) => {
-            const cita = await tx.cita.create({
-                data: {
-                    clienteId: data.clienteId,
-                    profesionalId:
-                        data.profesionalId,
-                    servicioId:
-                        data.servicioId,
-
-                    fechaCita:
-                        data.fechaCita,
-
-                    horaInicio:
-                        data.horaInicio,
-
-                    horaFinalizacion:
-                        data.horaFinalizacion,
-
-                    modalidad:
-                        data.modalidad,
-
-                    estado:
+                estado: {
+                    in: [
                         "PENDIENTE",
-
-                    comentarioCliente:
-                        data.comentarioCliente,
-
-                    montoEstimado:
-                        data.montoEstimado ??
-                        servicio.precio,
+                        "ACEPTADA",
+                    ],
                 },
+            },
 
-                include: {
-                    cliente: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
-                        },
+            select: {
+                id: true,
+                horaInicio: true,
+                horaFinalizacion: true,
+            },
+        });
+
+    const existeTraslape =
+        citasDelDia.some((cita) => {
+            const inicioExistente =
+                new Date(cita.horaInicio);
+
+            const finExistente =
+                new Date(
+                    cita.horaFinalizacion,
+                );
+
+            return (
+                inicioCita < finExistente &&
+                finCita > inicioExistente
+            );
+        });
+
+    if (existeTraslape) {
+        throw AppError.badRequest(
+            "El profesional ya tiene una cita que coincide con el horario seleccionado",
+        );
+    }
+
+    /*
+     * 8. Crear cita.
+     *
+     * IMPORTANTE:
+     * - Estado siempre PENDIENTE.
+     * - Hora final calculada por el API.
+     * - Monto tomado del servicio.
+     *
+     * No confiamos en esos valores
+     * enviados por el frontend.
+     */
+    return prisma.$transaction(
+        async (tx) => {
+
+            const cita =
+                await tx.cita.create({
+                    data: {
+                        clienteId:
+                            data.clienteId,
+
+                        profesionalId:
+                            data.profesionalId,
+
+                        servicioId:
+                            data.servicioId,
+
+                        fechaCita:
+                            fechaCita,
+
+                        horaInicio:
+                            inicioCita,
+
+                        horaFinalizacion:
+                            finCita,
+
+                        modalidad:
+                            data.modalidad,
+
+                        estado:
+                            "PENDIENTE",
+
+                        comentarioCliente:
+                            data.comentarioCliente,
+
+                        /*
+                         * Precio histórico.
+                         *
+                         * Se toma del servicio
+                         * al momento de crear.
+                         */
+                        montoEstimado:
+                            servicio.precio,
                     },
 
-                    profesional: {
-                        include: {
-                            usuario: {
-                                select: {
-                                    id: true,
-                                    nombre: true,
-                                    apellidos: true,
-                                    email: true,
+                    include: {
+                        cliente: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                            },
+                        },
+
+                        profesional: {
+                            include: {
+                                usuario: {
+                                    select: {
+                                        id: true,
+                                        nombre: true,
+                                        apellidos: true,
+                                        email: true,
+                                    },
                                 },
                             },
                         },
+
+                        servicio: true,
                     },
+                });
 
-                    servicio: true,
-                },
-            });
+            /*
+             * 9. Registrar estado inicial
+             * en el historial.
+             */
+            await tx
+                .historialEstadoCita
+                .create({
+                    data: {
+                        citaId:
+                            cita.id,
 
-            await tx.historialEstadoCita.create({
-                data: {
-                    citaId: cita.id,
-                    estadoAnterior: null,
-                    estadoNuevo: "PENDIENTE",
-                    comentario:
-                        "Cita creada",
-                    cambiadoPorId:
-                        data.clienteId,
-                },
-            });
+                        estadoAnterior:
+                            null,
+
+                        estadoNuevo:
+                            "PENDIENTE",
+
+                        comentario:
+                            "Cita creada",
+
+                        cambiadoPorId:
+                            data.clienteId,
+                    },
+                });
 
             return cita;
-        });
-    },
+        },
+    );
+},
+
+
+
+
+
+
+
 
 
     async misSolicitudes(usuarioId: number) {
@@ -519,554 +708,554 @@ export const citaService = {
 
 
     async rechazar(
-    citaId: number,
-    usuarioId: number,
-    comentarioProfesional: string,
-) {
-    const cita = await prisma.cita.findUnique({
-        where: {
-            id: citaId,
-        },
-
-        include: {
-            profesional: {
-                include: {
-                    usuario: true,
-                },
-            },
-        },
-    });
-
-    if (!cita) {
-        throw AppError.notFound(
-            "La cita indicada no existe",
-        );
-    }
-
-    /*
-     * Verifica que la cita pertenezca
-     * al profesional autenticado.
-     */
-    if (
-        cita.profesional.usuario.id !== usuarioId
+        citaId: number,
+        usuarioId: number,
+        comentarioProfesional: string,
     ) {
-        throw AppError.badRequest(
-            "No tiene permiso para gestionar esta cita",
-        );
-    }
-
-    /*
-     * Solo las citas pendientes
-     * pueden rechazarse.
-     */
-    if (cita.estado !== "PENDIENTE") {
-        throw AppError.badRequest(
-            "Solo se pueden rechazar citas pendientes",
-        );
-    }
-
-    /*
-     * El motivo del rechazo es obligatorio.
-     */
-    if (
-        !comentarioProfesional ||
-        comentarioProfesional.trim().length < 3
-    ) {
-        throw AppError.badRequest(
-            "Debe indicar el motivo del rechazo",
-        );
-    }
-
-    return prisma.$transaction(async (tx) => {
-        const citaActualizada =
-            await tx.cita.update({
-                where: {
-                    id: citaId,
-                },
-
-                data: {
-                    estado: "RECHAZADA",
-
-                    comentarioProfesional:
-                        comentarioProfesional.trim(),
-                },
-
-                include: {
-                    cliente: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
-                            telefono: true,
-                        },
-                    },
-
-                    profesional: {
-                        include: {
-                            usuario: {
-                                select: {
-                                    id: true,
-                                    nombre: true,
-                                    apellidos: true,
-                                    email: true,
-                                },
-                            },
-                        },
-                    },
-
-                    servicio: true,
-                },
-            });
-
-        await tx.historialEstadoCita.create({
-            data: {
-                citaId: citaId,
-
-                estadoAnterior:
-                    "PENDIENTE",
-
-                estadoNuevo:
-                    "RECHAZADA",
-
-                comentario:
-                    comentarioProfesional.trim(),
-
-                cambiadoPorId:
-                    usuarioId,
-            },
-        });
-
-        return citaActualizada;
-    });
-},
-
-async completar(
-    citaId: number,
-    usuarioId: number,
-) {
-    const cita = await prisma.cita.findUnique({
-        where: {
-            id: citaId,
-        },
-
-        include: {
-            profesional: {
-                include: {
-                    usuario: true,
-                },
-            },
-        },
-    });
-
-    if (!cita) {
-        throw AppError.notFound(
-            "La cita indicada no existe",
-        );
-    }
-
-    /*
-     * Solo el profesional dueño de la cita
-     * puede completarla.
-     */
-    if (
-        cita.profesional.usuario.id !== usuarioId
-    ) {
-        throw AppError.badRequest(
-            "No tiene permiso para gestionar esta cita",
-        );
-    }
-
-    /*
-     * Solo una cita ACEPTADA puede completarse.
-     */
-    if (cita.estado !== "ACEPTADA") {
-        throw AppError.badRequest(
-            "Solo se pueden completar citas aceptadas",
-        );
-    }
-
-    /*
-     * Combina la fecha de la cita con
-     * la hora programada.
-     */
-    const fechaProgramada =
-        new Date(cita.fechaCita);
-
-    const horaInicio =
-        new Date(cita.horaInicio);
-
-    fechaProgramada.setHours(
-        horaInicio.getHours(),
-        horaInicio.getMinutes(),
-        horaInicio.getSeconds(),
-        0,
-    );
-
-    const ahora = new Date();
-
-    /*
-     * No permite completar antes
-     * de la fecha y hora programadas.
-     */
-    if (ahora < fechaProgramada) {
-        throw AppError.badRequest(
-            "La cita no puede completarse antes de la fecha y hora programadas",
-        );
-    }
-
-    return prisma.$transaction(async (tx) => {
-
-        const citaActualizada =
-            await tx.cita.update({
-                where: {
-                    id: citaId,
-                },
-
-                data: {
-                    estado: "COMPLETADA",
-                },
-
-                include: {
-                    cliente: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
-                            telefono: true,
-                        },
-                    },
-
-                    profesional: {
-                        include: {
-                            usuario: {
-                                select: {
-                                    id: true,
-                                    nombre: true,
-                                    apellidos: true,
-                                    email: true,
-                                },
-                            },
-                        },
-                    },
-
-                    servicio: true,
-                },
-            });
-
-        await tx.historialEstadoCita.create({
-            data: {
-                citaId: citaId,
-
-                estadoAnterior:
-                    "ACEPTADA",
-
-                estadoNuevo:
-                    "COMPLETADA",
-
-                comentario:
-                    "Cita completada por el profesional",
-
-                cambiadoPorId:
-                    usuarioId,
-            },
-        });
-
-        return citaActualizada;
-    });
-},
-
-async cancelar(
-    citaId: number,
-    usuarioId: number,
-    comentarioCliente: string,
-) {
-    const cita = await prisma.cita.findUnique({
-        where: {
-            id: citaId,
-        },
-    });
-    
-
-    if (!cita) {
-        throw AppError.notFound(
-            "La cita indicada no existe",
-        );
-    }
-
-    /*
-     * Verifica que la cita pertenezca
-     * al cliente autenticado.
-     */
-    if (cita.clienteId !== usuarioId) {
-        throw AppError.badRequest(
-            "No tiene permiso para cancelar esta cita",
-        );
-    }
-
-    /*
-     * Solo se permite cancelar citas
-     * PENDIENTES o ACEPTADAS.
-     */
-    if (
-        cita.estado !== "PENDIENTE" &&
-        cita.estado !== "ACEPTADA"
-    ) {
-        throw AppError.badRequest(
-            "La cita no puede cancelarse en su estado actual",
-        );
-    }
-
-    /*
-     * El motivo es obligatorio.
-     */
-    const motivo =
-        comentarioCliente?.trim();
-
-    if (!motivo || motivo.length < 3) {
-        throw AppError.badRequest(
-            "Debe indicar el motivo de la cancelación",
-        );
-    }
-
-    const estadoAnterior =
-        cita.estado;
-
-    return prisma.$transaction(async (tx) => {
-
-        const citaActualizada =
-            await tx.cita.update({
-                where: {
-                    id: citaId,
-                },
-
-                data: {
-                    estado: "CANCELADA",
-
-                    /*
-                     * Guarda el motivo enviado
-                     * por el cliente.
-                     */
-                    comentarioCliente:
-                        motivo,
-                },
-
-                include: {
-                    cliente: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
-                            telefono: true,
-                        },
-                    },
-
-                    profesional: {
-                        include: {
-                            usuario: {
-                                select: {
-                                    id: true,
-                                    nombre: true,
-                                    apellidos: true,
-                                    email: true,
-                                },
-                            },
-                        },
-                    },
-
-                    servicio: true,
-                },
-            });
-
-        await tx.historialEstadoCita.create({
-            data: {
-                citaId: citaId,
-
-                estadoAnterior:
-                    estadoAnterior,
-
-                estadoNuevo:
-                    "CANCELADA",
-
-                comentario:
-                    motivo,
-
-                cambiadoPorId:
-                    usuarioId,
-            },
-        });
-
-        return citaActualizada;
-    });
-},
-
-async obtenerDetalleProfesional(
-    citaId: number,
-    usuarioId: number,
-) {
-    const profesional =
-        await prisma.perfilProfesional.findUnique({
+        const cita = await prisma.cita.findUnique({
             where: {
-                usuarioId,
+                id: citaId,
+            },
+
+            include: {
+                profesional: {
+                    include: {
+                        usuario: true,
+                    },
+                },
             },
         });
 
-    if (!profesional) {
-        throw AppError.notFound(
-            "El usuario autenticado no tiene un perfil profesional",
-        );
-    }
+        if (!cita) {
+            throw AppError.notFound(
+                "La cita indicada no existe",
+            );
+        }
 
-    const cita = await prisma.cita.findFirst({
-        where: {
-            id: citaId,
-            profesionalId: profesional.id,
-        },
+        /*
+         * Verifica que la cita pertenezca
+         * al profesional autenticado.
+         */
+        if (
+            cita.profesional.usuario.id !== usuarioId
+        ) {
+            throw AppError.badRequest(
+                "No tiene permiso para gestionar esta cita",
+            );
+        }
 
-        include: {
-            cliente: {
-                select: {
-                    id: true,
-                    nombre: true,
-                    apellidos: true,
-                    email: true,
-                    telefono: true,
+        /*
+         * Solo las citas pendientes
+         * pueden rechazarse.
+         */
+        if (cita.estado !== "PENDIENTE") {
+            throw AppError.badRequest(
+                "Solo se pueden rechazar citas pendientes",
+            );
+        }
+
+        /*
+         * El motivo del rechazo es obligatorio.
+         */
+        if (
+            !comentarioProfesional ||
+            comentarioProfesional.trim().length < 3
+        ) {
+            throw AppError.badRequest(
+                "Debe indicar el motivo del rechazo",
+            );
+        }
+
+        return prisma.$transaction(async (tx) => {
+            const citaActualizada =
+                await tx.cita.update({
+                    where: {
+                        id: citaId,
+                    },
+
+                    data: {
+                        estado: "RECHAZADA",
+
+                        comentarioProfesional:
+                            comentarioProfesional.trim(),
+                    },
+
+                    include: {
+                        cliente: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                                telefono: true,
+                            },
+                        },
+
+                        profesional: {
+                            include: {
+                                usuario: {
+                                    select: {
+                                        id: true,
+                                        nombre: true,
+                                        apellidos: true,
+                                        email: true,
+                                    },
+                                },
+                            },
+                        },
+
+                        servicio: true,
+                    },
+                });
+
+            await tx.historialEstadoCita.create({
+                data: {
+                    citaId: citaId,
+
+                    estadoAnterior:
+                        "PENDIENTE",
+
+                    estadoNuevo:
+                        "RECHAZADA",
+
+                    comentario:
+                        comentarioProfesional.trim(),
+
+                    cambiadoPorId:
+                        usuarioId,
                 },
+            });
+
+            return citaActualizada;
+        });
+    },
+
+    async completar(
+        citaId: number,
+        usuarioId: number,
+    ) {
+        const cita = await prisma.cita.findUnique({
+            where: {
+                id: citaId,
             },
 
-            profesional: {
-                include: {
-                    usuario: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
+            include: {
+                profesional: {
+                    include: {
+                        usuario: true,
+                    },
+                },
+            },
+        });
+
+        if (!cita) {
+            throw AppError.notFound(
+                "La cita indicada no existe",
+            );
+        }
+
+        /*
+         * Solo el profesional dueño de la cita
+         * puede completarla.
+         */
+        if (
+            cita.profesional.usuario.id !== usuarioId
+        ) {
+            throw AppError.badRequest(
+                "No tiene permiso para gestionar esta cita",
+            );
+        }
+
+        /*
+         * Solo una cita ACEPTADA puede completarse.
+         */
+        if (cita.estado !== "ACEPTADA") {
+            throw AppError.badRequest(
+                "Solo se pueden completar citas aceptadas",
+            );
+        }
+
+        /*
+         * Combina la fecha de la cita con
+         * la hora programada.
+         */
+        const fechaProgramada =
+            new Date(cita.fechaCita);
+
+        const horaInicio =
+            new Date(cita.horaInicio);
+
+        fechaProgramada.setHours(
+            horaInicio.getHours(),
+            horaInicio.getMinutes(),
+            horaInicio.getSeconds(),
+            0,
+        );
+
+        const ahora = new Date();
+
+        /*
+         * No permite completar antes
+         * de la fecha y hora programadas.
+         */
+        if (ahora < fechaProgramada) {
+            throw AppError.badRequest(
+                "La cita no puede completarse antes de la fecha y hora programadas",
+            );
+        }
+
+        return prisma.$transaction(async (tx) => {
+
+            const citaActualizada =
+                await tx.cita.update({
+                    where: {
+                        id: citaId,
+                    },
+
+                    data: {
+                        estado: "COMPLETADA",
+                    },
+
+                    include: {
+                        cliente: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                                telefono: true,
+                            },
                         },
+
+                        profesional: {
+                            include: {
+                                usuario: {
+                                    select: {
+                                        id: true,
+                                        nombre: true,
+                                        apellidos: true,
+                                        email: true,
+                                    },
+                                },
+                            },
+                        },
+
+                        servicio: true,
+                    },
+                });
+
+            await tx.historialEstadoCita.create({
+                data: {
+                    citaId: citaId,
+
+                    estadoAnterior:
+                        "ACEPTADA",
+
+                    estadoNuevo:
+                        "COMPLETADA",
+
+                    comentario:
+                        "Cita completada por el profesional",
+
+                    cambiadoPorId:
+                        usuarioId,
+                },
+            });
+
+            return citaActualizada;
+        });
+    },
+
+    async cancelar(
+        citaId: number,
+        usuarioId: number,
+        comentarioCliente: string,
+    ) {
+        const cita = await prisma.cita.findUnique({
+            where: {
+                id: citaId,
+            },
+        });
+
+
+        if (!cita) {
+            throw AppError.notFound(
+                "La cita indicada no existe",
+            );
+        }
+
+        /*
+         * Verifica que la cita pertenezca
+         * al cliente autenticado.
+         */
+        if (cita.clienteId !== usuarioId) {
+            throw AppError.badRequest(
+                "No tiene permiso para cancelar esta cita",
+            );
+        }
+
+        /*
+         * Solo se permite cancelar citas
+         * PENDIENTES o ACEPTADAS.
+         */
+        if (
+            cita.estado !== "PENDIENTE" &&
+            cita.estado !== "ACEPTADA"
+        ) {
+            throw AppError.badRequest(
+                "La cita no puede cancelarse en su estado actual",
+            );
+        }
+
+        /*
+         * El motivo es obligatorio.
+         */
+        const motivo =
+            comentarioCliente?.trim();
+
+        if (!motivo || motivo.length < 3) {
+            throw AppError.badRequest(
+                "Debe indicar el motivo de la cancelación",
+            );
+        }
+
+        const estadoAnterior =
+            cita.estado;
+
+        return prisma.$transaction(async (tx) => {
+
+            const citaActualizada =
+                await tx.cita.update({
+                    where: {
+                        id: citaId,
+                    },
+
+                    data: {
+                        estado: "CANCELADA",
+
+                        /*
+                         * Guarda el motivo enviado
+                         * por el cliente.
+                         */
+                        comentarioCliente:
+                            motivo,
+                    },
+
+                    include: {
+                        cliente: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                                telefono: true,
+                            },
+                        },
+
+                        profesional: {
+                            include: {
+                                usuario: {
+                                    select: {
+                                        id: true,
+                                        nombre: true,
+                                        apellidos: true,
+                                        email: true,
+                                    },
+                                },
+                            },
+                        },
+
+                        servicio: true,
+                    },
+                });
+
+            await tx.historialEstadoCita.create({
+                data: {
+                    citaId: citaId,
+
+                    estadoAnterior:
+                        estadoAnterior,
+
+                    estadoNuevo:
+                        "CANCELADA",
+
+                    comentario:
+                        motivo,
+
+                    cambiadoPorId:
+                        usuarioId,
+                },
+            });
+
+            return citaActualizada;
+        });
+    },
+
+    async obtenerDetalleProfesional(
+        citaId: number,
+        usuarioId: number,
+    ) {
+        const profesional =
+            await prisma.perfilProfesional.findUnique({
+                where: {
+                    usuarioId,
+                },
+            });
+
+        if (!profesional) {
+            throw AppError.notFound(
+                "El usuario autenticado no tiene un perfil profesional",
+            );
+        }
+
+        const cita = await prisma.cita.findFirst({
+            where: {
+                id: citaId,
+                profesionalId: profesional.id,
+            },
+
+            include: {
+                cliente: {
+                    select: {
+                        id: true,
+                        nombre: true,
+                        apellidos: true,
+                        email: true,
+                        telefono: true,
+                    },
+                },
+
+                profesional: {
+                    include: {
+                        usuario: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+
+                servicio: {
+                    include: {
+                        categoria: true,
+                        especialidades: true,
+                    },
+                },
+
+                historial: {
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                },
+            },
+        });
+
+        if (!cita) {
+            throw AppError.notFound(
+                "La cita indicada no existe o no pertenece al profesional autenticado",
+            );
+        }
+
+        return cita;
+    },
+
+    async misCitasCliente(usuarioId: number) {
+        return prisma.cita.findMany({
+            where: {
+                clienteId: usuarioId,
+            },
+
+            include: {
+                profesional: {
+                    include: {
+                        usuario: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+
+                servicio: {
+                    include: {
+                        categoria: true,
+                        especialidades: true,
+                    },
+                },
+
+                historial: {
+                    orderBy: {
+                        createdAt: "asc",
                     },
                 },
             },
 
-            servicio: {
-                include: {
-                    categoria: true,
-                    especialidades: true,
+            orderBy: [
+                {
+                    fechaCita: "desc",
                 },
+                {
+                    horaInicio: "asc",
+                },
+            ],
+        });
+    },
+
+
+    async obtenerDetalleCliente(
+        citaId: number,
+        usuarioId: number,
+    ) {
+        const cita = await prisma.cita.findFirst({
+            where: {
+                id: citaId,
+                clienteId: usuarioId,
             },
 
-            historial: {
-                orderBy: {
-                    createdAt: "asc",
-                },
-            },
-        },
-    });
-
-    if (!cita) {
-        throw AppError.notFound(
-            "La cita indicada no existe o no pertenece al profesional autenticado",
-        );
-    }
-
-    return cita;
-},
-
-async misCitasCliente(usuarioId: number) {
-    return prisma.cita.findMany({
-        where: {
-            clienteId: usuarioId,
-        },
-
-        include: {
-            profesional: {
-                include: {
-                    usuario: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
+            include: {
+                profesional: {
+                    include: {
+                        usuario: {
+                            select: {
+                                id: true,
+                                nombre: true,
+                                apellidos: true,
+                                email: true,
+                                telefono: true,
+                            },
                         },
                     },
                 },
-            },
 
-            servicio: {
-                include: {
-                    categoria: true,
-                    especialidades: true,
+                servicio: {
+                    include: {
+                        categoria: true,
+                        especialidades: true,
+                    },
                 },
-            },
 
-            historial: {
-                orderBy: {
-                    createdAt: "asc",
-                },
-            },
-        },
-
-        orderBy: [
-            {
-                fechaCita: "desc",
-            },
-            {
-                horaInicio: "asc",
-            },
-        ],
-    });
-},
-
-
-async obtenerDetalleCliente(
-    citaId: number,
-    usuarioId: number,
-) {
-    const cita = await prisma.cita.findFirst({
-        where: {
-            id: citaId,
-            clienteId: usuarioId,
-        },
-
-        include: {
-            profesional: {
-                include: {
-                    usuario: {
-                        select: {
-                            id: true,
-                            nombre: true,
-                            apellidos: true,
-                            email: true,
-                            telefono: true,
-                        },
+                historial: {
+                    orderBy: {
+                        createdAt: "asc",
                     },
                 },
             },
+        });
 
-            servicio: {
-                include: {
-                    categoria: true,
-                    especialidades: true,
-                },
-            },
+        if (!cita) {
+            throw AppError.notFound(
+                "La cita indicada no existe o no pertenece al cliente autenticado",
+            );
+        }
 
-            historial: {
-                orderBy: {
-                    createdAt: "asc",
-                },
-            },
-        },
-    });
-
-    if (!cita) {
-        throw AppError.notFound(
-            "La cita indicada no existe o no pertenece al cliente autenticado",
-        );
-    }
-
-    return cita;
-},
+        return cita;
+    },
 
 
 

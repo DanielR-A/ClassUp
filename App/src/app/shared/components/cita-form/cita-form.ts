@@ -13,7 +13,7 @@ import {
     FormField,
     form,
     required,
-    min,
+    
     maxLength,
     validate,
 } from '@angular/forms/signals';
@@ -68,6 +68,9 @@ export class CitaForm {
      * Datos utilizados en los selectores.
      */
     clientes = input<Usuario[]>([]);
+
+    clienteFijoId =
+    input<number | null>(null);
 
     profesionales = input<PerfilProfesional[]>([]);
 
@@ -259,57 +262,6 @@ export class CitaForm {
         });
 
         /*
-         * Hora de finalización
-         */
-        required(path.horaFinalizacion, {
-            message:
-                'La hora de finalización es obligatoria',
-        });
-
-        validate(
-            path.horaFinalizacion,
-            (ctx) => {
-                const horaFinalizacion =
-                    ctx.value();
-
-                if (
-                    horaFinalizacion &&
-                    !this.esHoraValida(
-                        horaFinalizacion,
-                    )
-                ) {
-                    return {
-                        kind: 'horaFinalizacionInvalida',
-                        message:
-                            'Ingrese una hora de finalización válida',
-                    };
-                }
-
-                const horaInicio =
-                    this.citaModel().horaInicio;
-
-                if (
-                    horaInicio &&
-                    horaFinalizacion &&
-                    this.convertirHoraAMinutos(
-                        horaFinalizacion,
-                    ) <=
-                        this.convertirHoraAMinutos(
-                            horaInicio,
-                        )
-                ) {
-                    return {
-                        kind: 'rangoHoraInvalido',
-                        message:
-                            'La hora de finalización debe ser posterior a la hora de inicio',
-                    };
-                }
-
-                return undefined;
-            },
-        );
-
-        /*
          * Modalidad
          */
         required(path.modalidad, {
@@ -340,45 +292,18 @@ export class CitaForm {
         /*
          * Comentario del cliente
          */
-        maxLength(path.comentarioCliente, 500, {
-            message:
-                'El comentario no puede superar los 500 caracteres',
-        });
-
-        /*
-         * Monto estimado
-         */
-        required(path.montoEstimado, {
-            message: 'El monto estimado es obligatorio',
-        });
-
-        min(path.montoEstimado, 1, {
-            message:
-                'El monto estimado debe ser mayor a 0',
-        });
-
-        validate(path.montoEstimado, (ctx) => {
-            const monto = Number(ctx.value());
-
-            if (!Number.isFinite(monto)) {
-                return {
-                    kind: 'montoInvalido',
-                    message:
-                        'Ingrese un monto estimado válido',
-                };
-            }
-
-            if (monto > 1000000) {
-                return {
-                    kind: 'montoExcesivo',
-                    message:
-                        'El monto estimado no puede superar ₡1 000 000',
-                };
-            }
-
-            return undefined;
-        });
+        maxLength(
+            path.comentarioCliente,
+            500,
+            {
+                message:
+                    'El comentario no puede superar los 500 caracteres',
+            },
+        );
     });
+
+
+
 
     /*
      * Servicios relacionados con el profesional seleccionado.
@@ -394,9 +319,9 @@ export class CitaForm {
         return this.servicios().filter(
             (servicio) =>
                 servicio.profesionalId ===
-                    Number(profesionalId) ||
+                Number(profesionalId) ||
                 servicio.profesional?.id ===
-                    Number(profesionalId),
+                Number(profesionalId),
         );
     });
 
@@ -486,24 +411,25 @@ export class CitaForm {
                 this.servicios().some(
                     (servicio) =>
                         servicio.id ===
-                            Number(servicioId) &&
+                        Number(servicioId) &&
                         (servicio.profesionalId ===
                             Number(profesionalId) ||
                             servicio.profesional?.id ===
-                                Number(
-                                    profesionalId,
-                                )),
+                            Number(
+                                profesionalId,
+                            )),
                 );
 
-            if (!servicioValido) {
-                this.citaModel.update(
-                    (value) => ({
-                        ...value,
-                        servicioId: null,
-                        montoEstimado: 0,
-                    }),
-                );
-            }
+           if (!servicioValido) {
+    this.citaModel.update(
+        (value) => ({
+            ...value,
+            servicioId: null,
+            montoEstimado: 0,
+            horaFinalizacion: '',
+        }),
+    );
+}
         });
     }
 
@@ -532,27 +458,172 @@ export class CitaForm {
     seleccionarServicio(
         servicioId: number | null,
     ): void {
-        const servicio = this.servicios().find(
-            (item) =>
-                item.id === Number(servicioId),
+        const servicio =
+            this.servicios().find(
+                (item) =>
+                    item.id ===
+                    Number(servicioId),
+            );
+
+        if (!servicio) {
+            this.citaModel.update(
+                (value) => ({
+                    ...value,
+                    servicioId: null,
+                    montoEstimado: 0,
+                    horaFinalizacion: '',
+                }),
+            );
+
+            this.citaForm
+                .servicioId()
+                .markAsTouched();
+
+            return;
+        }
+
+        let modalidad:
+            ModalidadCita =
+            this.citaModel().modalidad;
+
+        /*
+         * Si el servicio solo permite una modalidad,
+         * la seleccionamos automáticamente.
+         *
+         * Si es MIXTA, dejamos la modalidad actual
+         * para que el usuario pueda escoger.
+         */
+        if (
+            servicio.modalidad ===
+            'VIRTUAL'
+        ) {
+            modalidad = 'VIRTUAL';
+        }
+
+        if (
+            servicio.modalidad ===
+            'PRESENCIAL'
+        ) {
+            modalidad = 'PRESENCIAL';
+        }
+
+        this.citaModel.update(
+            (value) => ({
+                ...value,
+                servicioId,
+                montoEstimado:
+                    Number(
+                        servicio.precio,
+                    ),
+                modalidad,
+            }),
         );
 
-        this.citaModel.update((value) => ({
-            ...value,
-            servicioId,
-            montoEstimado: servicio
-                ? Number(servicio.precio)
-                : 0,
-        }));
+        /*
+         * Si ya existe hora de inicio,
+         * vuelve a calcular la hora final
+         * según la duración del servicio.
+         */
+        this.calcularHoraFinalizacion();
 
         this.citaForm
             .servicioId()
             .markAsTouched();
-
-        this.citaForm
-            .montoEstimado()
-            .markAsTouched();
     }
+
+
+
+
+
+
+actualizarHoraInicio(
+    horaInicio: string,
+): void {
+    this.citaModel.update(
+        (value) => ({
+            ...value,
+            horaInicio,
+        }),
+    );
+
+    this.calcularHoraFinalizacion();
+
+    this.citaForm
+        .horaInicio()
+        .markAsTouched();
+}
+
+private calcularHoraFinalizacion(): void {
+    const {
+        servicioId,
+        horaInicio,
+    } = this.citaModel();
+
+    if (
+        !servicioId ||
+        !horaInicio ||
+        !this.esHoraValida(horaInicio)
+    ) {
+        this.citaModel.update(
+            (value) => ({
+                ...value,
+                horaFinalizacion: '',
+            }),
+        );
+
+        return;
+    }
+
+    const servicio =
+        this.servicios().find(
+            (item) =>
+                item.id ===
+                Number(servicioId),
+        );
+
+    if (!servicio) {
+        return;
+    }
+
+    const minutosInicio =
+        this.convertirHoraAMinutos(
+            horaInicio,
+        );
+
+    const minutosFinal =
+        minutosInicio +
+        servicio.duracionMinutos;
+
+    const horas =
+        Math.floor(
+            minutosFinal / 60,
+        );
+
+    const minutos =
+        minutosFinal % 60;
+
+    if (horas >= 24) {
+        this.citaModel.update(
+            (value) => ({
+                ...value,
+                horaFinalizacion: '',
+            }),
+        );
+
+        return;
+    }
+
+    const horaFinalizacion =
+        `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+
+    this.citaModel.update(
+        (value) => ({
+            ...value,
+            horaFinalizacion,
+        }),
+    );
+}
+
 
     /*
      * Devuelve el nombre completo del cliente.
@@ -560,9 +631,8 @@ export class CitaForm {
     getNombreCliente(
         cliente: Usuario,
     ): string {
-        return `${cliente.nombre ?? ''} ${
-            cliente.apellidos ?? ''
-        }`.trim();
+        return `${cliente.nombre ?? ''} ${cliente.apellidos ?? ''
+            }`.trim();
     }
 
     /*
@@ -622,19 +692,11 @@ export class CitaForm {
             .markAsTouched();
 
         this.citaForm
-            .horaFinalizacion()
-            .markAsTouched();
-
-        this.citaForm
             .modalidad()
             .markAsTouched();
 
         this.citaForm
             .comentarioCliente()
-            .markAsTouched();
-
-        this.citaForm
-            .montoEstimado()
             .markAsTouched();
     }
 
@@ -660,20 +722,13 @@ export class CitaForm {
                 .horaInicio()
                 .invalid() ||
             this.citaForm
-                .horaFinalizacion()
-                .invalid() ||
-            this.citaForm
                 .modalidad()
                 .invalid() ||
             this.citaForm
                 .comentarioCliente()
-                .invalid() ||
-            this.citaForm
-                .montoEstimado()
                 .invalid()
         );
     }
-
     /*
      * Construye y envía el DTO.
      */
@@ -695,35 +750,33 @@ export class CitaForm {
     private buildDto():
         | CitaCreateDto
         | CitaUpdateDto {
-        const value = this.citaModel();
+
+        const value =
+            this.citaModel();
 
         return {
-            clienteId: Number(value.clienteId),
+            clienteId:
+                Number(value.clienteId),
 
-            profesionalId: Number(
-                value.profesionalId,
-            ),
+            profesionalId:
+                Number(value.profesionalId),
 
-            servicioId: Number(
-                value.servicioId,
-            ),
+            servicioId:
+                Number(value.servicioId),
 
-            fechaCita: value.fechaCita,
+            fechaCita:
+                value.fechaCita,
 
-            horaInicio: value.horaInicio,
+            horaInicio:
+                value.horaInicio,
 
-            horaFinalizacion:
-                value.horaFinalizacion,
-
-            modalidad: value.modalidad,
+            modalidad:
+                value.modalidad,
 
             comentarioCliente:
                 value.comentarioCliente
-                    ?.trim() || undefined,
-
-            montoEstimado: Number(
-                value.montoEstimado,
-            ),
+                    ?.trim() ||
+                undefined,
         };
     }
 
@@ -799,4 +852,54 @@ export class CitaForm {
             hora.getMinutes(),
         ).padStart(2, '0')}`;
     }
+
+
+readonly clienteFijo =
+    computed(() => {
+        const id =
+            this.clienteFijoId();
+
+        if (!id) {
+            return null;
+        }
+
+        return (
+            this.clientes().find(
+                (cliente) =>
+                    cliente.id === id,
+            ) ?? null
+        );
+    });
+
+
+private readonly clienteFijoEffect =
+    effect(() => {
+        const clienteId =
+            this.clienteFijoId();
+
+        if (!clienteId) {
+            return;
+        }
+
+        this.citaModel.update(
+            (value) => {
+
+                if (
+                    value.clienteId ===
+                    clienteId
+                ) {
+                    return value;
+                }
+
+                return {
+                    ...value,
+                    clienteId,
+                };
+            },
+        );
+    });
+
+
+
+
 }

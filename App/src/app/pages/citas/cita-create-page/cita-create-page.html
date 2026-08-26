@@ -1,7 +1,9 @@
 <section class="page-container">
 
     <header class="page-header">
-        <h1>Registrar cita</h1>
+        <h1>
+            Registrar cita
+        </h1>
 
         <p>
             Agregue una nueva cita al sistema de ClassUP.
@@ -10,7 +12,9 @@
 
     @if (loading()) {
 
-        <p>Cargando datos del formulario...</p>
+        <p>
+            Cargando datos del formulario...
+        </p>
 
     } @else {
 
@@ -26,6 +30,7 @@
             [clientes]="clientes()"
             [profesionales]="profesionales()"
             [servicios]="servicios()"
+            [clienteFijoId]="clienteAutenticadoId()"
             [saving]="saving()"
             (guardar)="guardar($event)"
             (cancelar)="cancelar()"

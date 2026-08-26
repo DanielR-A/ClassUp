@@ -58,6 +58,16 @@ export class MainLayout {
 
             ],
         },
+
+        {
+            label: 'Solicitar cita',
+            path: '/solicitar-cita',
+            icon: 'event_available',
+            roles: [
+                Role.USER,
+            ],
+        },
+
         {
             label: 'Solicitudes',
             path: '/profesional/solicitudes',

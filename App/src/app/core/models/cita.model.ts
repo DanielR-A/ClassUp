@@ -11,13 +11,17 @@ export type EstadoCita =
     | 'CANCELADA'
     | 'COMPLETADA';
 
-export type ModalidadCita = 'VIRTUAL' | 'PRESENCIAL';
+export type ModalidadCita =
+    | 'VIRTUAL'
+    | 'PRESENCIAL';
 
 export interface Cita {
     id: number;
+
     fechaCita: string;
     horaInicio: string;
     horaFinalizacion: string;
+
     modalidad: ModalidadCita;
     estado: EstadoCita;
 
@@ -43,37 +47,67 @@ export interface Cita {
     updatedAt: string;
 }
 
+/*
+ * Modelo interno del formulario.
+ *
+ * horaFinalizacion y montoEstimado
+ * se conservan porque Angular puede
+ * calcularlos y mostrarlos antes de guardar.
+ */
 export interface CitaFormModel {
     clienteId: number | null;
     profesionalId: number | null;
     servicioId: number | null;
+
     fechaCita: string;
     horaInicio: string;
+
     horaFinalizacion: string;
+
     modalidad: ModalidadCita;
+
     comentarioCliente: string;
+
     montoEstimado: number;
 }
 
+/*
+ * Datos enviados al API para crear una cita.
+ *
+ * El API calcula automáticamente:
+ * - horaFinalizacion
+ * - montoEstimado
+ * - estado PENDIENTE
+ */
 export interface CitaCreateDto {
     clienteId: number;
     profesionalId: number;
     servicioId: number;
+
     fechaCita: string;
     horaInicio: string;
-    horaFinalizacion: string;
+
     modalidad: ModalidadCita;
+
     comentarioCliente?: string | null;
-    montoEstimado: number;
 }
 
+/*
+ * Datos permitidos para actualizar
+ * información general de la cita.
+ *
+ * Los estados se cambian mediante
+ * endpoints específicos.
+ */
 export interface CitaUpdateDto {
+    clienteId?: number;
+    profesionalId?: number;
+    servicioId?: number;
+
     fechaCita?: string;
     horaInicio?: string;
-    horaFinalizacion?: string;
+
     modalidad?: ModalidadCita;
-    estado?: EstadoCita;
+
     comentarioCliente?: string | null;
-    comentarioProfesional?: string | null;
-    montoEstimado?: number;
 }

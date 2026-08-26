@@ -355,6 +355,48 @@ export const routes: Routes = [
                 },
             },
 
+
+// =====================
+// CLIENTE - CITAS
+// =====================
+
+{
+    path: 'solicitar-cita',
+    component: CitaCreatePage,
+    title: 'Solicitar cita',
+    canActivate: [
+        authGuard,
+        roleGuard,
+    ],
+    data: {
+        roles: [
+            Role.USER,
+        ],
+    },
+},
+
+{
+    path: 'mis-citas',
+    component: CitasClienteList,
+    title: 'Mis citas',
+    canActivate: [authGuard, roleGuard],
+    data: {
+        roles: [Role.USER],
+    },
+},
+
+{
+    path: 'mis-citas/:id',
+    component: CitaClienteDetail,
+    title: 'Detalle de mi cita',
+    canActivate: [authGuard, roleGuard],
+    data: {
+        roles: [Role.USER],
+    },
+},
+
+
+
             // =====================
             // ADMIN - RESEÑAS
             // =====================

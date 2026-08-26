@@ -4,62 +4,140 @@
             <!-- =====================================================
                  CLIENTE
             ====================================================== -->
+<!-- =====================================================
+     CLIENTE
+====================================================== -->
 
-            <section class="form-section">
-                <div class="section-title">
-                    <div>
-                        <h3>Información del cliente</h3>
+<section class="form-section">
 
-                        <p>
-                            Seleccione el cliente que desea registrar
-                            la cita.
-                        </p>
-                    </div>
-                </div>
+    <div class="section-title">
+        <div>
+            <h3>
+                Información del cliente
+            </h3>
 
-                <div class="form-grid">
-                    <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Cliente</mat-label>
+            @if (clienteFijo()) {
+                <p>
+                    La cita se registrará para el
+                    cliente autenticado.
+                </p>
+            } @else {
+                <p>
+                    Seleccione el cliente que desea
+                    registrar la cita.
+                </p>
+            }
+        </div>
+    </div>
 
-                        <mat-select [formField]="citaForm.clienteId">
-                            <mat-option [value]="null">
-                                Seleccione un cliente
-                            </mat-option>
 
-                            @for (
-                            cliente of clientes();
-                            track cliente.id
-                            ) {
-                            <mat-option [value]="cliente.id">
-                                {{
-                                getNombreCliente(
-                                cliente
-                                )
-                                }}
+    @if (clienteFijo(); as cliente) {
 
-                                @if (cliente.email) {
-                                — {{ cliente.email }}
-                                }
-                            </mat-option>
-                            }
-                        </mat-select>
+        <!-- CLIENTE AUTENTICADO -->
+        <div class="fixed-client-card">
 
-                        @if (
-                        citaForm.clienteId().touched() &&
-                        citaForm.clienteId().invalid()
-                        ) {
-                        <mat-error>
+            <div class="fixed-client-icon">
+                <mat-icon>
+                    person
+                </mat-icon>
+            </div>
+
+            <div class="fixed-client-info">
+
+                <span>
+                    Solicitando como
+                </span>
+
+                <strong>
+                    {{
+                        getNombreCliente(
+                            cliente
+                        )
+                    }}
+                </strong>
+
+                @if (cliente.email) {
+                    <small>
+                        {{ cliente.email }}
+                    </small>
+                }
+
+            </div>
+
+            <mat-icon class="verified-icon">
+                verified
+            </mat-icon>
+
+        </div>
+
+    } @else {
+
+        <!-- ADMIN -->
+        <div class="form-grid">
+
+            <mat-form-field
+                appearance="outline"
+                class="full-width"
+            >
+                <mat-label>
+                    Cliente
+                </mat-label>
+
+                <mat-select
+                    [formField]="
+                        citaForm.clienteId
+                    "
+                >
+                    <mat-option [value]="null">
+                        Seleccione un cliente
+                    </mat-option>
+
+                    @for (
+                        cliente of clientes();
+                        track cliente.id
+                    ) {
+                        <mat-option
+                            [value]="cliente.id"
+                        >
                             {{
-                            citaForm
-                            .clienteId()
-                            .errors()[0]
-                            .message
+                                getNombreCliente(
+                                    cliente
+                                )
                             }}
-                        </mat-error>
-                        }
-                    </mat-form-field>
-                </div>
-            </section>
+
+                            @if (cliente.email) {
+                                —
+                                {{ cliente.email }}
+                            }
+                        </mat-option>
+                    }
+                </mat-select>
+
+                @if (
+                    citaForm
+                        .clienteId()
+                        .touched() &&
+                    citaForm
+                        .clienteId()
+                        .invalid()
+                ) {
+                    <mat-error>
+                        {{
+                            citaForm
+                                .clienteId()
+                                .errors()[0]
+                                .message
+                        }}
+                    </mat-error>
+                }
+
+            </mat-form-field>
+
+        </div>
+
+    }
+
+</section>
 
             <!-- =====================================================
                 PROFESIONAL Y SERVICIO
@@ -194,8 +272,9 @@
                         <h3>Fecha y horario</h3>
 
                         <p>
-                            Indique la fecha, hora de inicio y hora de
-                            finalización de la cita.
+                            Seleccione la fecha y hora de inicio.
+                            La hora de finalización se calcula
+                            automáticamente según la duración del servicio.
                         </p>
                     </div>
                 </div>
@@ -226,9 +305,13 @@
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Hora de inicio</mat-label>
+                        <mat-label>
+                            Hora de inicio
+                        </mat-label>
 
-                        <input matInput type="time" [formField]="citaForm.horaInicio" />
+                        <input matInput type="time" [formField]="citaForm.horaInicio" (input)="actualizarHoraInicio(
+            $any($event.target).value
+        )" />
 
                         <mat-icon matSuffix>
                             schedule
@@ -254,37 +337,22 @@
                             Hora de finalización
                         </mat-label>
 
-                        <input matInput type="time" [formField]="
-                                citaForm.horaFinalizacion
-                            " />
+                        <input matInput type="time" [value]="citaModel().horaFinalizacion" readonly />
 
                         <mat-icon matSuffix>
                             update
                         </mat-icon>
 
-                        @if (
-                        citaForm
-                        .horaFinalizacion()
-                        .touched() &&
-                        citaForm
-                        .horaFinalizacion()
-                        .invalid()
-                        ) {
-                        <mat-error>
-                            {{
-                            citaForm
-                            .horaFinalizacion()
-                            .errors()[0]
-                            .message
-                            }}
-                        </mat-error>
-                        }
+                        <mat-hint>
+                            Se calcula automáticamente según
+                            la duración del servicio.
+                        </mat-hint>
                     </mat-form-field>
                 </div>
             </section>
 
             <!-- =====================================================
-                 MODALIDAD Y MONTO
+                MODALIDAD Y MONTO
             ====================================================== -->
 
             <section class="form-section">
@@ -293,8 +361,8 @@
                         <h3>Modalidad y monto</h3>
 
                         <p>
-                            Seleccione la modalidad de atención y
-                            verifique el monto estimado.
+                            Seleccione una modalidad permitida para el servicio
+                            y verifique el monto estimado antes de confirmar.
                         </p>
                     </div>
                 </div>
@@ -338,43 +406,30 @@
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">
-                        <mat-label>Monto estimado</mat-label>
+                        <mat-label>
+                            Monto estimado
+                        </mat-label>
 
                         <span matTextPrefix>
                             ₡&nbsp;
                         </span>
 
-                        <input matInput type="number" step="0.01" placeholder="10000"
-                            [formField]="citaForm.montoEstimado" />
+                        <input matInput type="number" [value]="citaModel().montoEstimado" readonly />
+
+                        <mat-icon matSuffix>
+                            payments
+                        </mat-icon>
 
                         <mat-hint>
-                            Se completa automáticamente al
-                            seleccionar el servicio.
+                            Se obtiene automáticamente del precio
+                            del servicio seleccionado.
                         </mat-hint>
-
-                        @if (
-                        citaForm
-                        .montoEstimado()
-                        .touched() &&
-                        citaForm
-                        .montoEstimado()
-                        .invalid()
-                        ) {
-                        <mat-error>
-                            {{
-                            citaForm
-                            .montoEstimado()
-                            .errors()[0]
-                            .message
-                            }}
-                        </mat-error>
-                        }
                     </mat-form-field>
                 </div>
             </section>
 
             <!-- =====================================================
-                 COMENTARIO
+                COMENTARIO
             ====================================================== -->
 
             <section class="form-section">

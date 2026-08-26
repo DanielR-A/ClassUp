@@ -26,8 +26,6 @@ export const createCitaSchema = z.object({
 
     horaInicio: z.coerce.date(),
 
-    horaFinalizacion: z.coerce.date(),
-
     modalidad: z.enum(
         [
             "VIRTUAL",
@@ -42,19 +40,13 @@ export const createCitaSchema = z.object({
     comentarioCliente: z
         .string()
         .trim()
+        .min(
+            10,
+            "La descripción de la necesidad debe tener al menos 10 caracteres",
+        )
         .max(
             500,
             "El comentario no puede superar 500 caracteres",
-        )
-        .optional(),
-
-    montoEstimado: z
-        .number({
-            message:
-                "El monto estimado debe ser numérico",
-        })
-        .positive(
-            "El monto estimado debe ser mayor a 0",
         )
         .optional(),
 });
